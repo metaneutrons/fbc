@@ -2,11 +2,29 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
+  release-please:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      upload_url: ${{ steps.release.outputs.upload_url }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: simple
+          package-name: fbc
+
   build:
     strategy:
       fail-fast: false
@@ -14,22 +32,24 @@ jobs:
         include:
           - os: ubuntu-24.04
             arch: x86_64
-            name: Linux x86_64
+            name: linux-x86_64
           - os: ubuntu-24.04-arm
             arch: aarch64
-            name: Linux aarch64
+            name: linux-aarch64
           - os: macos-14
             arch: aarch64
-            name: macOS arm64
+            name: darwin-aarch64
           - os: macos-13
             arch: x86_64
-            name: macOS x86_64
+            name: darwin-x86_64
           - os: windows-latest
             arch: x86_64
-            name: Windows x86_64
+            name: win64
 
-    name: ${{ matrix.name }}
+    name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    needs: [release-please]
+    if: always() && (needs.release-please.result == 'success' || needs.release-please.result == 'skipped')
 
     steps:
       - uses: actions/checkout@v4
@@ -42,10 +62,9 @@ jobs:
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
-        run: |
-          brew install cmake ninja
+        run: brew install cmake ninja
 
-      - name: Install dependencies (Windows)
+      - name: Setup MSYS2 (Windows)
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
         with:
@@ -55,39 +74,55 @@ jobs:
             mingw-w64-x86_64-ninja
             mingw-w64-x86_64-gcc
 
-      - name: Configure (Unix)
+      - name: Configure & Build (Unix)
         if: runner.os != 'Windows'
         run: |
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DFB_STANDALONE=ON
+          cmake --build build -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
 
-      - name: Configure (Windows)
+      - name: Configure & Build (Windows)
         if: runner.os == 'Windows'
         shell: msys2 {0}
         run: |
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DFB_STANDALONE=ON
+          cmake --build build -j$(nproc)
 
-      - name: Build (Unix)
-        if: runner.os != 'Windows'
-        run: cmake --build build -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
-
-      - name: Build (Windows)
-        if: runner.os == 'Windows'
-        shell: msys2 {0}
-        run: cmake --build build -j$(nproc)
-
-      - name: Test compiler
+      - name: Package
         if: runner.os != 'Windows'
         run: |
-          echo 'Print "Hello from FreeBASIC!"' > /tmp/test.bas
-          ./build/src/compiler/fbc -gen gcc /tmp/test.bas -o /tmp/test || true
-          # Bootstrap fbc targets linux-aarch64, full test needs stage2
+          mkdir -p pkg/fbc-${{ matrix.name }}/{bin,lib,inc}
+          cp build/src/compiler/fbc pkg/fbc-${{ matrix.name }}/bin/
+          cp build/src/rtlib/lib*.a pkg/fbc-${{ matrix.name }}/lib/
+          cp build/src/rtlib/fbrt0* pkg/fbc-${{ matrix.name }}/lib/
+          cp build/src/gfxlib2/lib*.a pkg/fbc-${{ matrix.name }}/lib/ 2>/dev/null || true
+          cp -r inc/* pkg/fbc-${{ matrix.name }}/inc/
+          tar -czf fbc-${{ matrix.name }}.tar.gz -C pkg fbc-${{ matrix.name }}
 
-      - name: Upload artifacts
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          mkdir -p pkg/fbc-${{ matrix.name }}/{bin,lib,inc}
+          cp build/src/compiler/fbc.exe pkg/fbc-${{ matrix.name }}/bin/
+          cp build/src/rtlib/lib*.a pkg/fbc-${{ matrix.name }}/lib/
+          cp build/src/rtlib/fbrt0* pkg/fbc-${{ matrix.name }}/lib/
+          cp build/src/gfxlib2/lib*.a pkg/fbc-${{ matrix.name }}/lib/ 2>/dev/null || true
+          cp -r inc/* pkg/fbc-${{ matrix.name }}/inc/
+          7z a fbc-${{ matrix.name }}.zip ./pkg/fbc-${{ matrix.name }}
+
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: fbc-${{ matrix.name }}
-          path: build/src/compiler/fbc*
+          path: fbc-${{ matrix.name }}.*
+
+      - name: Upload release assets
+        if: needs.release-please.outputs.release_created == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: fbc-${{ matrix.name }}.*
