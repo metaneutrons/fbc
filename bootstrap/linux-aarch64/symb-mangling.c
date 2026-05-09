@@ -49,6 +49,7 @@ struct $6TFLIST {
 	struct $7TLISTTB* LISTTB;
 };
 __FB_STATIC_ASSERT( sizeof( struct $6TFLIST ) == 112 );
+typedef int64 $10FB_BACKEND;
 typedef int64 $12FB_SYMBCLASS;
 typedef int64 $13FB_SYMBATTRIB;
 typedef int64 $13FB_PROCATTRIB;
@@ -68,6 +69,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -96,8 +107,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -161,10 +174,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -234,7 +248,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -302,6 +316,16 @@ struct $7FBS_VAR {
 	int64 BITS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7FBS_VAR ) == 104 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -408,9 +432,9 @@ struct $8FBS_ENUM {
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $11FB_FUNCMODE;
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -515,9 +539,9 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
-typedef FBSTRING* (*tmp$29)( void*, int64* );
-typedef uint32* (*tmp$30)( void*, int64* );
+typedef FBSTRING* (*tmp$29)( void );
+typedef FBSTRING* (*tmp$30)( void*, int64* );
+typedef uint32* (*tmp$31)( void*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -529,11 +553,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -608,7 +632,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -675,8 +699,7 @@ struct $8FBARRAY1IP8FBSYMBOLE {
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1IP8FBSYMBOLE ) == 72 );
 typedef int64 $13FB_COMPTARGET;
-typedef int64 $10FB_BACKEND;
-typedef char* (*tmp$44)( void );
+typedef char* (*tmp$46)( void );
 FBSTRING* fb_StrAssign( void*, int64, void*, int64, int32 );
 void fb_StrDelete( FBSTRING* );
 FBSTRING* fb_StrConcat( FBSTRING*, void*, int64, void*, int64 );
@@ -723,13 +746,13 @@ static struct $13FB_MANGLEABBR* HABBREVADD( int64, struct $8FBSYMBOL* );
 static void HABBREVGET( FBSTRING*, int64 );
 static int64 HADDUNDERSCORE( void );
 static char* HGETOPERATORNAME( struct $8FBSYMBOL* );
-typedef void (*tmp$38)( void );
-typedef int64 (*tmp$39)( void );
+typedef void (*tmp$40)( void );
+typedef int64 (*tmp$41)( void );
 typedef int64 $14IR_OPTIONVALUE;
-typedef int64 (*tmp$40)( $14IR_OPTIONVALUE );
-typedef int64 (*tmp$41)( int64, int64 );
-typedef void (*tmp$42)( struct $8FBSYMBOL* );
-typedef void (*tmp$43)( struct $8FBSYMBOL*, struct $8FBSYMBOL* );
+typedef int64 (*tmp$42)( $14IR_OPTIONVALUE );
+typedef int64 (*tmp$43)( int64, int64 );
+typedef void (*tmp$44)( struct $8FBSYMBOL* );
+typedef void (*tmp$45)( struct $8FBSYMBOL*, struct $8FBSYMBOL* );
 typedef int64 $15IRVREGTYPE_ENUM;
 typedef int64 $12IR_REGFAMILY;
 struct $6IRVREG;
@@ -775,107 +798,108 @@ struct $6IRVREG {
 	struct $5IRTAC* TACLAST;
 };
 __FB_STATIC_ASSERT( sizeof( struct $6IRVREG ) == 120 );
-typedef void (*tmp$45)( struct $6IRVREG*, struct $6IRVREG* );
-typedef void (*tmp$46)( int64 );
-typedef void (*tmp$47)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, struct $8FBSYMBOL* );
-typedef void (*tmp$48)( struct $8FBSYMBOL*, struct $6IRVREG*, int64, int64, struct $6IRVREG* );
-typedef void (*tmp$49)( struct $9ASTASMTOK* );
-typedef void (*tmp$50)( char* );
-typedef void (*tmp$51)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG*, struct $8FBSYMBOL* );
-typedef void (*tmp$52)( int64, struct $6IRVREG*, struct $6IRVREG* );
-typedef void (*tmp$53)( struct $6IRVREG* );
-typedef void (*tmp$54)( struct $8FBSYMBOL*, int64, struct $6IRVREG*, int64 );
-typedef void (*tmp$55)( struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
-typedef void (*tmp$56)( int64, struct $8FBSYMBOL* );
-typedef void (*tmp$57)( struct $6IRVREG*, struct $8FBSYMBOL*, uint64*, struct $8FBSYMBOL**, int64, struct $8FBSYMBOL*, uint64, uint64 );
-typedef void (*tmp$58)( int64, struct $6IRVREG*, struct $6IRVREG*, int64 );
-typedef void (*tmp$59)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG* );
-typedef void (*tmp$60)( int64, struct $8FBSYMBOL*, int64, char* );
-typedef void (*tmp$61)( struct $8FBSYMBOL*, int64 );
-typedef void (*tmp$62)( struct $8FBSYMBOL*, double );
-typedef void (*tmp$63)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
-typedef void (*tmp$64)( int64, char*, int64 );
-typedef void (*tmp$65)( int64, uint32*, int64 );
-typedef void (*tmp$66)( int64 );
-typedef void (*tmp$67)( struct $8FBSYMBOL*, int64 );
-typedef void (*tmp$68)( char* );
-typedef struct $6IRVREG* (*tmp$69)( int64, struct $8FBSYMBOL* );
-typedef struct $6IRVREG* (*tmp$70)( int64, struct $8FBSYMBOL*, int64 );
-typedef struct $6IRVREG* (*tmp$71)( int64, struct $8FBSYMBOL*, double );
-typedef struct $6IRVREG* (*tmp$72)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
-typedef struct $6IRVREG* (*tmp$73)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64, int64, struct $6IRVREG* );
-typedef struct $6IRVREG* (*tmp$74)( int64, struct $8FBSYMBOL*, int64, struct $6IRVREG* );
-typedef void (*tmp$75)( struct $6IRVREG*, int64, struct $8FBSYMBOL* );
-typedef uint64 (*tmp$76)( struct $6IRVREG* );
+typedef void (*tmp$47)( struct $6IRVREG*, struct $6IRVREG* );
+typedef void (*tmp$48)( int64 );
+typedef void (*tmp$49)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, struct $8FBSYMBOL* );
+typedef void (*tmp$50)( struct $8FBSYMBOL*, struct $6IRVREG*, int64, int64, struct $6IRVREG* );
+typedef void (*tmp$51)( struct $9ASTASMTOK* );
+typedef void (*tmp$52)( char* );
+typedef int64 $10IR_EMITOPT;
+typedef void (*tmp$53)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG*, struct $8FBSYMBOL*, $10IR_EMITOPT );
+typedef void (*tmp$54)( int64, struct $6IRVREG*, struct $6IRVREG* );
+typedef void (*tmp$55)( struct $6IRVREG* );
+typedef void (*tmp$56)( struct $8FBSYMBOL*, int64, struct $6IRVREG*, int64 );
+typedef void (*tmp$57)( struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
+typedef void (*tmp$58)( int64, struct $8FBSYMBOL* );
+typedef void (*tmp$59)( struct $6IRVREG*, struct $8FBSYMBOL*, uint64*, struct $8FBSYMBOL**, int64, struct $8FBSYMBOL*, uint64, uint64 );
+typedef void (*tmp$60)( int64, struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
+typedef void (*tmp$61)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG* );
+typedef void (*tmp$62)( int64, struct $8FBSYMBOL*, int64, char* );
+typedef void (*tmp$63)( struct $8FBSYMBOL*, int64 );
+typedef void (*tmp$64)( struct $8FBSYMBOL*, double );
+typedef void (*tmp$65)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
+typedef void (*tmp$66)( int64, char*, int64, int64 );
+typedef void (*tmp$67)( int64, uint32*, int64 );
+typedef void (*tmp$68)( int64, int64 );
+typedef void (*tmp$69)( struct $8FBSYMBOL*, int64 );
+typedef void (*tmp$70)( char* );
+typedef struct $6IRVREG* (*tmp$71)( int64, struct $8FBSYMBOL* );
+typedef struct $6IRVREG* (*tmp$72)( int64, struct $8FBSYMBOL*, int64 );
+typedef struct $6IRVREG* (*tmp$73)( int64, struct $8FBSYMBOL*, double );
+typedef struct $6IRVREG* (*tmp$74)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
+typedef struct $6IRVREG* (*tmp$75)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64, int64, struct $6IRVREG* );
+typedef struct $6IRVREG* (*tmp$76)( int64, struct $8FBSYMBOL*, int64, struct $6IRVREG* );
+typedef void (*tmp$77)( struct $6IRVREG*, int64, struct $8FBSYMBOL* );
+typedef uint64 (*tmp$78)( struct $6IRVREG* );
 struct $7IR_VTBL {
-	tmp$38 INIT;
-	tmp$38 END;
-	tmp$39 EMITBEGIN;
-	tmp$38 EMITEND;
-	tmp$40 GETOPTIONVALUE;
-	tmp$41 SUPPORTSOP;
-	tmp$42 PROCBEGIN;
-	tmp$42 PROCEND;
-	tmp$43 PROCALLOCARG;
-	tmp$43 PROCALLOCLOCAL;
-	tmp$44 PROCGETFRAMEREGNAME;
-	tmp$42 SCOPEBEGIN;
-	tmp$42 SCOPEEND;
-	tmp$42 PROCALLOCSTATICVARS;
-	tmp$45 EMITCONVERT;
-	tmp$42 EMITLABEL;
-	tmp$42 EMITLABELNF;
-	tmp$46 EMITRETURN;
-	tmp$43 EMITPROCBEGIN;
-	tmp$47 EMITPROCEND;
-	tmp$48 EMITPUSHARG;
-	tmp$49 EMITASMLINE;
-	tmp$50 EMITCOMMENT;
-	tmp$51 EMITBOP;
-	tmp$52 EMITUOP;
-	tmp$45 EMITSTORE;
-	tmp$38 EMITSPILLREGS;
-	tmp$53 EMITLOAD;
-	tmp$45 EMITLOADRES;
-	tmp$52 EMITSTACK;
-	tmp$52 EMITADDR;
-	tmp$54 EMITCALL;
-	tmp$55 EMITCALLPTR;
-	tmp$46 EMITSTACKALIGN;
-	tmp$53 EMITJUMPPTR;
-	tmp$56 EMITBRANCH;
-	tmp$57 EMITJMPTB;
-	tmp$58 EMITMEM;
-	tmp$59 EMITMACRO;
-	tmp$42 EMITSCOPEBEGIN;
-	tmp$42 EMITSCOPEEND;
-	tmp$42 EMITDECL;
-	tmp$60 EMITDBG;
-	tmp$42 EMITVARINIBEGIN;
-	tmp$42 EMITVARINIEND;
-	tmp$61 EMITVARINII;
-	tmp$62 EMITVARINIF;
-	tmp$63 EMITVARINIOFS;
-	tmp$64 EMITVARINISTR;
-	tmp$65 EMITVARINIWSTR;
-	tmp$66 EMITVARINIPAD;
-	tmp$67 EMITVARINISCOPEBEGIN;
-	tmp$38 EMITVARINISCOPEEND;
-	tmp$38 EMITFBCTINFBEGIN;
-	tmp$68 EMITFBCTINFSTRING;
-	tmp$38 EMITFBCTINFEND;
-	tmp$69 ALLOCVREG;
-	tmp$70 ALLOCVRIMM;
-	tmp$71 ALLOCVRIMMF;
-	tmp$72 ALLOCVRVAR;
-	tmp$73 ALLOCVRIDX;
-	tmp$74 ALLOCVRPTR;
-	tmp$72 ALLOCVROFS;
-	tmp$75 SETVREGDATATYPE;
-	tmp$76 GETDISTANCE;
-	tmp$52 LOADVR;
-	tmp$45 STOREVR;
-	tmp$46 XCHGTOS;
+	tmp$40 INIT;
+	tmp$40 END;
+	tmp$41 EMITBEGIN;
+	tmp$40 EMITEND;
+	tmp$42 GETOPTIONVALUE;
+	tmp$43 SUPPORTSOP;
+	tmp$44 PROCBEGIN;
+	tmp$44 PROCEND;
+	tmp$45 PROCALLOCARG;
+	tmp$45 PROCALLOCLOCAL;
+	tmp$46 PROCGETFRAMEREGNAME;
+	tmp$44 SCOPEBEGIN;
+	tmp$44 SCOPEEND;
+	tmp$44 PROCALLOCSTATICVARS;
+	tmp$47 EMITCONVERT;
+	tmp$44 EMITLABEL;
+	tmp$44 EMITLABELNF;
+	tmp$48 EMITRETURN;
+	tmp$45 EMITPROCBEGIN;
+	tmp$49 EMITPROCEND;
+	tmp$50 EMITPUSHARG;
+	tmp$51 EMITASMLINE;
+	tmp$52 EMITCOMMENT;
+	tmp$53 EMITBOP;
+	tmp$54 EMITUOP;
+	tmp$47 EMITSTORE;
+	tmp$40 EMITSPILLREGS;
+	tmp$55 EMITLOAD;
+	tmp$47 EMITLOADRES;
+	tmp$54 EMITSTACK;
+	tmp$54 EMITADDR;
+	tmp$56 EMITCALL;
+	tmp$57 EMITCALLPTR;
+	tmp$48 EMITSTACKALIGN;
+	tmp$55 EMITJUMPPTR;
+	tmp$58 EMITBRANCH;
+	tmp$59 EMITJMPTB;
+	tmp$60 EMITMEM;
+	tmp$61 EMITMACRO;
+	tmp$44 EMITSCOPEBEGIN;
+	tmp$44 EMITSCOPEEND;
+	tmp$44 EMITDECL;
+	tmp$62 EMITDBG;
+	tmp$44 EMITVARINIBEGIN;
+	tmp$44 EMITVARINIEND;
+	tmp$63 EMITVARINII;
+	tmp$64 EMITVARINIF;
+	tmp$65 EMITVARINIOFS;
+	tmp$66 EMITVARINISTR;
+	tmp$67 EMITVARINIWSTR;
+	tmp$68 EMITVARINIPAD;
+	tmp$69 EMITVARINISCOPEBEGIN;
+	tmp$40 EMITVARINISCOPEEND;
+	tmp$40 EMITFBCTINFBEGIN;
+	tmp$70 EMITFBCTINFSTRING;
+	tmp$40 EMITFBCTINFEND;
+	tmp$71 ALLOCVREG;
+	tmp$72 ALLOCVRIMM;
+	tmp$73 ALLOCVRIMMF;
+	tmp$74 ALLOCVRVAR;
+	tmp$75 ALLOCVRIDX;
+	tmp$76 ALLOCVRPTR;
+	tmp$74 ALLOCVROFS;
+	tmp$77 SETVREGDATATYPE;
+	tmp$78 GETDISTANCE;
+	tmp$54 LOADVR;
+	tmp$47 STOREVR;
+	tmp$48 XCHGTOS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7IR_VTBL ) == 544 );
 typedef int64 $6IR_OPT;
@@ -903,7 +927,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 struct $12FBHASHTBLIST {
 	struct $8FBHASHTB* HEAD;
 	struct $8FBHASHTB* TAIL;
@@ -991,7 +1015,7 @@ struct $7SYMBCTX {
 	struct $8FBSYMBOL* LASTLBL;
 	struct $15FB_GLOBCTORLIST GLOBCTORLIST;
 	struct $15FB_GLOBCTORLIST GLOBDTORLIST;
-	struct $10SYMB_OVLOP GLOBOPOVLTB[121];
+	struct $10SYMB_OVLOP GLOBOPOVLTB[122];
 	int64 FBARRAY_DATA;
 	int64 FBARRAY_PTR;
 	int64 FBARRAY_SIZE;
@@ -1001,7 +1025,7 @@ struct $7SYMBCTX {
 	int64 FBARRAYDIM_UBOUND;
 	struct $10FB_RTTICTX RTTI;
 };
-__FB_STATIC_ASSERT( sizeof( struct $7SYMBCTX ) == 199248 );
+__FB_STATIC_ASSERT( sizeof( struct $7SYMBCTX ) == 199256 );
 extern struct $7SYMBCTX SYMB$;
 typedef int64 $12FB_DATACLASS;
 struct $13SYMB_DATATYPE {
@@ -1024,7 +1048,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -1035,7 +1059,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
 typedef int64 $10FB_CPUTYPE;
 typedef int64 $10FB_FPUTYPE;
@@ -1066,6 +1090,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -1089,8 +1114,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -1133,11 +1160,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 typedef int64 $16FB_RESTART_FLAGS;
 struct $7TSTRSET {
 	struct $5TLIST LIST;
@@ -1175,7 +1203,7 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
 struct $12FB_MANGLECTX {
 	struct $6TFLIST FLIST;
@@ -1208,29 +1236,43 @@ void SYMBMANGLEEND( void )
 
 char* SYMBUNIQUEID( boolean VALIDFBNAME$1 )
 {
+	int64 TMP$86$1;
+	int64 TMP$87$1;
 	char* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$14:;
-	if( ((int64)-(*(int64*)((uint8*)&ENV$ + 208ll) == 1ll) & (int64)-((int64)-VALIDFBNAME$1 == 0ll)) == 0ll ) goto label$17;
-	{
-		FBSTRING TMP$84$2;
-		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)"tmp$", 5ll, 0 );
-		FBSTRING* vr$6 = fb_LongintToStr( *(int64*)((uint8*)&CTX$ + 144ll) );
-		__builtin_memset( &TMP$84$2, 0, 24ll );
-		FBSTRING* vr$10 = fb_StrConcat( &TMP$84$2, (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$6, -1ll );
-		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$10, -1ll, 0 );
-	}
-	goto label$16;
-	label$17:;
-	{
-		FBSTRING TMP$86$2;
-		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)"Lt_", 4ll, 0 );
-		char* vr$13 = HHEXUINT( *(uint64*)((uint8*)&CTX$ + 144ll) );
-		__builtin_memset( &TMP$86$2, 0, 24ll );
-		FBSTRING* vr$17 = fb_StrConcat( &TMP$86$2, (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$13, 0ll );
-		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$17, -1ll, 0 );
-	}
+	if( *(int64*)((uint8*)&ENV$ + 208ll) == 1ll ) goto label$16;
+	TMP$86$1 = (int64)-(*(int64*)((uint8*)&ENV$ + 208ll) == 2ll);
+	goto label$20;
 	label$16:;
+	TMP$86$1 = -1ll;
+	label$20:;
+	if( TMP$86$1 == 0ll ) goto label$17;
+	TMP$87$1 = (int64)-((int64)-VALIDFBNAME$1 == 0ll);
+	goto label$21;
+	label$17:;
+	TMP$87$1 = 0ll;
+	label$21:;
+	if( TMP$87$1 == 0ll ) goto label$19;
+	{
+		FBSTRING TMP$89$2;
+		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)"tmp$", 5ll, 0 );
+		FBSTRING* vr$5 = fb_LongintToStr( *(int64*)((uint8*)&CTX$ + 144ll) );
+		__builtin_memset( &TMP$89$2, 0, 24ll );
+		FBSTRING* vr$9 = fb_StrConcat( &TMP$89$2, (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$5, -1ll );
+		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$9, -1ll, 0 );
+	}
+	goto label$18;
+	label$19:;
+	{
+		FBSTRING TMP$91$2;
+		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)"Lt_", 4ll, 0 );
+		char* vr$12 = HHEXUINT( *(uint64*)((uint8*)&CTX$ + 144ll) );
+		__builtin_memset( &TMP$91$2, 0, 24ll );
+		FBSTRING* vr$16 = fb_StrConcat( &TMP$91$2, (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$12, 0ll );
+		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$16, -1ll, 0 );
+	}
+	label$18:;
 	*(int64*)((uint8*)&CTX$ + 144ll) = *(int64*)((uint8*)&CTX$ + 144ll) + 1ll;
 	fb$result$1 = (char*)((uint8*)&CTX$ + 120ll);
 	label$15:;
@@ -1241,56 +1283,64 @@ char* SYMBUNIQUELABEL( void )
 {
 	char* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$18:;
-	if( *(int64*)((uint8*)&ENV$ + 208ll) != 1ll ) goto label$21;
+	label$22:;
 	{
-		FBSTRING TMP$88$2;
-		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)"label$", 7ll, 0 );
-		FBSTRING* vr$2 = fb_LongintToStr( *(int64*)((uint8*)&CTX$ + 152ll) );
-		__builtin_memset( &TMP$88$2, 0, 24ll );
-		FBSTRING* vr$6 = fb_StrConcat( &TMP$88$2, (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$2, -1ll );
-		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$6, -1ll, 0 );
-		*(int64*)((uint8*)&CTX$ + 152ll) = *(int64*)((uint8*)&CTX$ + 152ll) + 1ll;
-	}
-	goto label$20;
-	label$21:;
-	{
-		FBSTRING TMP$91$2;
-		if( *(int64*)((uint8*)&ENV$ + 216ll) != 9ll ) goto label$23;
+		$10FB_BACKEND TMP$92$2;
+		TMP$92$2 = *($10FB_BACKEND*)((uint8*)&ENV$ + 208ll);
+		if( TMP$92$2 == 1ll ) goto label$26;
+		label$27:;
+		if( TMP$92$2 != 2ll ) goto label$25;
+		label$26:;
 		{
-			fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)"L_", 3ll, 0 );
+			FBSTRING TMP$94$3;
+			fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)"label$", 7ll, 0 );
+			FBSTRING* vr$2 = fb_LongintToStr( *(int64*)((uint8*)&CTX$ + 152ll) );
+			__builtin_memset( &TMP$94$3, 0, 24ll );
+			FBSTRING* vr$6 = fb_StrConcat( &TMP$94$3, (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$2, -1ll );
+			fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$6, -1ll, 0 );
+			*(int64*)((uint8*)&CTX$ + 152ll) = *(int64*)((uint8*)&CTX$ + 152ll) + 1ll;
 		}
-		goto label$22;
-		label$23:;
+		goto label$24;
+		label$25:;
 		{
-			fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)".L_", 4ll, 0 );
+			FBSTRING TMP$97$3;
+			if( *(int64*)((uint8*)&ENV$ + 216ll) != 10ll ) goto label$30;
+			{
+				fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)"L_", 3ll, 0 );
+			}
+			goto label$29;
+			label$30:;
+			{
+				fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)".L_", 4ll, 0 );
+			}
+			label$29:;
+			char* vr$11 = HHEXUINT( *(uint64*)((uint8*)&CTX$ + 144ll) );
+			__builtin_memset( &TMP$97$3, 0, 24ll );
+			FBSTRING* vr$15 = fb_StrConcat( &TMP$97$3, (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$11, 0ll );
+			fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$15, -1ll, 0 );
+			*(int64*)((uint8*)&CTX$ + 144ll) = *(int64*)((uint8*)&CTX$ + 144ll) + 1ll;
 		}
-		label$22:;
-		char* vr$11 = HHEXUINT( *(uint64*)((uint8*)&CTX$ + 144ll) );
-		__builtin_memset( &TMP$91$2, 0, 24ll );
-		FBSTRING* vr$15 = fb_StrConcat( &TMP$91$2, (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$11, 0ll );
-		fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$15, -1ll, 0 );
-		*(int64*)((uint8*)&CTX$ + 144ll) = *(int64*)((uint8*)&CTX$ + 144ll) + 1ll;
+		label$28:;
+		label$24:;
 	}
-	label$20:;
 	fb$result$1 = (char*)((uint8*)&CTX$ + 120ll);
-	label$19:;
+	label$23:;
 	return fb$result$1;
 }
 
 char* SYMBMAKEPROFILELABELNAME( void )
 {
-	FBSTRING TMP$93$1;
+	FBSTRING TMP$99$1;
 	char* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$24:;
+	label$31:;
 	char* vr$1 = HHEXUINT( *(uint64*)((uint8*)&CTX$ + 160ll) );
-	__builtin_memset( &TMP$93$1, 0, 24ll );
-	FBSTRING* vr$4 = fb_StrConcat( &TMP$93$1, (void*)"LP_", 4ll, (void*)vr$1, 0ll );
+	__builtin_memset( &TMP$99$1, 0, 24ll );
+	FBSTRING* vr$4 = fb_StrConcat( &TMP$99$1, (void*)"LP_", 4ll, (void*)vr$1, 0ll );
 	fb_StrAssign( (void*)((uint8*)&CTX$ + 120ll), 17ll, (void*)vr$4, -1ll, 0 );
 	*(int64*)((uint8*)&CTX$ + 160ll) = *(int64*)((uint8*)&CTX$ + 160ll) + 1ll;
 	fb$result$1 = (char*)((uint8*)&CTX$ + 120ll);
-	label$25:;
+	label$32:;
 	return fb$result$1;
 }
 
@@ -1298,538 +1348,545 @@ char* SYMBGETDBGNAME( struct $8FBSYMBOL* SYM$1 )
 {
 	char* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$26:;
+	label$33:;
 	int64 vr$1 = HDOCPPMANGLING( SYM$1 );
-	if( vr$1 == 0ll ) goto label$29;
+	if( vr$1 == 0ll ) goto label$36;
 	{
 		{
-			uint64 TMP$94$3;
-			TMP$94$3 = *(uint64*)SYM$1;
-			goto label$31;
-			label$32:;
+			uint64 TMP$100$3;
+			TMP$100$3 = *(uint64*)SYM$1;
+			goto label$38;
+			label$39:;
 			{
 				char* RES$4;
 				RES$4 = *(char**)((uint8*)SYM$1 + 40ll);
-				if( RES$4 != (char*)0ull ) goto label$34;
+				if( RES$4 != (char*)0ull ) goto label$41;
 				{
 					RES$4 = *(char**)((uint8*)SYM$1 + 32ll);
 				}
-				label$34:;
-				label$33:;
+				label$41:;
+				label$40:;
 				fb$result$1 = RES$4;
-				goto label$27;
+				goto label$34;
 			}
-			goto label$30;
-			label$35:;
+			goto label$37;
+			label$42:;
 			{
 				char* vr$5 = SYMBGETMANGLEDNAME( SYM$1 );
 				fb$result$1 = vr$5;
-				goto label$27;
+				goto label$34;
 			}
-			goto label$30;
-			label$31:;
-			static const void* tmp$95[4ll] = {
-				&&label$32,
-				&&label$32,
-				&&label$32,
-				&&label$32,
+			goto label$37;
+			label$38:;
+			static const void* tmp$101[4ll] = {
+				&&label$39,
+				&&label$39,
+				&&label$39,
+				&&label$39,
 			};
-			if( (TMP$94$3 - 8ull) > 3ull ) goto label$35;
-			goto *tmp$95[TMP$94$3 - 8ull];
-			label$30:;
+			if( (TMP$100$3 - 8ull) > 3ull ) goto label$42;
+			goto *tmp$101[TMP$100$3 - 8ull];
+			label$37:;
 		}
 	}
-	label$29:;
-	label$28:;
-	if( ((int64)-(*(int64*)SYM$1 == 10ll) & (int64)-((*(int64*)((uint8*)SYM$1 + 8ll) & 8192ll) != 0ll)) == 0ll ) goto label$37;
+	label$36:;
+	label$35:;
+	if( ((int64)-(*(int64*)SYM$1 == 10ll) & (int64)-((*(int64*)((uint8*)SYM$1 + 8ll) & 8192ll) != 0ll)) == 0ll ) goto label$44;
 	{
-		if( *(char**)((uint8*)SYM$1 + 40ll) == (char*)0ull ) goto label$39;
+		if( *(char**)((uint8*)SYM$1 + 40ll) == (char*)0ull ) goto label$46;
 		{
 			fb$result$1 = *(char**)((uint8*)SYM$1 + 40ll);
-			goto label$27;
+			goto label$34;
 		}
-		label$39:;
-		label$38:;
+		label$46:;
+		label$45:;
 	}
-	label$37:;
-	label$36:;
+	label$44:;
+	label$43:;
 	fb$result$1 = *(char**)((uint8*)SYM$1 + 32ll);
-	label$27:;
+	label$34:;
 	return fb$result$1;
 }
 
 void SYMBSETNAME( struct $8FBSYMBOL* S$1, char* NAME_$1 )
 {
-	label$40:;
+	label$47:;
 	int64 SLEN$1;
-	if( *(char**)((uint8*)S$1 + 32ll) == (char*)0ull ) goto label$43;
+	if( *(char**)((uint8*)S$1 + 32ll) == (char*)0ull ) goto label$50;
 	{
 		POOLDELITEM( (struct $5TPOOL*)((uint8*)&SYMB$ + 197184ll), *(void**)((uint8*)S$1 + 32ll) );
 	}
-	label$43:;
-	label$42:;
+	label$50:;
+	label$49:;
 	int64 vr$3 = fb_StrLen( (void*)NAME_$1, 0ll );
 	SLEN$1 = vr$3;
-	if( SLEN$1 != 0ll ) goto label$45;
+	if( SLEN$1 != 0ll ) goto label$52;
 	{
 		*(char**)((uint8*)S$1 + 32ll) = (char*)0ull;
 	}
-	goto label$44;
-	label$45:;
+	goto label$51;
+	label$52:;
 	{
 		void* vr$7 = POOLNEWITEM( (struct $5TPOOL*)((uint8*)&SYMB$ + 197184ll), SLEN$1 + 1ll );
 		*(char**)((uint8*)S$1 + 32ll) = (char*)vr$7;
 		fb_StrAssign( *(void**)((uint8*)S$1 + 32ll), 0ll, (void*)NAME_$1, 0ll, 0 );
 	}
-	label$44:;
-	label$41:;
+	label$51:;
+	label$48:;
 }
 
 char* SYMBGETMANGLEDNAME( struct $8FBSYMBOL* SYM$1 )
 {
 	char* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$58:;
-	if( *(char**)((uint8*)SYM$1 + 48ll) == (char*)0ull ) goto label$61;
+	label$65:;
+	if( *(char**)((uint8*)SYM$1 + 48ll) == (char*)0ull ) goto label$68;
 	{
 		fb$result$1 = *(char**)((uint8*)SYM$1 + 48ll);
-		goto label$59;
+		goto label$66;
 	}
-	label$61:;
-	label$60:;
+	label$68:;
+	label$67:;
 	{
-		uint64 TMP$103$2;
-		TMP$103$2 = *(uint64*)SYM$1;
-		goto label$63;
-		label$64:;
+		uint64 TMP$109$2;
+		TMP$109$2 = *(uint64*)SYM$1;
+		goto label$70;
+		label$71:;
 		{
 			HMANGLEPROC( SYM$1 );
 		}
-		goto label$62;
-		label$65:;
+		goto label$69;
+		label$72:;
 		{
 			FBSTRING MANGLED$3;
 			__builtin_memset( &MANGLED$3, 0, 24ll );
 			HMANGLENAMESPACE( &MANGLED$3, *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll), -1ll, 0ll );
 			HMANGLEUDTID( &MANGLED$3, SYM$1 );
-			if( *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll) == (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$67;
+			if( *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll) == (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$74;
 			{
 				fb_StrConcatAssign( (void*)&MANGLED$3, -1ll, (void*)"E", 2ll, 0 );
 			}
-			label$67:;
-			label$66:;
+			label$74:;
+			label$73:;
 			SYMBSETMANGLEDID( SYM$1, &MANGLED$3 );
 			fb_StrDelete( (FBSTRING*)&MANGLED$3 );
 		}
-		goto label$62;
-		label$68:;
+		goto label$69;
+		label$75:;
 		{
 			HMANGLEVARIABLE( SYM$1 );
 		}
-		goto label$62;
-		label$69:;
+		goto label$69;
+		label$76:;
 		{
 			fb$result$1 = *(char**)((uint8*)SYM$1 + 40ll);
-			goto label$59;
+			goto label$66;
 		}
-		goto label$62;
-		label$63:;
-		static const void* tmp$104[14ll] = {
-			&&label$68,
-			&&label$69,
-			&&label$64,
-			&&label$69,
-			&&label$69,
-			&&label$69,
-			&&label$69,
-			&&label$65,
-			&&label$65,
-			&&label$65,
-			&&label$65,
-			&&label$69,
-			&&label$69,
-			&&label$65,
+		goto label$69;
+		label$70:;
+		static const void* tmp$111[14ll] = {
+			&&label$75,
+			&&label$76,
+			&&label$71,
+			&&label$76,
+			&&label$76,
+			&&label$76,
+			&&label$76,
+			&&label$72,
+			&&label$72,
+			&&label$72,
+			&&label$72,
+			&&label$76,
+			&&label$76,
+			&&label$72,
 		};
-		if( (TMP$103$2 - 1ull) > 13ull ) goto label$69;
-		goto *tmp$104[TMP$103$2 - 1ull];
-		label$62:;
+		if( (TMP$109$2 - 1ull) > 13ull ) goto label$76;
+		goto *tmp$111[TMP$109$2 - 1ull];
+		label$69:;
 	}
 	SYMBMANGLERESETABBREV(  );
-	if( *(int64*)((uint8*)&ENV$ + 208ll) != 1ll ) goto label$71;
 	{
-		if( (*(int64*)((uint8*)&ENV$ + 1424ll) & 524288ll) == 0ll ) goto label$73;
+		$10FB_BACKEND TMP$110$2;
+		TMP$110$2 = *($10FB_BACKEND*)((uint8*)&ENV$ + 208ll);
+		if( TMP$110$2 == 1ll ) goto label$79;
+		label$80:;
+		if( TMP$110$2 != 2ll ) goto label$78;
+		label$79:;
 		{
-			HREPLACECHAR( *(char**)((uint8*)SYM$1 + 48ll), 46ll, 36ll );
+			if( (*(int64*)((uint8*)&ENV$ + 1448ll) & 524288ll) == 0ll ) goto label$82;
+			{
+				HREPLACECHAR( *(char**)((uint8*)SYM$1 + 48ll), 46ll, 36ll );
+			}
+			label$82:;
+			label$81:;
 		}
-		label$73:;
-		label$72:;
+		label$78:;
+		label$77:;
 	}
-	label$71:;
-	label$70:;
 	fb$result$1 = *(char**)((uint8*)SYM$1 + 48ll);
-	label$59:;
+	label$66:;
 	return fb$result$1;
 }
 
 void SYMBMANGLERESETABBREV( void )
 {
-	label$74:;
+	label$83:;
 	FLISTRESET( (struct $6TFLIST*)&CTX$ );
 	*(int64*)((uint8*)&CTX$ + 112ll) = 0ll;
-	label$75:;
+	label$84:;
 }
 
 char* HMANGLEBUILTINTYPE( int64 DTYPE$1, int64* ADD_ABBREV$1 )
 {
 	char* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$98:;
+	label$107:;
 	*ADD_ABBREV$1 = 0ll;
-	if( DTYPE$1 != 17ll ) goto label$101;
+	if( DTYPE$1 != 17ll ) goto label$110;
 	{
 		*ADD_ABBREV$1 = -1ll;
 		fb$result$1 = (char*)"8FBSTRING";
-		goto label$99;
+		goto label$108;
 	}
-	label$101:;
-	label$100:;
+	label$110:;
+	label$109:;
 	int64 vr$3 = FBIS64BIT(  );
-	if( (vr$3 & (int64)-((*(int64*)((uint8*)&ENV$ + 568ll) & 1ll) == 0ll)) == 0ll ) goto label$103;
+	if( (vr$3 & (int64)-((*(int64*)((uint8*)&ENV$ + 592ll) & 1ll) == 0ll)) == 0ll ) goto label$112;
 	{
-		if( (DTYPE$1 & 32505856ll) == 0ll ) goto label$105;
+		if( (DTYPE$1 & 32505856ll) == 0ll ) goto label$114;
 		{
 			DTYPE$1 = (DTYPE$1 & 32505856ll) >> (20ll & 63ll);
 			{
-				if( DTYPE$1 != 8ll ) goto label$107;
-				label$108:;
+				if( DTYPE$1 != 8ll ) goto label$116;
+				label$117:;
 				{
 					fb$result$1 = (char*)"l";
-					goto label$99;
+					goto label$108;
 				}
-				goto label$106;
-				label$107:;
-				if( DTYPE$1 != 9ll ) goto label$109;
-				label$110:;
+				goto label$115;
+				label$116:;
+				if( DTYPE$1 != 9ll ) goto label$118;
+				label$119:;
 				{
 					fb$result$1 = (char*)"m";
-					goto label$99;
+					goto label$108;
 				}
-				label$109:;
-				label$106:;
+				label$118:;
+				label$115:;
 			}
 		}
-		goto label$104;
-		label$105:;
+		goto label$113;
+		label$114:;
 		{
 			{
-				if( DTYPE$1 != 8ll ) goto label$112;
-				label$113:;
+				if( DTYPE$1 != 8ll ) goto label$121;
+				label$122:;
 				{
 					*ADD_ABBREV$1 = -1ll;
 					fb$result$1 = (char*)"u7INTEGER";
-					goto label$99;
+					goto label$108;
 				}
-				goto label$111;
-				label$112:;
-				if( DTYPE$1 != 9ll ) goto label$114;
-				label$115:;
+				goto label$120;
+				label$121:;
+				if( DTYPE$1 != 9ll ) goto label$123;
+				label$124:;
 				{
 					*ADD_ABBREV$1 = -1ll;
 					fb$result$1 = (char*)"u8UINTEGER";
-					goto label$99;
+					goto label$108;
 				}
-				label$114:;
-				label$111:;
+				label$123:;
+				label$120:;
 			}
 		}
-		label$104:;
+		label$113:;
 	}
-	goto label$102;
-	label$103:;
+	goto label$111;
+	label$112:;
 	{
 		{
-			if( DTYPE$1 != 8ll ) goto label$117;
-			label$118:;
+			if( DTYPE$1 != 8ll ) goto label$126;
+			label$127:;
 			{
 				fb$result$1 = (char*)"l";
-				goto label$99;
+				goto label$108;
 			}
-			goto label$116;
-			label$117:;
-			if( DTYPE$1 != 9ll ) goto label$119;
-			label$120:;
+			goto label$125;
+			label$126:;
+			if( DTYPE$1 != 9ll ) goto label$128;
+			label$129:;
 			{
 				fb$result$1 = (char*)"m";
-				goto label$99;
+				goto label$108;
 			}
-			label$119:;
-			label$116:;
+			label$128:;
+			label$125:;
 		}
 	}
-	label$102:;
-	if( (DTYPE$1 & 32505856ll) == 0ll ) goto label$122;
+	label$111:;
+	if( (DTYPE$1 & 32505856ll) == 0ll ) goto label$131;
 	{
 		DTYPE$1 = (DTYPE$1 & 32505856ll) >> (20ll & 63ll);
 	}
-	label$122:;
-	label$121:;
+	label$131:;
+	label$130:;
 	static char* TYPECODES$1[26] = { (char*)"v", (char*)"b", (char*)"a", (char*)"h", (char*)"c", (char*)"s", (char*)"t", (char*)"w", (char*)0ull, (char*)0ull, (char*)0ull, (char*)"i", (char*)"j", (char*)"x", (char*)"y", (char*)"f", (char*)"d", (char*)0ull, (char*)0ull, (char*)"c", (char*)0ull, (char*)0ull, (char*)0ull, (char*)0ull, (char*)0ull };
-	static struct $8FBARRAY1IPcE tmp$114$1 = { (char**)TYPECODES$1, (char**)TYPECODES$1, 208ll, 8ll, 1ll, 49ll, { { 26ll, 0ll, 25ll } } };
+	static struct $8FBARRAY1IPcE tmp$120$1 = { (char**)TYPECODES$1, (char**)TYPECODES$1, 208ll, 8ll, 1ll, 49ll, { { 26ll, 0ll, 25ll } } };
 	fb$result$1 = *(char**)((int64)(char**)TYPECODES$1 + (DTYPE$1 << (3ll & 63ll)));
-	label$99:;
+	label$108:;
 	return fb$result$1;
 }
 
 void SYMBMANGLETYPE( FBSTRING* MANGLED$1, int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1, $12FB_MANGLEOPT OPTIONS$1 )
 {
-	int64 TMP$129$1;
-	label$123:;
+	int64 TMP$135$1;
+	label$132:;
 	struct $8FBSYMBOL* NS$1;
 	int64 ADD_ABBREV$1;
 	int64 IDX$1;
 	int64 vr$0 = HABBREVFIND( DTYPE$1, SUBTYPE$1 );
 	IDX$1 = vr$0;
-	if( IDX$1 == -1ll ) goto label$126;
+	if( IDX$1 == -1ll ) goto label$135;
 	{
 		HABBREVGET( MANGLED$1, IDX$1 );
-		goto label$124;
+		goto label$133;
 	}
-	label$126:;
-	label$125:;
-	if( (DTYPE$1 & 480ll) == 0ll ) goto label$127;
-	TMP$129$1 = 24ll;
-	goto label$179;
-	label$127:;
-	TMP$129$1 = DTYPE$1 & 31ll;
-	label$179:;
-	if( TMP$129$1 != 23ll ) goto label$129;
+	label$135:;
+	label$134:;
+	if( (DTYPE$1 & 480ll) == 0ll ) goto label$136;
+	TMP$135$1 = 24ll;
+	goto label$188;
+	label$136:;
+	TMP$135$1 = DTYPE$1 & 31ll;
+	label$188:;
+	if( TMP$135$1 != 23ll ) goto label$138;
 	{
 		DTYPE$1 = ((DTYPE$1 & -2147483649ll) & -512ll) | 20ll;
 	}
-	label$129:;
-	label$128:;
-	if( (DTYPE$1 & 524288ll) == 0ll ) goto label$131;
+	label$138:;
+	label$137:;
+	if( (DTYPE$1 & 524288ll) == 0ll ) goto label$140;
 	{
 		fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"R", 2ll, 0 );
 		SYMBMANGLETYPE( MANGLED$1, DTYPE$1 & -524289ll, SUBTYPE$1, (OPTIONS$1 | 4ll) | 1ll );
 		HABBREVADD( DTYPE$1, SUBTYPE$1 );
-		goto label$124;
+		goto label$133;
 	}
-	label$131:;
-	label$130:;
-	if( (DTYPE$1 & 512ll) == 0ll ) goto label$133;
+	label$140:;
+	label$139:;
+	if( (DTYPE$1 & 512ll) == 0ll ) goto label$142;
 	{
-		if( (OPTIONS$1 & 1ll) == 0ll ) goto label$135;
+		if( (OPTIONS$1 & 1ll) == 0ll ) goto label$144;
 		{
 			fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"K", 2ll, 0 );
 		}
-		label$135:;
-		label$134:;
+		label$144:;
+		label$143:;
 		SYMBMANGLETYPE( MANGLED$1, DTYPE$1 & -513ll, SUBTYPE$1, OPTIONS$1 );
-		if( (OPTIONS$1 & 1ll) == 0ll ) goto label$137;
+		if( (OPTIONS$1 & 1ll) == 0ll ) goto label$146;
 		{
 			HABBREVADD( DTYPE$1, SUBTYPE$1 );
 		}
-		label$137:;
-		label$136:;
-		goto label$124;
+		label$146:;
+		label$145:;
+		goto label$133;
 	}
-	label$133:;
-	label$132:;
-	if( (DTYPE$1 & 480ll) == 0ll ) goto label$139;
+	label$142:;
+	label$141:;
+	if( (DTYPE$1 & 480ll) == 0ll ) goto label$148;
 	{
 		fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"P", 2ll, 0 );
 		SYMBMANGLETYPE( MANGLED$1, (((DTYPE$1 & 31ll) | ((DTYPE$1 & 480ll) + -32ll)) | (((DTYPE$1 & 261632ll) >> (1ll & 63ll)) & 261632ll)) | (DTYPE$1 & 32505856ll), SUBTYPE$1, (OPTIONS$1 | 2ll) | 1ll );
 		HABBREVADD( DTYPE$1, SUBTYPE$1 );
-		goto label$124;
+		goto label$133;
 	}
-	label$139:;
-	label$138:;
-	if( (DTYPE$1 & 32505856ll) == 0ll ) goto label$141;
+	label$148:;
+	label$147:;
+	if( (DTYPE$1 & 32505856ll) == 0ll ) goto label$150;
 	{
-		if( (DTYPE$1 & 31ll) != 20ll ) goto label$143;
+		if( (DTYPE$1 & 31ll) != 20ll ) goto label$152;
 		{
-			if( ((DTYPE$1 & 32505856ll) >> (20ll & 63ll)) != 19ll ) goto label$145;
+			if( ((DTYPE$1 & 32505856ll) >> (20ll & 63ll)) != 19ll ) goto label$154;
 			{
 				{
-					$19FB_CVA_LIST_TYPEDEF TMP$133$5;
+					$19FB_CVA_LIST_TYPEDEF TMP$139$5;
 					$19FB_CVA_LIST_TYPEDEF vr$31 = SYMBGETVALISTTYPE( DTYPE$1, SUBTYPE$1 );
-					TMP$133$5 = vr$31;
-					if( TMP$133$5 != 3ll ) goto label$147;
-					label$148:;
+					TMP$139$5 = vr$31;
+					if( TMP$139$5 != 3ll ) goto label$156;
+					label$157:;
 					{
-						if( (OPTIONS$1 & 6ll) == 0ll ) goto label$150;
+						if( (OPTIONS$1 & 6ll) == 0ll ) goto label$159;
 						{
 							fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"A1_", 4ll, 0 );
 						}
-						goto label$149;
-						label$150:;
+						goto label$158;
+						label$159:;
 						{
 							fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"P", 2ll, 0 );
 						}
-						label$149:;
+						label$158:;
 						DTYPE$1 = DTYPE$1 & -32505857ll;
 					}
-					goto label$146;
-					label$147:;
-					if( TMP$133$5 == 4ll ) goto label$152;
-					label$153:;
-					if( TMP$133$5 != 5ll ) goto label$151;
-					label$152:;
+					goto label$155;
+					label$156:;
+					if( TMP$139$5 == 4ll ) goto label$161;
+					label$162:;
+					if( TMP$139$5 != 5ll ) goto label$160;
+					label$161:;
 					{
 						fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"St", 3ll, 0 );
 						DTYPE$1 = DTYPE$1 & -32505857ll;
 					}
-					label$151:;
-					label$146:;
+					label$160:;
+					label$155:;
 				}
 			}
-			label$145:;
-			label$144:;
+			label$154:;
+			label$153:;
 		}
-		label$143:;
-		label$142:;
+		label$152:;
+		label$151:;
 	}
-	label$141:;
-	label$140:;
+	label$150:;
+	label$149:;
 	{
-		int64 TMP$136$2;
-		TMP$136$2 = DTYPE$1 & 31ll;
-		if( TMP$136$2 == 20ll ) goto label$156;
-		label$157:;
-		if( TMP$136$2 != 10ll ) goto label$155;
-		label$156:;
+		int64 TMP$142$2;
+		TMP$142$2 = DTYPE$1 & 31ll;
+		if( TMP$142$2 == 20ll ) goto label$165;
+		label$166:;
+		if( TMP$142$2 != 10ll ) goto label$164;
+		label$165:;
 		{
 			NS$1 = *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SUBTYPE$1 + 248ll);
-			if( NS$1 != (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$159;
+			if( NS$1 != (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$168;
 			{
 				HMANGLEUDTID( MANGLED$1, SUBTYPE$1 );
 			}
-			goto label$158;
-			label$159:;
+			goto label$167;
+			label$168:;
 			{
-				if( (OPTIONS$1 & 8ll) != 0ll ) goto label$161;
+				if( (OPTIONS$1 & 8ll) != 0ll ) goto label$170;
 				{
 					fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"N", 2ll, 0 );
 				}
-				label$161:;
-				label$160:;
+				label$170:;
+				label$169:;
 				SYMBMANGLETYPE( MANGLED$1, *(int64*)((uint8*)NS$1 + 56ll), NS$1, 8ll );
 				HMANGLEUDTID( MANGLED$1, SUBTYPE$1 );
-				if( (OPTIONS$1 & 8ll) != 0ll ) goto label$163;
+				if( (OPTIONS$1 & 8ll) != 0ll ) goto label$172;
 				{
 					fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"E", 2ll, 0 );
 				}
-				label$163:;
-				label$162:;
-			}
-			label$158:;
-			HABBREVADD( DTYPE$1, SUBTYPE$1 );
-		}
-		goto label$154;
-		label$155:;
-		if( TMP$136$2 != 21ll ) goto label$164;
-		label$165:;
-		{
-			if( SUBTYPE$1 != (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$167;
-			{
-				goto label$124;
+				label$172:;
+				label$171:;
 			}
 			label$167:;
-			label$166:;
+			HABBREVADD( DTYPE$1, SUBTYPE$1 );
+		}
+		goto label$163;
+		label$164:;
+		if( TMP$142$2 != 21ll ) goto label$173;
+		label$174:;
+		{
+			if( SUBTYPE$1 != (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$176;
+			{
+				goto label$133;
+			}
+			label$176:;
+			label$175:;
 			NS$1 = *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SUBTYPE$1 + 248ll);
-			if( NS$1 == (struct $8FBSYMBOL*)0ull ) goto label$169;
+			if( NS$1 == (struct $8FBSYMBOL*)0ull ) goto label$178;
 			{
 				SYMBMANGLETYPE( MANGLED$1, 21ll, NS$1, 0ll );
 			}
-			label$169:;
-			label$168:;
+			label$178:;
+			label$177:;
 			HMANGLEUDTID( MANGLED$1, SUBTYPE$1 );
 			HABBREVADD( DTYPE$1, SUBTYPE$1 );
 		}
-		goto label$154;
-		label$164:;
-		if( TMP$136$2 != 22ll ) goto label$170;
-		label$171:;
+		goto label$163;
+		label$173:;
+		if( TMP$142$2 != 22ll ) goto label$179;
+		label$180:;
 		{
 			fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"F", 2ll, 0 );
-			if( (*(int64*)((uint8*)SUBTYPE$1 + 16ll) & 2048ll) == 0ll ) goto label$173;
+			if( (*(int64*)((uint8*)SUBTYPE$1 + 16ll) & 2048ll) == 0ll ) goto label$182;
 			{
 				fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"R", 2ll, 0 );
 			}
-			label$173:;
-			label$172:;
-			if( (*(int64*)((uint8*)SUBTYPE$1 + 56ll) & 512ll) == 0ll ) goto label$175;
+			label$182:;
+			label$181:;
+			if( (*(int64*)((uint8*)SUBTYPE$1 + 56ll) & 512ll) == 0ll ) goto label$184;
 			{
 				fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"K", 2ll, 0 );
 			}
-			label$175:;
-			label$174:;
+			label$184:;
+			label$183:;
 			SYMBMANGLETYPE( MANGLED$1, *(int64*)((uint8*)SUBTYPE$1 + 56ll), *(struct $8FBSYMBOL**)((uint8*)SUBTYPE$1 + 64ll), 0ll );
 			HGETPROCPARAMSTYPECODE( MANGLED$1, SUBTYPE$1, 0ll );
 			fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"E", 2ll, 0 );
 			HABBREVADD( DTYPE$1, SUBTYPE$1 );
 		}
-		goto label$154;
-		label$170:;
+		goto label$163;
+		label$179:;
 		{
-			FBSTRING TMP$139$3;
+			FBSTRING TMP$145$3;
 			char* vr$52 = HMANGLEBUILTINTYPE( DTYPE$1, &ADD_ABBREV$1 );
-			__builtin_memset( &TMP$139$3, 0, 24ll );
-			FBSTRING* vr$55 = fb_StrConcat( &TMP$139$3, (void*)MANGLED$1, -1ll, (void*)vr$52, 0ll );
+			__builtin_memset( &TMP$145$3, 0, 24ll );
+			FBSTRING* vr$55 = fb_StrConcat( &TMP$145$3, (void*)MANGLED$1, -1ll, (void*)vr$52, 0ll );
 			fb_StrAssign( (void*)MANGLED$1, -1ll, (void*)vr$55, -1ll, 0 );
-			if( ADD_ABBREV$1 == 0ll ) goto label$178;
+			if( ADD_ABBREV$1 == 0ll ) goto label$187;
 			{
 				HABBREVADD( DTYPE$1, SUBTYPE$1 );
 			}
-			label$178:;
-			label$177:;
+			label$187:;
+			label$186:;
 		}
-		label$176:;
-		label$154:;
+		label$185:;
+		label$163:;
 	}
-	label$124:;
+	label$133:;
 }
 
 void SYMBMANGLEPARAM( FBSTRING* MANGLED$1, struct $8FBSYMBOL* PARAM$1 )
 {
-	label$180:;
+	label$189:;
 	{
-		uint64 TMP$140$2;
-		TMP$140$2 = *(uint64*)((uint8*)PARAM$1 + 96ll);
-		goto label$183;
-		label$184:;
+		uint64 TMP$146$2;
+		TMP$146$2 = *(uint64*)((uint8*)PARAM$1 + 96ll);
+		goto label$192;
+		label$193:;
 		{
 			SYMBMANGLETYPE( MANGLED$1, *(int64*)((uint8*)PARAM$1 + 56ll), *(struct $8FBSYMBOL**)((uint8*)PARAM$1 + 64ll), 0ll );
 		}
-		goto label$182;
-		label$185:;
+		goto label$191;
+		label$194:;
 		{
 			SYMBMANGLETYPE( MANGLED$1, *(int64*)((uint8*)PARAM$1 + 56ll) | 524288ll, *(struct $8FBSYMBOL**)((uint8*)PARAM$1 + 64ll), 0ll );
 		}
-		goto label$182;
-		label$186:;
+		goto label$191;
+		label$195:;
 		{
 			SYMBMANGLETYPE( MANGLED$1, 524308ll, *(struct $8FBSYMBOL**)((uint8*)PARAM$1 + 128ll), 1ll );
 		}
-		goto label$182;
-		label$187:;
+		goto label$191;
+		label$196:;
 		{
 			fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"z", 2ll, 0 );
 		}
-		goto label$182;
-		label$183:;
-		static const void* tmp$142[4ll] = {
-			&&label$184,
-			&&label$185,
-			&&label$186,
-			&&label$187,
+		goto label$191;
+		label$192:;
+		static const void* tmp$148[4ll] = {
+			&&label$193,
+			&&label$194,
+			&&label$195,
+			&&label$196,
 		};
-		if( (TMP$140$2 - 1ull) > 3ull ) goto label$182;
-		goto *tmp$142[TMP$140$2 - 1ull];
-		label$182:;
+		if( (TMP$146$2 - 1ull) > 3ull ) goto label$191;
+		goto *tmp$148[TMP$146$2 - 1ull];
+		label$191:;
 	}
-	label$181:;
+	label$190:;
 }
 
 __attribute__(( constructor )) static void fb_ctor__symbzmangling( void )
@@ -1849,34 +1906,34 @@ static void _ZN11TSTRSETITEMaSERKS_( struct $11TSTRSETITEM* THIS$1, struct $11TS
 
 static void SYMBSETMANGLEDID( struct $8FBSYMBOL* SYM$1, FBSTRING* MANGLED$1 )
 {
-	label$46:;
+	label$53:;
 	int64 vr$0 = fb_StrLen( (void*)MANGLED$1, -1ll );
 	void* vr$3 = XALLOCATE( (int32)(vr$0 + 1ll) );
 	*(char**)((uint8*)SYM$1 + 48ll) = (char*)vr$3;
 	fb_StrAssign( *(void**)((uint8*)SYM$1 + 48ll), 0ll, (void*)MANGLED$1, -1ll, 0 );
-	label$47:;
+	label$54:;
 }
 
 static void HMANGLEUDTID( FBSTRING* MANGLED$1, struct $8FBSYMBOL* SYM$1 )
 {
-	label$48:;
+	label$55:;
 	int64 ARRAYDTYPE$1;
 	struct $8FBSYMBOL* ARRAYSUBTYPE$1;
-	if( (*(int64*)((uint8*)SYM$1 + 8ll) & 128ll) == 0ll ) goto label$51;
+	if( (*(int64*)((uint8*)SYM$1 + 8ll) & 128ll) == 0ll ) goto label$58;
 	{
 		static int64 LOCALUDTCOUNTER$2 = 1ll;
 		FBSTRING TMP$2;
 		__builtin_memset( &TMP$2, 0, 24ll );
-		if( *(char**)((uint8*)SYM$1 + 40ll) == (char*)0ull ) goto label$53;
+		if( *(char**)((uint8*)SYM$1 + 40ll) == (char*)0ull ) goto label$60;
 		{
 			fb_StrAssign( (void*)&TMP$2, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll, 0 );
 		}
-		goto label$52;
-		label$53:;
+		goto label$59;
+		label$60:;
 		{
 			fb_StrAssign( (void*)&TMP$2, -1ll, *(void**)((uint8*)SYM$1 + 32ll), 0ll, 0 );
 		}
-		label$52:;
+		label$59:;
 		fb_StrConcatAssign( (void*)&TMP$2, -1ll, (void*)"$", 2ll, 0 );
 		FBSTRING* vr$9 = fb_LongintToStr( LOCALUDTCOUNTER$2 );
 		fb_StrConcatAssign( (void*)&TMP$2, -1ll, (void*)vr$9, -1ll, 0 );
@@ -1887,88 +1944,88 @@ static void HMANGLEUDTID( FBSTRING* MANGLED$1, struct $8FBSYMBOL* SYM$1 )
 		LOCALUDTCOUNTER$2 = LOCALUDTCOUNTER$2 + 1ll;
 		fb_StrDelete( (FBSTRING*)&TMP$2 );
 	}
-	goto label$50;
-	label$51:;
+	goto label$57;
+	label$58:;
 	{
-		if( *(char**)((uint8*)SYM$1 + 40ll) == (char*)0ull ) goto label$55;
+		if( *(char**)((uint8*)SYM$1 + 40ll) == (char*)0ull ) goto label$62;
 		{
-			FBSTRING TMP$97$3;
-			FBSTRING TMP$98$3;
+			FBSTRING TMP$103$3;
+			FBSTRING TMP$104$3;
 			int64 vr$19 = fb_StrLen( *(void**)((uint8*)SYM$1 + 40ll), 0ll );
 			FBSTRING* vr$20 = fb_LongintToStr( vr$19 );
-			__builtin_memset( &TMP$97$3, 0, 24ll );
-			FBSTRING* vr$23 = fb_StrConcat( &TMP$97$3, (void*)MANGLED$1, -1ll, (void*)vr$20, -1ll );
+			__builtin_memset( &TMP$103$3, 0, 24ll );
+			FBSTRING* vr$23 = fb_StrConcat( &TMP$103$3, (void*)MANGLED$1, -1ll, (void*)vr$20, -1ll );
 			fb_StrAssign( (void*)MANGLED$1, -1ll, (void*)vr$23, -1ll, 0 );
-			__builtin_memset( &TMP$98$3, 0, 24ll );
-			FBSTRING* vr$27 = fb_StrConcat( &TMP$98$3, (void*)MANGLED$1, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll );
+			__builtin_memset( &TMP$104$3, 0, 24ll );
+			FBSTRING* vr$27 = fb_StrConcat( &TMP$104$3, (void*)MANGLED$1, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll );
 			fb_StrAssign( (void*)MANGLED$1, -1ll, (void*)vr$27, -1ll, 0 );
 		}
-		goto label$54;
-		label$55:;
+		goto label$61;
+		label$62:;
 		{
-			FBSTRING TMP$99$3;
-			FBSTRING TMP$100$3;
+			FBSTRING TMP$105$3;
+			FBSTRING TMP$106$3;
 			int64 vr$29 = fb_StrLen( *(void**)((uint8*)SYM$1 + 32ll), 0ll );
 			FBSTRING* vr$30 = fb_LongintToStr( vr$29 );
-			__builtin_memset( &TMP$99$3, 0, 24ll );
-			FBSTRING* vr$33 = fb_StrConcat( &TMP$99$3, (void*)MANGLED$1, -1ll, (void*)vr$30, -1ll );
+			__builtin_memset( &TMP$105$3, 0, 24ll );
+			FBSTRING* vr$33 = fb_StrConcat( &TMP$105$3, (void*)MANGLED$1, -1ll, (void*)vr$30, -1ll );
 			fb_StrAssign( (void*)MANGLED$1, -1ll, (void*)vr$33, -1ll, 0 );
-			__builtin_memset( &TMP$100$3, 0, 24ll );
-			FBSTRING* vr$37 = fb_StrConcat( &TMP$100$3, (void*)MANGLED$1, -1ll, *(void**)((uint8*)SYM$1 + 32ll), 0ll );
+			__builtin_memset( &TMP$106$3, 0, 24ll );
+			FBSTRING* vr$37 = fb_StrConcat( &TMP$106$3, (void*)MANGLED$1, -1ll, *(void**)((uint8*)SYM$1 + 32ll), 0ll );
 			fb_StrAssign( (void*)MANGLED$1, -1ll, (void*)vr$37, -1ll, 0 );
 		}
-		label$54:;
+		label$61:;
 	}
-	label$50:;
-	if( ((int64)-(*(int64*)SYM$1 == 10ll) & (int64)-((*(int64*)((uint8*)SYM$1 + 8ll) & 8192ll) != 0ll)) == 0ll ) goto label$57;
+	label$57:;
+	if( ((int64)-(*(int64*)SYM$1 == 10ll) & (int64)-((*(int64*)((uint8*)SYM$1 + 8ll) & 8192ll) != 0ll)) == 0ll ) goto label$64;
 	{
 		fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"I", 2ll, 0 );
 		SYMBGETDESCTYPEARRAYDTYPE( SYM$1, &ARRAYDTYPE$1, &ARRAYSUBTYPE$1 );
 		SYMBMANGLETYPE( MANGLED$1, ARRAYDTYPE$1, ARRAYSUBTYPE$1, 1ll );
 		fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"E", 2ll, 0 );
 	}
-	label$57:;
+	label$64:;
+	label$63:;
 	label$56:;
-	label$49:;
 }
 
 static int64 HABBREVFIND( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1 )
 {
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$76:;
+	label$85:;
 	struct $13FB_MANGLEABBR* N$1;
-	if( *(int64*)((uint8*)&CTX$ + 112ll) != 0ll ) goto label$79;
+	if( *(int64*)((uint8*)&CTX$ + 112ll) != 0ll ) goto label$88;
 	{
 		fb$result$1 = -1ll;
-		goto label$77;
+		goto label$86;
 	}
-	label$79:;
-	label$78:;
+	label$88:;
+	label$87:;
 	void* vr$2 = FLISTGETHEAD( (struct $6TFLIST*)&CTX$ );
 	N$1 = (struct $13FB_MANGLEABBR*)vr$2;
-	label$80:;
-	if( N$1 == (struct $13FB_MANGLEABBR*)0ull ) goto label$81;
+	label$89:;
+	if( N$1 == (struct $13FB_MANGLEABBR*)0ull ) goto label$90;
 	{
-		if( *(struct $8FBSYMBOL**)((uint8*)N$1 + 16ll) != SUBTYPE$1 ) goto label$83;
+		if( *(struct $8FBSYMBOL**)((uint8*)N$1 + 16ll) != SUBTYPE$1 ) goto label$92;
 		{
-			if( *(int64*)((uint8*)N$1 + 8ll) != DTYPE$1 ) goto label$85;
+			if( *(int64*)((uint8*)N$1 + 8ll) != DTYPE$1 ) goto label$94;
 			{
 				fb$result$1 = *(int64*)N$1;
-				goto label$77;
+				goto label$86;
 			}
-			label$85:;
-			label$84:;
+			label$94:;
+			label$93:;
 		}
-		label$83:;
-		label$82:;
+		label$92:;
+		label$91:;
 		void* vr$6 = FLISTGETNEXT( (void*)N$1 );
 		N$1 = (struct $13FB_MANGLEABBR*)vr$6;
 	}
-	goto label$80;
-	label$81:;
+	goto label$89;
+	label$90:;
 	fb$result$1 = -1ll;
-	label$77:;
+	label$86:;
 	return fb$result$1;
 }
 
@@ -1976,7 +2033,7 @@ static struct $13FB_MANGLEABBR* HABBREVADD( int64 DTYPE$1, struct $8FBSYMBOL* SU
 {
 	struct $13FB_MANGLEABBR* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$86:;
+	label$95:;
 	struct $13FB_MANGLEABBR* N$1;
 	void* vr$2 = FLISTNEWITEM( (struct $6TFLIST*)&CTX$ );
 	N$1 = (struct $13FB_MANGLEABBR*)vr$2;
@@ -1985,190 +2042,221 @@ static struct $13FB_MANGLEABBR* HABBREVADD( int64 DTYPE$1, struct $8FBSYMBOL* SU
 	*(struct $8FBSYMBOL**)((uint8*)N$1 + 16ll) = SUBTYPE$1;
 	*(int64*)((uint8*)&CTX$ + 112ll) = *(int64*)((uint8*)&CTX$ + 112ll) + 1ll;
 	fb$result$1 = N$1;
-	label$87:;
+	label$96:;
 	return fb$result$1;
 }
 
 static void HABBREVGET( FBSTRING* MANGLED$1, int64 IDX$1 )
 {
-	label$88:;
+	label$97:;
 	fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"S", 2ll, 0 );
-	if( IDX$1 <= 0ll ) goto label$91;
+	if( IDX$1 <= 0ll ) goto label$100;
 	{
-		if( IDX$1 > 10ll ) goto label$93;
+		if( IDX$1 > 10ll ) goto label$102;
 		{
 			FBSTRING* vr$2 = fb_CHR( 1, (int64)((uint64)(IDX$1 + -1ll) + 48ull) );
 			fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)vr$2, -1ll, 0 );
 		}
-		goto label$92;
-		label$93:;
-		if( IDX$1 > 33ll ) goto label$94;
+		goto label$101;
+		label$102:;
+		if( IDX$1 > 33ll ) goto label$103;
 		{
 			FBSTRING* vr$5 = fb_CHR( 1, (int64)((uint64)(IDX$1 + -11ll) + 65ull) );
 			fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)vr$5, -1ll, 0 );
 		}
-		goto label$92;
-		label$94:;
+		goto label$101;
+		label$103:;
 		{
 			FBSTRING* vr$7 = fb_CHR( 1, IDX$1 / 33ll );
 			fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)vr$7, -1ll, 0 );
 			IDX$1 = IDX$1 % 33ll;
-			if( IDX$1 > 10ll ) goto label$96;
+			if( IDX$1 > 10ll ) goto label$105;
 			{
 				FBSTRING* vr$11 = fb_CHR( 1, (int64)((uint64)(IDX$1 + -1ll) + 48ull) );
 				fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)vr$11, -1ll, 0 );
 			}
-			goto label$95;
-			label$96:;
-			if( IDX$1 > 33ll ) goto label$97;
+			goto label$104;
+			label$105:;
+			if( IDX$1 > 33ll ) goto label$106;
 			{
 				FBSTRING* vr$14 = fb_CHR( 1, (int64)((uint64)(IDX$1 + -11ll) + 65ull) );
 				fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)vr$14, -1ll, 0 );
 			}
-			label$97:;
-			label$95:;
+			label$106:;
+			label$104:;
 		}
-		label$92:;
+		label$101:;
 	}
-	label$91:;
-	label$90:;
+	label$100:;
+	label$99:;
 	fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"_", 2ll, 0 );
-	label$89:;
+	label$98:;
 }
 
 static int64 HADDUNDERSCORE( void )
 {
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$188:;
-	if( *(int64*)((uint8*)&ENV$ + 208ll) != 1ll ) goto label$191;
+	label$197:;
 	{
-		fb$result$1 = 0ll;
+		$10FB_BACKEND TMP$149$2;
+		TMP$149$2 = *($10FB_BACKEND*)((uint8*)&ENV$ + 208ll);
+		if( TMP$149$2 == 1ll ) goto label$201;
+		label$202:;
+		if( TMP$149$2 != 2ll ) goto label$200;
+		label$201:;
+		{
+			fb$result$1 = 0ll;
+		}
+		goto label$199;
+		label$200:;
+		{
+			fb$result$1 = *(int64*)((uint8*)&ENV$ + 608ll);
+		}
+		label$203:;
+		label$199:;
 	}
-	goto label$190;
-	label$191:;
-	{
-		fb$result$1 = *(int64*)((uint8*)&ENV$ + 584ll);
-	}
-	label$190:;
-	label$189:;
+	label$198:;
 	return fb$result$1;
 }
 
 static int64 HDOCPPMANGLING( struct $8FBSYMBOL* SYM$1 )
 {
+	int64 TMP$150$1;
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$192:;
-	if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 4ll ) goto label$195;
+	label$204:;
+	if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 4ll ) goto label$207;
 	{
 		fb$result$1 = -1ll;
-		goto label$193;
+		goto label$205;
 	}
-	label$195:;
-	label$194:;
-	if( (*(int64*)((uint8*)SYM$1 + 24ll) & 2080ll) == 0ll ) goto label$197;
+	label$207:;
+	label$206:;
+	if( (*(int64*)((uint8*)SYM$1 + 24ll) & 2080ll) == 0ll ) goto label$209;
 	{
 		fb$result$1 = 0ll;
-		goto label$193;
+		goto label$205;
 	}
-	label$197:;
-	label$196:;
-	if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 6ll ) goto label$199;
+	label$209:;
+	label$208:;
+	if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 6ll ) goto label$210;
+	TMP$150$1 = (int64)-(*(char**)((uint8*)SYM$1 + 40ll) != (char*)0ull);
+	goto label$465;
+	label$210:;
+	TMP$150$1 = 0ll;
+	label$465:;
+	if( TMP$150$1 == 0ll ) goto label$212;
 	{
-		if( (*(int64*)((uint8*)SYM$1 + 8ll) & 8388608ll) != 0ll ) goto label$201;
 		{
-			fb$result$1 = 0ll;
-			goto label$193;
+			$10FB_BACKEND TMP$151$3;
+			TMP$151$3 = *($10FB_BACKEND*)((uint8*)&ENV$ + 208ll);
+			if( TMP$151$3 == 1ll ) goto label$215;
+			label$216:;
+			if( TMP$151$3 != 2ll ) goto label$214;
+			label$215:;
+			{
+			}
+			goto label$213;
+			label$214:;
+			{
+				if( (*(int64*)((uint8*)SYM$1 + 8ll) & 8388608ll) != 0ll ) goto label$219;
+				{
+					fb$result$1 = 0ll;
+					goto label$205;
+				}
+				label$219:;
+				label$218:;
+			}
+			label$217:;
+			label$213:;
 		}
-		label$201:;
-		label$200:;
 	}
-	label$199:;
-	label$198:;
-	if( *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll) == (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$203;
+	label$212:;
+	label$211:;
+	if( *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll) == (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$221;
 	{
 		fb$result$1 = -1ll;
-		goto label$193;
+		goto label$205;
 	}
-	label$203:;
-	label$202:;
-	if( *(int64*)SYM$1 != 3ll ) goto label$205;
+	label$221:;
+	label$220:;
+	if( *(int64*)SYM$1 != 3ll ) goto label$223;
 	{
-		if( (*(int64*)((uint8*)SYM$1 + 16ll) & 1ll) == 0ll ) goto label$207;
+		if( (*(int64*)((uint8*)SYM$1 + 16ll) & 1ll) == 0ll ) goto label$225;
 		{
 			fb$result$1 = -1ll;
-			goto label$193;
+			goto label$205;
 		}
-		label$207:;
-		label$206:;
+		label$225:;
+		label$224:;
 	}
-	label$205:;
-	label$204:;
+	label$223:;
+	label$222:;
 	fb$result$1 = 0ll;
-	label$193:;
+	label$205:;
 	return fb$result$1;
 }
 
 static void HMANGLENAMESPACE( FBSTRING* MANGLED$1, struct $8FBSYMBOL* NS$1, int64 DOHASHING$1, int64 ISCONST$1 )
 {
-	label$208:;
+	label$226:;
 	static struct $8FBSYMBOL* NSSTK$1[64];
-	static struct $8FBARRAY1IP8FBSYMBOLE tmp$143$1 = { (struct $8FBSYMBOL**)NSSTK$1, (struct $8FBSYMBOL**)NSSTK$1, 512ll, 8ll, 1ll, 49ll, { { 64ll, 0ll, 63ll } } };
+	static struct $8FBARRAY1IP8FBSYMBOLE tmp$152$1 = { (struct $8FBSYMBOL**)NSSTK$1, (struct $8FBSYMBOL**)NSSTK$1, 512ll, 8ll, 1ll, 49ll, { { 64ll, 0ll, 63ll } } };
 	int64 TOS$1;
-	if( NS$1 != (struct $8FBSYMBOL*)0ull ) goto label$211;
+	if( NS$1 != (struct $8FBSYMBOL*)0ull ) goto label$229;
 	{
-		goto label$209;
+		goto label$227;
 	}
-	label$211:;
-	label$210:;
-	if( NS$1 != (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$213;
+	label$229:;
+	label$228:;
+	if( NS$1 != (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$231;
 	{
-		goto label$209;
+		goto label$227;
 	}
-	label$213:;
-	label$212:;
-	if( DOHASHING$1 == 0ll ) goto label$215;
+	label$231:;
+	label$230:;
+	if( DOHASHING$1 == 0ll ) goto label$233;
 	{
 		FBSTRING UNUSED$2;
 		__builtin_memset( &UNUSED$2, 0, 24ll );
 		SYMBMANGLETYPE( &UNUSED$2, *(int64*)((uint8*)NS$1 + 56ll), NS$1, 0ll );
 		fb_StrDelete( (FBSTRING*)&UNUSED$2 );
 	}
-	label$215:;
-	label$214:;
+	label$233:;
+	label$232:;
 	TOS$1 = -1ll;
-	label$216:;
+	label$234:;
 	{
 		TOS$1 = TOS$1 + 1ll;
 		*(struct $8FBSYMBOL**)((int64)(struct $8FBSYMBOL**)NSSTK$1 + (TOS$1 << (3ll & 63ll))) = NS$1;
 		NS$1 = *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)NS$1 + 248ll);
 	}
-	label$218:;
-	if( NS$1 != (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$216;
-	label$217:;
+	label$236:;
+	if( NS$1 != (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$234;
+	label$235:;
 	fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"N", 2ll, 0 );
-	if( ISCONST$1 == 0ll ) goto label$220;
+	if( ISCONST$1 == 0ll ) goto label$238;
 	{
 		fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"K", 2ll, 0 );
 	}
-	label$220:;
-	label$219:;
-	label$221:;
+	label$238:;
+	label$237:;
+	label$239:;
 	{
 		NS$1 = *(struct $8FBSYMBOL**)((int64)(struct $8FBSYMBOL**)NSSTK$1 + (TOS$1 << (3ll & 63ll)));
 		HMANGLEUDTID( MANGLED$1, NS$1 );
 		TOS$1 = TOS$1 + -1ll;
 	}
-	label$223:;
-	if( TOS$1 >= 0ll ) goto label$221;
-	label$222:;
-	label$209:;
+	label$241:;
+	if( TOS$1 >= 0ll ) goto label$239;
+	label$240:;
+	label$227:;
 }
 
 static void HMANGLEVARIABLE( struct $8FBSYMBOL* SYM$1 )
 {
-	label$224:;
+	label$242:;
 	static FBSTRING ID$1;
 	static int64 VARCOUNTER$1;
 	FBSTRING MANGLED$1;
@@ -2176,828 +2264,847 @@ static void HMANGLEVARIABLE( struct $8FBSYMBOL* SYM$1 )
 	char* P$1;
 	int64 DOCPP$1;
 	int64 ISGLOBAL$1;
-	if( (int64)*(uint16*)((uint8*)SYM$1 + 72ll) <= 0ll ) goto label$227;
+	if( (int64)*(uint16*)((uint8*)SYM$1 + 72ll) <= 0ll ) goto label$245;
 	{
 		DOCPP$1 = 0ll;
 	}
-	goto label$226;
-	label$227:;
+	goto label$244;
+	label$245:;
 	{
 		int64 vr$3 = HDOCPPMANGLING( SYM$1 );
 		DOCPP$1 = vr$3;
 	}
-	label$226:;
-	if( (*(int64*)((uint8*)SYM$1 + 8ll) & 59ll) == 0ll ) goto label$229;
+	label$244:;
+	if( (*(int64*)((uint8*)SYM$1 + 8ll) & 59ll) == 0ll ) goto label$247;
 	{
-		if( *(int64*)((uint8*)&ENV$ + 208ll) != 2ll ) goto label$231;
+		if( *(int64*)((uint8*)&ENV$ + 208ll) != 3ll ) goto label$249;
 		{
 			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"@", 2ll, 0 );
 		}
-		label$231:;
-		label$230:;
+		label$249:;
+		label$248:;
 		int64 vr$7 = HADDUNDERSCORE(  );
-		if( vr$7 == 0ll ) goto label$233;
+		if( vr$7 == 0ll ) goto label$251;
 		{
 			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"_", 2ll, 0 );
 		}
-		label$233:;
-		label$232:;
+		label$251:;
+		label$250:;
 		{
-			$13FB_COMPTARGET TMP$145$3;
-			TMP$145$3 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
-			if( TMP$145$3 == 0ll ) goto label$236;
-			label$237:;
-			if( TMP$145$3 != 1ll ) goto label$235;
-			label$236:;
+			$13FB_COMPTARGET TMP$154$3;
+			TMP$154$3 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
+			if( TMP$154$3 == 0ll ) goto label$254;
+			label$255:;
+			if( TMP$154$3 != 1ll ) goto label$253;
+			label$254:;
 			{
-				if( (*(int64*)((uint8*)SYM$1 + 8ll) & 512ll) == 0ll ) goto label$239;
+				if( (*(int64*)((uint8*)SYM$1 + 8ll) & 512ll) == 0ll ) goto label$257;
 				{
 					fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"_imp__", 7ll, 0 );
-				}
-				label$239:;
-				label$238:;
-			}
-			label$235:;
-			label$234:;
-		}
-		if( DOCPP$1 == 0ll ) goto label$241;
-		{
-			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"_Z", 3ll, 0 );
-			if( (*(int64*)((uint8*)SYM$1 + 24ll) & 256ll) == 0ll ) goto label$243;
-			{
-				fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"TS", 3ll, 0 );
-			}
-			goto label$242;
-			label$243:;
-			if( (*(int64*)((uint8*)SYM$1 + 24ll) & 1024ll) == 0ll ) goto label$244;
-			{
-				fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"TV", 3ll, 0 );
-			}
-			label$244:;
-			label$242:;
-		}
-		label$241:;
-		label$240:;
-	}
-	goto label$228;
-	label$229:;
-	{
-		if( *(int64*)((uint8*)&ENV$ + 208ll) != 2ll ) goto label$246;
-		{
-			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"%", 2ll, 0 );
-		}
-		label$246:;
-		label$245:;
-	}
-	label$228:;
-	if( DOCPP$1 == 0ll ) goto label$248;
-	{
-		HMANGLENAMESPACE( &MANGLED$1, *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll), 0ll, 0ll );
-	}
-	label$248:;
-	label$247:;
-	if( (*(int64*)((uint8*)SYM$1 + 24ll) & 1280ll) == 0ll ) goto label$250;
-	{
-		fb_StrAssign( (void*)&ID$1, -1ll, (void*)"", 1ll, 0 );
-	}
-	goto label$249;
-	label$250:;
-	if( (*(int64*)((uint8*)SYM$1 + 24ll) & 512ll) == 0ll ) goto label$251;
-	{
-		fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll, 0 );
-	}
-	goto label$249;
-	label$251:;
-	{
-		ISGLOBAL$1 = (int64)-((*(int64*)((uint8*)SYM$1 + 8ll) & 57ll) != 0ll);
-		if( (ISGLOBAL$1 | DOCPP$1) == 0ll ) goto label$253;
-		{
-			if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 0ll ) goto label$255;
-			{
-				fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 32ll), 0ll, 0 );
-				if( ((int64)-(*(int64*)((uint8*)&ENV$ + 208ll) == 1ll) | (int64)-(*(int64*)((uint8*)&ENV$ + 208ll) == 3ll)) == 0ll ) goto label$257;
-				{
-					fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)"$", 2ll, 0 );
 				}
 				label$257:;
 				label$256:;
 			}
-			goto label$254;
-			label$255:;
+			label$253:;
+			label$252:;
+		}
+		if( DOCPP$1 == 0ll ) goto label$259;
+		{
+			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"_Z", 3ll, 0 );
+			if( (*(int64*)((uint8*)SYM$1 + 24ll) & 256ll) == 0ll ) goto label$261;
+			{
+				fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"TS", 3ll, 0 );
+			}
+			goto label$260;
+			label$261:;
+			if( (*(int64*)((uint8*)SYM$1 + 24ll) & 1024ll) == 0ll ) goto label$262;
+			{
+				fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"TV", 3ll, 0 );
+			}
+			label$262:;
+			label$260:;
+		}
+		label$259:;
+		label$258:;
+	}
+	goto label$246;
+	label$247:;
+	{
+		if( *(int64*)((uint8*)&ENV$ + 208ll) != 3ll ) goto label$264;
+		{
+			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"%", 2ll, 0 );
+		}
+		label$264:;
+		label$263:;
+	}
+	label$246:;
+	if( DOCPP$1 == 0ll ) goto label$266;
+	{
+		HMANGLENAMESPACE( &MANGLED$1, *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll), 0ll, 0ll );
+	}
+	label$266:;
+	label$265:;
+	if( (*(int64*)((uint8*)SYM$1 + 24ll) & 1280ll) == 0ll ) goto label$268;
+	{
+		fb_StrAssign( (void*)&ID$1, -1ll, (void*)"", 1ll, 0 );
+	}
+	goto label$267;
+	label$268:;
+	if( (*(int64*)((uint8*)SYM$1 + 24ll) & 512ll) == 0ll ) goto label$269;
+	{
+		fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll, 0 );
+	}
+	goto label$267;
+	label$269:;
+	{
+		ISGLOBAL$1 = (int64)-((*(int64*)((uint8*)SYM$1 + 8ll) & 57ll) != 0ll);
+		if( (ISGLOBAL$1 | DOCPP$1) == 0ll ) goto label$271;
+		{
+			if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 0ll ) goto label$273;
+			{
+				fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 32ll), 0ll, 0 );
+				{
+					$10FB_BACKEND TMP$160$5;
+					TMP$160$5 = *($10FB_BACKEND*)((uint8*)&ENV$ + 208ll);
+					if( TMP$160$5 == 1ll ) goto label$276;
+					label$277:;
+					if( TMP$160$5 == 2ll ) goto label$276;
+					label$278:;
+					if( TMP$160$5 != 4ll ) goto label$275;
+					label$276:;
+					{
+						fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)"$", 2ll, 0 );
+					}
+					label$275:;
+					label$274:;
+				}
+			}
+			goto label$272;
+			label$273:;
 			{
 				fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll, 0 );
 			}
-			label$254:;
-			if( (*(int64*)((uint8*)SYM$1 + 8ll) & 1048576ll) == 0ll ) goto label$259;
+			label$272:;
+			if( (*(int64*)((uint8*)SYM$1 + 8ll) & 1048576ll) == 0ll ) goto label$280;
 			{
-				int64 TMP$151$4;
-				FBSTRING TMP$152$4;
-				TMP$151$4 = 0ll;
-				char* vr$44 = HMANGLEBUILTINTYPE( *(int64*)((uint8*)SYM$1 + 56ll) & 511ll, &TMP$151$4 );
-				__builtin_memset( &TMP$152$4, 0, 24ll );
-				FBSTRING* vr$47 = fb_StrConcat( &TMP$152$4, (void*)&ID$1, -1ll, (void*)vr$44, 0ll );
-				fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$47, -1ll, 0 );
-				if( *(int64*)((uint8*)&ENV$ + 208ll) != 1ll ) goto label$261;
+				int64 TMP$161$4;
+				FBSTRING TMP$162$4;
+				TMP$161$4 = 0ll;
+				char* vr$41 = HMANGLEBUILTINTYPE( *(int64*)((uint8*)SYM$1 + 56ll) & 511ll, &TMP$161$4 );
+				__builtin_memset( &TMP$162$4, 0, 24ll );
+				FBSTRING* vr$44 = fb_StrConcat( &TMP$162$4, (void*)&ID$1, -1ll, (void*)vr$41, 0ll );
+				fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$44, -1ll, 0 );
 				{
-					fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)"$", 2ll, 0 );
+					$10FB_BACKEND TMP$163$5;
+					TMP$163$5 = *($10FB_BACKEND*)((uint8*)&ENV$ + 208ll);
+					if( TMP$163$5 == 1ll ) goto label$283;
+					label$284:;
+					if( TMP$163$5 != 2ll ) goto label$282;
+					label$283:;
+					{
+						fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)"$", 2ll, 0 );
+					}
+					label$282:;
+					label$281:;
 				}
-				label$261:;
-				label$260:;
 			}
-			label$259:;
-			label$258:;
+			label$280:;
+			label$279:;
 		}
-		goto label$252;
-		label$253:;
+		goto label$270;
+		label$271:;
 		{
 			{
-				$10FB_BACKEND TMP$153$4;
-				TMP$153$4 = *($10FB_BACKEND*)((uint8*)&ENV$ + 208ll);
-				if( TMP$153$4 != 1ll ) goto label$263;
-				label$264:;
+				$10FB_BACKEND TMP$164$4;
+				TMP$164$4 = *($10FB_BACKEND*)((uint8*)&ENV$ + 208ll);
+				if( TMP$164$4 == 1ll ) goto label$287;
+				label$288:;
+				if( TMP$164$4 != 2ll ) goto label$286;
+				label$287:;
 				{
-					int64 vr$51 = SYMBHASDTOR( SYM$1 );
-					if( ((int64)-((*(int64*)((uint8*)SYM$1 + 8ll) & 2ll) != 0ll) & vr$51) == 0ll ) goto label$266;
+					int64 vr$48 = SYMBHASDTOR( SYM$1 );
+					if( ((int64)-((*(int64*)((uint8*)SYM$1 + 8ll) & 2ll) != 0ll) & vr$48) == 0ll ) goto label$290;
 					{
-						char* vr$53 = SYMBUNIQUEID( (boolean)0ll );
-						fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$53, 0ll, 0 );
+						char* vr$50 = SYMBUNIQUEID( (boolean)0ll );
+						fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$50, 0ll, 0 );
 					}
-					goto label$265;
-					label$266:;
+					goto label$289;
+					label$290:;
 					{
-						if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 0ll ) goto label$268;
+						if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 0ll ) goto label$292;
 						{
-							FBSTRING TMP$156$7;
+							FBSTRING TMP$167$7;
 							fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 32ll), 0ll, 0 );
 							fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)"$", 2ll, 0 );
-							if( (*(int64*)((uint8*)SYM$1 + 8ll) & 1048576ll) == 0ll ) goto label$270;
+							if( (*(int64*)((uint8*)SYM$1 + 8ll) & 1048576ll) == 0ll ) goto label$294;
 							{
-								int64 TMP$154$8;
-								FBSTRING TMP$155$8;
-								TMP$154$8 = 0ll;
-								char* vr$62 = HMANGLEBUILTINTYPE( *(int64*)((uint8*)SYM$1 + 56ll) & 511ll, &TMP$154$8 );
-								__builtin_memset( &TMP$155$8, 0, 24ll );
-								FBSTRING* vr$65 = fb_StrConcat( &TMP$155$8, (void*)&ID$1, -1ll, (void*)vr$62, 0ll );
-								fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$65, -1ll, 0 );
+								int64 TMP$165$8;
+								FBSTRING TMP$166$8;
+								TMP$165$8 = 0ll;
+								char* vr$59 = HMANGLEBUILTINTYPE( *(int64*)((uint8*)SYM$1 + 56ll) & 511ll, &TMP$165$8 );
+								__builtin_memset( &TMP$166$8, 0, 24ll );
+								FBSTRING* vr$62 = fb_StrConcat( &TMP$166$8, (void*)&ID$1, -1ll, (void*)vr$59, 0ll );
+								fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$62, -1ll, 0 );
 								fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)"$", 2ll, 0 );
 							}
-							label$270:;
-							label$269:;
-							FBSTRING* vr$68 = fb_UIntToStr( (uint32)*(uint16*)((uint8*)SYM$1 + 72ll) );
-							__builtin_memset( &TMP$156$7, 0, 24ll );
-							FBSTRING* vr$71 = fb_StrConcat( &TMP$156$7, (void*)&ID$1, -1ll, (void*)vr$68, -1ll );
-							fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$71, -1ll, 0 );
+							label$294:;
+							label$293:;
+							FBSTRING* vr$65 = fb_UIntToStr( (uint32)*(uint16*)((uint8*)SYM$1 + 72ll) );
+							__builtin_memset( &TMP$167$7, 0, 24ll );
+							FBSTRING* vr$68 = fb_StrConcat( &TMP$167$7, (void*)&ID$1, -1ll, (void*)vr$65, -1ll );
+							fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$68, -1ll, 0 );
 						}
-						goto label$267;
-						label$268:;
+						goto label$291;
+						label$292:;
 						{
 							fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll, 0 );
 						}
-						label$267:;
+						label$291:;
 					}
-					label$265:;
+					label$289:;
 				}
-				goto label$262;
-				label$263:;
-				if( TMP$153$4 != 2ll ) goto label$271;
-				label$272:;
+				goto label$285;
+				label$286:;
+				if( TMP$164$4 != 3ll ) goto label$295;
+				label$296:;
 				{
-					if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 0ll ) goto label$274;
+					if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 0ll ) goto label$298;
 					{
 						fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 32ll), 0ll, 0 );
-						if( (*(int64*)((uint8*)SYM$1 + 8ll) & 1048576ll) == 0ll ) goto label$276;
+						if( (*(int64*)((uint8*)SYM$1 + 8ll) & 1048576ll) == 0ll ) goto label$300;
 						{
-							int64 TMP$157$7;
-							FBSTRING TMP$158$7;
-							TMP$157$7 = 0ll;
-							char* vr$81 = HMANGLEBUILTINTYPE( *(int64*)((uint8*)SYM$1 + 56ll) & 511ll, &TMP$157$7 );
-							__builtin_memset( &TMP$158$7, 0, 24ll );
-							FBSTRING* vr$84 = fb_StrConcat( &TMP$158$7, (void*)&ID$1, -1ll, (void*)vr$81, 0ll );
-							fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$84, -1ll, 0 );
+							int64 TMP$168$7;
+							FBSTRING TMP$169$7;
+							TMP$168$7 = 0ll;
+							char* vr$78 = HMANGLEBUILTINTYPE( *(int64*)((uint8*)SYM$1 + 56ll) & 511ll, &TMP$168$7 );
+							__builtin_memset( &TMP$169$7, 0, 24ll );
+							FBSTRING* vr$81 = fb_StrConcat( &TMP$169$7, (void*)&ID$1, -1ll, (void*)vr$78, 0ll );
+							fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$81, -1ll, 0 );
 						}
-						label$276:;
-						label$275:;
+						label$300:;
+						label$299:;
 						fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)".", 2ll, 0 );
-						FBSTRING* vr$85 = fb_LongintToStr( VARCOUNTER$1 );
-						fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)vr$85, -1ll, 0 );
+						FBSTRING* vr$82 = fb_LongintToStr( VARCOUNTER$1 );
+						fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)vr$82, -1ll, 0 );
 						VARCOUNTER$1 = VARCOUNTER$1 + 1ll;
 					}
-					goto label$273;
-					label$274:;
+					goto label$297;
+					label$298:;
 					{
 						fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll, 0 );
 					}
-					label$273:;
+					label$297:;
 				}
-				goto label$262;
-				label$271:;
-				if( TMP$153$4 != 3ll ) goto label$277;
-				label$278:;
+				goto label$285;
+				label$295:;
+				if( TMP$164$4 != 4ll ) goto label$301;
+				label$302:;
 				{
-					if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 0ll ) goto label$280;
+					if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 0ll ) goto label$304;
 					{
 						fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 32ll), 0ll, 0 );
-						if( (*(int64*)((uint8*)SYM$1 + 8ll) & 1048576ll) == 0ll ) goto label$282;
+						if( (*(int64*)((uint8*)SYM$1 + 8ll) & 1048576ll) == 0ll ) goto label$306;
 						{
-							int64 TMP$159$7;
-							FBSTRING TMP$160$7;
-							TMP$159$7 = 0ll;
-							char* vr$96 = HMANGLEBUILTINTYPE( *(int64*)((uint8*)SYM$1 + 56ll) & 511ll, &TMP$159$7 );
-							__builtin_memset( &TMP$160$7, 0, 24ll );
-							FBSTRING* vr$99 = fb_StrConcat( &TMP$160$7, (void*)&ID$1, -1ll, (void*)vr$96, 0ll );
-							fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$99, -1ll, 0 );
+							int64 TMP$170$7;
+							FBSTRING TMP$171$7;
+							TMP$170$7 = 0ll;
+							char* vr$93 = HMANGLEBUILTINTYPE( *(int64*)((uint8*)SYM$1 + 56ll) & 511ll, &TMP$170$7 );
+							__builtin_memset( &TMP$171$7, 0, 24ll );
+							FBSTRING* vr$96 = fb_StrConcat( &TMP$171$7, (void*)&ID$1, -1ll, (void*)vr$93, 0ll );
+							fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$96, -1ll, 0 );
 						}
-						label$282:;
-						label$281:;
+						label$306:;
+						label$305:;
 						fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)".", 2ll, 0 );
-						FBSTRING* vr$100 = fb_LongintToStr( VARCOUNTER$1 );
-						fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)vr$100, -1ll, 0 );
+						FBSTRING* vr$97 = fb_LongintToStr( VARCOUNTER$1 );
+						fb_StrConcatAssign( (void*)&ID$1, -1ll, (void*)vr$97, -1ll, 0 );
 						VARCOUNTER$1 = VARCOUNTER$1 + 1ll;
 					}
-					goto label$279;
-					label$280:;
-					if( (*(int64*)((uint8*)SYM$1 + 8ll) & 2ll) == 0ll ) goto label$283;
+					goto label$303;
+					label$304:;
+					if( (*(int64*)((uint8*)SYM$1 + 8ll) & 2ll) == 0ll ) goto label$307;
 					{
-						char* vr$104 = SYMBUNIQUEID( (boolean)0ll );
-						fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$104, 0ll, 0 );
+						char* vr$101 = SYMBUNIQUEID( (boolean)0ll );
+						fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$101, 0ll, 0 );
 					}
-					goto label$279;
-					label$283:;
+					goto label$303;
+					label$307:;
 					{
 						fb_StrAssign( (void*)&ID$1, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll, 0 );
 					}
-					label$279:;
+					label$303:;
 				}
-				goto label$262;
-				label$277:;
+				goto label$285;
+				label$301:;
 				{
-					if( (*(int64*)((uint8*)SYM$1 + 8ll) & 2ll) == 0ll ) goto label$286;
+					if( (*(int64*)((uint8*)SYM$1 + 8ll) & 2ll) == 0ll ) goto label$310;
 					{
-						char* vr$108 = SYMBUNIQUEID( (boolean)0ll );
-						fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$108, 0ll, 0 );
+						char* vr$105 = SYMBUNIQUEID( (boolean)0ll );
+						fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$105, 0ll, 0 );
 					}
-					goto label$285;
-					label$286:;
+					goto label$309;
+					label$310:;
 					{
-						char* vr$109 = (*(tmp$44*)((uint8*)&IR$ + 80ll))(  );
-						fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$109, 0ll, 0 );
+						char* vr$106 = (*(tmp$46*)((uint8*)&IR$ + 80ll))(  );
+						fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$106, 0ll, 0 );
 					}
-					label$285:;
+					label$309:;
 				}
-				label$284:;
-				label$262:;
+				label$308:;
+				label$285:;
 			}
 		}
-		label$252:;
+		label$270:;
 	}
-	label$249:;
-	int64 vr$110 = fb_StrLen( (void*)&ID$1, -1ll );
-	if( vr$110 <= 0ll ) goto label$288;
+	label$267:;
+	int64 vr$107 = fb_StrLen( (void*)&ID$1, -1ll );
+	if( vr$107 <= 0ll ) goto label$312;
 	{
-		if( DOCPP$1 == 0ll ) goto label$290;
+		if( DOCPP$1 == 0ll ) goto label$314;
 		{
-			int64 vr$111 = fb_StrLen( (void*)&ID$1, -1ll );
-			FBSTRING* vr$112 = fb_LongintToStr( vr$111 );
-			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)vr$112, -1ll, 0 );
+			int64 vr$108 = fb_StrLen( (void*)&ID$1, -1ll );
+			FBSTRING* vr$109 = fb_LongintToStr( vr$108 );
+			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)vr$109, -1ll, 0 );
 		}
-		label$290:;
-		label$289:;
+		label$314:;
+		label$313:;
 		fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)&ID$1, -1ll, 0 );
 	}
-	label$288:;
-	label$287:;
-	if( DOCPP$1 == 0ll ) goto label$292;
+	label$312:;
+	label$311:;
+	if( DOCPP$1 == 0ll ) goto label$316;
 	{
-		if( *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll) == (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$294;
+		if( *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll) == (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$318;
 		{
 			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"E", 2ll, 0 );
 		}
-		label$294:;
-		label$293:;
+		label$318:;
+		label$317:;
 	}
-	label$292:;
-	label$291:;
+	label$316:;
+	label$315:;
 	SYMBSETMANGLEDID( SYM$1, &MANGLED$1 );
 	fb_StrDelete( (FBSTRING*)&MANGLED$1 );
-	label$225:;
+	label$243:;
 }
 
 static void HGETPROCPARAMSTYPECODE( FBSTRING* MANGLED$1, struct $8FBSYMBOL* SYM$1, int64 IS_REAL_PROC$1 )
 {
-	label$295:;
+	label$319:;
 	struct $8FBSYMBOL* PARAM$1;
 	PARAM$1 = *(struct $8FBSYMBOL**)((uint8*)SYM$1 + 136ll);
-	if( PARAM$1 == (struct $8FBSYMBOL*)0ull ) goto label$298;
+	if( PARAM$1 == (struct $8FBSYMBOL*)0ull ) goto label$322;
 	{
-		if( (IS_REAL_PROC$1 & (int64)-((*(int64*)((uint8*)PARAM$1 + 8ll) & 524288ll) != 0ll)) == 0ll ) goto label$300;
+		if( (IS_REAL_PROC$1 & (int64)-((*(int64*)((uint8*)PARAM$1 + 8ll) & 524288ll) != 0ll)) == 0ll ) goto label$324;
 		{
 			PARAM$1 = *(struct $8FBSYMBOL**)((uint8*)PARAM$1 + 312ll);
 		}
-		label$300:;
-		label$299:;
+		label$324:;
+		label$323:;
 	}
-	label$298:;
-	label$297:;
-	if( PARAM$1 != (struct $8FBSYMBOL*)0ull ) goto label$302;
+	label$322:;
+	label$321:;
+	if( PARAM$1 != (struct $8FBSYMBOL*)0ull ) goto label$326;
 	{
 		fb_StrConcatByref( (void*)MANGLED$1, -1ll, (void*)"v", 2ll, 0 );
-		goto label$296;
+		goto label$320;
 	}
-	label$302:;
-	label$301:;
-	label$303:;
+	label$326:;
+	label$325:;
+	label$327:;
 	{
 		SYMBMANGLEPARAM( MANGLED$1, PARAM$1 );
 		PARAM$1 = *(struct $8FBSYMBOL**)((uint8*)PARAM$1 + 312ll);
 	}
-	label$305:;
-	if( PARAM$1 != (struct $8FBSYMBOL*)0ull ) goto label$303;
-	label$304:;
-	label$296:;
+	label$329:;
+	if( PARAM$1 != (struct $8FBSYMBOL*)0ull ) goto label$327;
+	label$328:;
+	label$320:;
 }
 
 static char* HGETOPERATORNAME( struct $8FBSYMBOL* PROC$1 )
 {
 	char* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$306:;
+	label$330:;
 	{
-		uint64 TMP$161$2;
-		TMP$161$2 = *(uint64*)((uint8*)*(struct $10FB_PROCEXT**)((uint8*)PROC$1 + 208ll) + 80ll);
-		goto label$309;
-		label$310:;
+		uint64 TMP$172$2;
+		TMP$172$2 = *(uint64*)((uint8*)*(struct $10FB_PROCEXT**)((uint8*)PROC$1 + 208ll) + 80ll);
+		goto label$333;
+		label$334:;
 		{
 			fb$result$1 = (char*)"aS";
 		}
-		goto label$308;
-		label$311:;
+		goto label$332;
+		label$335:;
 		{
 			fb$result$1 = (char*)"pl";
 		}
-		goto label$308;
-		label$312:;
+		goto label$332;
+		label$336:;
 		{
 			fb$result$1 = (char*)"pL";
 		}
-		goto label$308;
-		label$313:;
+		goto label$332;
+		label$337:;
 		{
 			fb$result$1 = (char*)"mi";
 		}
-		goto label$308;
-		label$314:;
+		goto label$332;
+		label$338:;
 		{
 			fb$result$1 = (char*)"mI";
 		}
-		goto label$308;
-		label$315:;
+		goto label$332;
+		label$339:;
 		{
 			fb$result$1 = (char*)"ml";
 		}
-		goto label$308;
-		label$316:;
+		goto label$332;
+		label$340:;
 		{
 			fb$result$1 = (char*)"mL";
 		}
-		goto label$308;
-		label$317:;
+		goto label$332;
+		label$341:;
 		{
 			fb$result$1 = (char*)"dv";
 		}
-		goto label$308;
-		label$318:;
+		goto label$332;
+		label$342:;
 		{
 			fb$result$1 = (char*)"dV";
 		}
-		goto label$308;
-		label$319:;
+		goto label$332;
+		label$343:;
 		{
 			fb$result$1 = (char*)"v24idiv";
 		}
-		goto label$308;
-		label$320:;
+		goto label$332;
+		label$344:;
 		{
 			fb$result$1 = (char*)"v28selfidiv";
 		}
-		goto label$308;
-		label$321:;
+		goto label$332;
+		label$345:;
 		{
 			fb$result$1 = (char*)"rm";
 		}
-		goto label$308;
-		label$322:;
+		goto label$332;
+		label$346:;
 		{
 			fb$result$1 = (char*)"rM";
 		}
-		goto label$308;
-		label$323:;
+		goto label$332;
+		label$347:;
 		{
 			fb$result$1 = (char*)"an";
 		}
-		goto label$308;
-		label$324:;
+		goto label$332;
+		label$348:;
 		{
 			fb$result$1 = (char*)"aN";
 		}
-		goto label$308;
-		label$325:;
+		goto label$332;
+		label$349:;
 		{
 			fb$result$1 = (char*)"or";
 		}
-		goto label$308;
-		label$326:;
+		goto label$332;
+		label$350:;
 		{
 			fb$result$1 = (char*)"oR";
 		}
-		goto label$308;
-		label$327:;
+		goto label$332;
+		label$351:;
 		{
 			fb$result$1 = (char*)"aa";
 		}
-		goto label$308;
-		label$328:;
+		goto label$332;
+		label$352:;
 		{
 			fb$result$1 = (char*)"aA";
 		}
-		goto label$308;
-		label$329:;
+		goto label$332;
+		label$353:;
 		{
 			fb$result$1 = (char*)"oo";
 		}
-		goto label$308;
-		label$330:;
+		goto label$332;
+		label$354:;
 		{
 			fb$result$1 = (char*)"oO";
 		}
-		goto label$308;
-		label$331:;
+		goto label$332;
+		label$355:;
 		{
 			fb$result$1 = (char*)"eo";
 		}
-		goto label$308;
-		label$332:;
+		goto label$332;
+		label$356:;
 		{
 			fb$result$1 = (char*)"eO";
 		}
-		goto label$308;
-		label$333:;
+		goto label$332;
+		label$357:;
 		{
 			fb$result$1 = (char*)"v23eqv";
 		}
-		goto label$308;
-		label$334:;
+		goto label$332;
+		label$358:;
 		{
 			fb$result$1 = (char*)"v27selfeqv";
 		}
-		goto label$308;
-		label$335:;
+		goto label$332;
+		label$359:;
 		{
 			fb$result$1 = (char*)"v23imp";
 		}
-		goto label$308;
-		label$336:;
+		goto label$332;
+		label$360:;
 		{
 			fb$result$1 = (char*)"v27selfimp";
 		}
-		goto label$308;
-		label$337:;
+		goto label$332;
+		label$361:;
 		{
 			fb$result$1 = (char*)"ls";
 		}
-		goto label$308;
-		label$338:;
+		goto label$332;
+		label$362:;
 		{
 			fb$result$1 = (char*)"lS";
 		}
-		goto label$308;
-		label$339:;
+		goto label$332;
+		label$363:;
 		{
 			fb$result$1 = (char*)"rs";
 		}
-		goto label$308;
-		label$340:;
+		goto label$332;
+		label$364:;
 		{
 			fb$result$1 = (char*)"rS";
 		}
-		goto label$308;
-		label$341:;
+		goto label$332;
+		label$365:;
 		{
 			fb$result$1 = (char*)"v23pow";
 		}
-		goto label$308;
-		label$342:;
+		goto label$332;
+		label$366:;
 		{
 			fb$result$1 = (char*)"v27selfpow";
 		}
-		goto label$308;
-		label$343:;
+		goto label$332;
+		label$367:;
 		{
 			fb$result$1 = (char*)"v23cat";
 		}
-		goto label$308;
-		label$344:;
+		goto label$332;
+		label$368:;
 		{
 			fb$result$1 = (char*)"v27selfcat";
 		}
-		goto label$308;
-		label$345:;
+		goto label$332;
+		label$369:;
 		{
 			fb$result$1 = (char*)"eq";
 		}
-		goto label$308;
-		label$346:;
+		goto label$332;
+		label$370:;
 		{
 			fb$result$1 = (char*)"gt";
 		}
-		goto label$308;
-		label$347:;
+		goto label$332;
+		label$371:;
 		{
 			fb$result$1 = (char*)"lt";
 		}
-		goto label$308;
-		label$348:;
+		goto label$332;
+		label$372:;
 		{
 			fb$result$1 = (char*)"ne";
 		}
-		goto label$308;
-		label$349:;
+		goto label$332;
+		label$373:;
 		{
 			fb$result$1 = (char*)"ge";
 		}
-		goto label$308;
-		label$350:;
+		goto label$332;
+		label$374:;
 		{
 			fb$result$1 = (char*)"le";
 		}
-		goto label$308;
-		label$351:;
+		goto label$332;
+		label$375:;
 		{
 			fb$result$1 = (char*)"co";
 		}
-		goto label$308;
-		label$352:;
+		goto label$332;
+		label$376:;
 		{
 			fb$result$1 = (char*)"ng";
 		}
-		goto label$308;
-		label$353:;
+		goto label$332;
+		label$377:;
 		{
 			fb$result$1 = (char*)"ps";
 		}
-		goto label$308;
-		label$354:;
+		goto label$332;
+		label$378:;
 		{
 			fb$result$1 = (char*)"v13abs";
 		}
-		goto label$308;
-		label$355:;
+		goto label$332;
+		label$379:;
 		{
 			fb$result$1 = (char*)"v13fix";
 		}
-		goto label$308;
-		label$356:;
+		goto label$332;
+		label$380:;
 		{
 			fb$result$1 = (char*)"v14frac";
 		}
-		goto label$308;
-		label$357:;
+		goto label$332;
+		label$381:;
 		{
 			fb$result$1 = (char*)"v13len";
 		}
-		goto label$308;
-		label$358:;
+		goto label$332;
+		label$382:;
 		{
 			fb$result$1 = (char*)"v13sgn";
 		}
-		goto label$308;
-		label$359:;
+		goto label$332;
+		label$383:;
 		{
 			fb$result$1 = (char*)"v13int";
 		}
-		goto label$308;
-		label$360:;
+		goto label$332;
+		label$384:;
 		{
 			fb$result$1 = (char*)"v13exp";
 		}
-		goto label$308;
-		label$361:;
+		goto label$332;
+		label$385:;
 		{
 			fb$result$1 = (char*)"v13log";
 		}
-		goto label$308;
-		label$362:;
+		goto label$332;
+		label$386:;
 		{
 			fb$result$1 = (char*)"v13sin";
 		}
-		goto label$308;
-		label$363:;
+		goto label$332;
+		label$387:;
 		{
 			fb$result$1 = (char*)"v14asin";
 		}
-		goto label$308;
-		label$364:;
+		goto label$332;
+		label$388:;
 		{
 			fb$result$1 = (char*)"v13cos";
 		}
-		goto label$308;
-		label$365:;
+		goto label$332;
+		label$389:;
 		{
 			fb$result$1 = (char*)"v14acos";
 		}
-		goto label$308;
-		label$366:;
+		goto label$332;
+		label$390:;
 		{
 			fb$result$1 = (char*)"v13tan";
 		}
-		goto label$308;
-		label$367:;
+		goto label$332;
+		label$391:;
 		{
 			fb$result$1 = (char*)"v13atn";
 		}
-		goto label$308;
-		label$368:;
+		goto label$332;
+		label$392:;
 		{
 			fb$result$1 = (char*)"v13sqr";
 		}
-		goto label$308;
-		label$369:;
+		goto label$332;
+		label$393:;
 		{
 			fb$result$1 = (char*)"nw";
 		}
-		goto label$308;
-		label$370:;
+		goto label$332;
+		label$394:;
 		{
 			fb$result$1 = (char*)"na";
 		}
-		goto label$308;
-		label$371:;
+		goto label$332;
+		label$395:;
 		{
 			fb$result$1 = (char*)"dl";
 		}
-		goto label$308;
-		label$372:;
+		goto label$332;
+		label$396:;
 		{
 			fb$result$1 = (char*)"da";
 		}
-		goto label$308;
-		label$373:;
+		goto label$332;
+		label$397:;
 		{
 			fb$result$1 = (char*)"de";
 		}
-		goto label$308;
-		label$374:;
+		goto label$332;
+		label$398:;
 		{
 			fb$result$1 = (char*)"pt";
 		}
-		goto label$308;
-		label$375:;
+		goto label$332;
+		label$399:;
 		{
 			fb$result$1 = (char*)"ix";
 		}
-		goto label$308;
-		label$376:;
+		goto label$332;
+		label$400:;
 		{
 			fb$result$1 = (char*)"ad";
 		}
-		goto label$308;
-		label$377:;
+		goto label$332;
+		label$401:;
 		{
-			if( (int64)*(int16*)((uint8*)PROC$1 + 120ll) != 2ll ) goto label$379;
+			if( (int64)*(int16*)((uint8*)PROC$1 + 120ll) != 2ll ) goto label$403;
 			{
 				fb$result$1 = (char*)"v13for";
 			}
-			goto label$378;
-			label$379:;
+			goto label$402;
+			label$403:;
 			{
 				fb$result$1 = (char*)"v03for";
 			}
-			label$378:;
+			label$402:;
 		}
-		goto label$308;
-		label$380:;
+		goto label$332;
+		label$404:;
 		{
-			if( (int64)*(int16*)((uint8*)PROC$1 + 120ll) != 2ll ) goto label$382;
+			if( (int64)*(int16*)((uint8*)PROC$1 + 120ll) != 2ll ) goto label$406;
 			{
 				fb$result$1 = (char*)"v14step";
 			}
-			goto label$381;
-			label$382:;
+			goto label$405;
+			label$406:;
 			{
 				fb$result$1 = (char*)"v04step";
 			}
-			label$381:;
+			label$405:;
 		}
-		goto label$308;
-		label$383:;
+		goto label$332;
+		label$407:;
 		{
-			if( (int64)*(int16*)((uint8*)PROC$1 + 120ll) != 3ll ) goto label$385;
+			if( (int64)*(int16*)((uint8*)PROC$1 + 120ll) != 3ll ) goto label$409;
 			{
 				fb$result$1 = (char*)"v24next";
 			}
-			goto label$384;
-			label$385:;
+			goto label$408;
+			label$409:;
 			{
 				fb$result$1 = (char*)"v14next";
 			}
-			label$384:;
+			label$408:;
 		}
-		goto label$308;
-		label$309:;
-		static const void* tmp$249[82ll] = {
-			&&label$310,
-			&&label$312,
-			&&label$314,
-			&&label$316,
-			&&label$318,
-			&&label$320,
-			&&label$322,
-			&&label$324,
-			&&label$326,
-			&&label$328,
-			&&label$330,
-			&&label$332,
+		goto label$332;
+		label$333:;
+		static const void* tmp$260[83ll] = {
 			&&label$334,
 			&&label$336,
 			&&label$338,
 			&&label$340,
 			&&label$342,
 			&&label$344,
-			&&label$369,
-			&&label$370,
-			&&label$371,
-			&&label$372,
-			&&label$376,
-			&&label$375,
-			&&label$377,
-			&&label$380,
-			&&label$383,
-			&&label$308,
-			&&label$311,
-			&&label$313,
-			&&label$315,
-			&&label$317,
-			&&label$319,
-			&&label$321,
-			&&label$323,
-			&&label$325,
-			&&label$327,
-			&&label$329,
-			&&label$331,
-			&&label$333,
+			&&label$346,
+			&&label$348,
+			&&label$350,
+			&&label$352,
+			&&label$354,
+			&&label$356,
+			&&label$358,
+			&&label$360,
+			&&label$362,
+			&&label$364,
+			&&label$366,
+			&&label$368,
+			&&label$393,
+			&&label$394,
+			&&label$395,
+			&&label$396,
+			&&label$400,
+			&&label$399,
+			&&label$401,
+			&&label$404,
+			&&label$407,
+			&&label$332,
 			&&label$335,
 			&&label$337,
 			&&label$339,
 			&&label$341,
 			&&label$343,
 			&&label$345,
-			&&label$346,
 			&&label$347,
-			&&label$348,
 			&&label$349,
-			&&label$350,
-			&&label$308,
 			&&label$351,
 			&&label$353,
-			&&label$352,
-			&&label$308,
-			&&label$354,
-			&&label$358,
-			&&label$362,
-			&&label$363,
-			&&label$364,
-			&&label$365,
-			&&label$366,
-			&&label$367,
-			&&label$308,
-			&&label$368,
-			&&label$308,
-			&&label$308,
-			&&label$361,
-			&&label$360,
-			&&label$359,
 			&&label$355,
-			&&label$356,
 			&&label$357,
-			&&label$308,
-			&&label$308,
-			&&label$373,
-			&&label$374,
+			&&label$359,
+			&&label$361,
+			&&label$363,
+			&&label$365,
+			&&label$367,
 			&&label$369,
 			&&label$370,
 			&&label$371,
 			&&label$372,
+			&&label$373,
+			&&label$374,
+			&&label$332,
+			&&label$375,
+			&&label$332,
+			&&label$377,
+			&&label$376,
+			&&label$332,
+			&&label$378,
+			&&label$382,
+			&&label$386,
+			&&label$387,
+			&&label$388,
+			&&label$389,
+			&&label$390,
+			&&label$391,
+			&&label$332,
+			&&label$392,
+			&&label$332,
+			&&label$332,
+			&&label$385,
+			&&label$384,
+			&&label$383,
+			&&label$379,
+			&&label$380,
+			&&label$381,
+			&&label$332,
+			&&label$332,
+			&&label$397,
+			&&label$398,
+			&&label$393,
+			&&label$394,
+			&&label$395,
+			&&label$396,
 		};
-		if( TMP$161$2 > 81ull ) goto label$308;
-		goto *tmp$249[TMP$161$2 - 0ull];
-		label$308:;
+		if( TMP$172$2 > 82ull ) goto label$332;
+		goto *tmp$260[TMP$172$2 - 0ull];
+		label$332:;
 	}
-	label$307:;
+	label$331:;
 	return fb$result$1;
 }
 
 static void HMANGLEPROC( struct $8FBSYMBOL* SYM$1 )
 {
-	label$386:;
+	label$410:;
 	FBSTRING MANGLED$1;
 	__builtin_memset( &MANGLED$1, 0, 24ll );
 	int64 LENGTH$1;
@@ -3009,222 +3116,222 @@ static void HMANGLEPROC( struct $8FBSYMBOL* SYM$1 )
 	int64 vr$1 = HDOCPPMANGLING( SYM$1 );
 	DOCPP$1 = vr$1;
 	int64 vr$13 = FBGETCPUFAMILY(  );
-	ADD_STDCALL_SUFFIX$1 = (((int64)-(*(int64*)((uint8*)SYM$1 + 152ll) == 1ll) | ((int64)-(*(int64*)((uint8*)SYM$1 + 152ll) == 6ll) & (((int64)-(*(int64*)((uint8*)&ENV$ + 216ll) == 0ll) | (int64)-(*(int64*)((uint8*)&ENV$ + 216ll) == 1ll)) | (int64)-(*(int64*)((uint8*)&ENV$ + 216ll) == 4ll)))) & (int64)-(vr$13 == 0ll)) & (int64)-(*(int64*)((uint8*)&ENV$ + 208ll) != 1ll);
-	if( *(int64*)((uint8*)&ENV$ + 208ll) != 2ll ) goto label$389;
+	ADD_STDCALL_SUFFIX$1 = (((int64)-(*(int64*)((uint8*)SYM$1 + 152ll) == 1ll) | ((int64)-(*(int64*)((uint8*)SYM$1 + 152ll) == 6ll) & (((int64)-(*(int64*)((uint8*)&ENV$ + 216ll) == 0ll) | (int64)-(*(int64*)((uint8*)&ENV$ + 216ll) == 1ll)) | (int64)-(*(int64*)((uint8*)&ENV$ + 216ll) == 5ll)))) & (int64)-(vr$13 == 0ll)) & ((int64)-(*(int64*)((uint8*)&ENV$ + 208ll) != 1ll) & (int64)-(*(int64*)((uint8*)&ENV$ + 208ll) != 2ll));
+	if( *(int64*)((uint8*)&ENV$ + 208ll) != 3ll ) goto label$413;
 	{
 		fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"@", 2ll, 0 );
-		if( ADD_STDCALL_SUFFIX$1 == 0ll ) goto label$391;
+		if( ADD_STDCALL_SUFFIX$1 == 0ll ) goto label$415;
 		{
 			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"\x22", 2ll, 0 );
 			QUOTE_MANGLED_NAME$1 = -1ll;
 		}
-		label$391:;
-		label$390:;
+		label$415:;
+		label$414:;
 		{
-			$13FB_COMPTARGET TMP$236$3;
-			TMP$236$3 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
-			if( TMP$236$3 == 0ll ) goto label$394;
-			label$395:;
-			if( TMP$236$3 == 1ll ) goto label$394;
-			label$396:;
-			if( TMP$236$3 != 4ll ) goto label$393;
-			label$394:;
+			$13FB_COMPTARGET TMP$247$3;
+			TMP$247$3 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
+			if( TMP$247$3 == 0ll ) goto label$418;
+			label$419:;
+			if( TMP$247$3 == 1ll ) goto label$418;
+			label$420:;
+			if( TMP$247$3 != 5ll ) goto label$417;
+			label$418:;
 			{
-				if( QUOTE_MANGLED_NAME$1 != 0ll ) goto label$398;
+				if( QUOTE_MANGLED_NAME$1 != 0ll ) goto label$422;
 				{
 					fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"\x22", 2ll, 0 );
 					QUOTE_MANGLED_NAME$1 = -1ll;
 				}
-				label$398:;
-				label$397:;
+				label$422:;
+				label$421:;
 				fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"\x01", 2ll, 0 );
 			}
-			label$393:;
-			label$392:;
+			label$417:;
+			label$416:;
 		}
 	}
-	label$389:;
-	label$388:;
-	int64 vr$22 = HADDUNDERSCORE(  );
-	if( vr$22 == 0ll ) goto label$400;
+	label$413:;
+	label$412:;
+	int64 vr$24 = HADDUNDERSCORE(  );
+	if( vr$24 == 0ll ) goto label$424;
 	{
-		if( *(int64*)((uint8*)SYM$1 + 152ll) != 6ll ) goto label$402;
+		if( *(int64*)((uint8*)SYM$1 + 152ll) != 6ll ) goto label$426;
 		{
 			{
-				$13FB_COMPTARGET TMP$238$4;
-				TMP$238$4 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
-				if( TMP$238$4 == 0ll ) goto label$405;
-				label$406:;
-				if( TMP$238$4 == 1ll ) goto label$405;
-				label$407:;
-				if( TMP$238$4 != 4ll ) goto label$404;
-				label$405:;
+				$13FB_COMPTARGET TMP$249$4;
+				TMP$249$4 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
+				if( TMP$249$4 == 0ll ) goto label$429;
+				label$430:;
+				if( TMP$249$4 == 1ll ) goto label$429;
+				label$431:;
+				if( TMP$249$4 != 5ll ) goto label$428;
+				label$429:;
 				{
 					fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"@", 2ll, 0 );
 				}
-				goto label$403;
-				label$404:;
+				goto label$427;
+				label$428:;
 				{
 					fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"_", 2ll, 0 );
 				}
-				label$408:;
-				label$403:;
+				label$432:;
+				label$427:;
 			}
 		}
-		goto label$401;
-		label$402:;
+		goto label$425;
+		label$426:;
 		{
 			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"_", 2ll, 0 );
 		}
-		label$401:;
+		label$425:;
 	}
-	label$400:;
-	label$399:;
-	if( (DOCPP$1 | (int64)-((*(int64*)((uint8*)SYM$1 + 16ll) & 16ll) != 0ll)) == 0ll ) goto label$410;
+	label$424:;
+	label$423:;
+	if( (DOCPP$1 | (int64)-((*(int64*)((uint8*)SYM$1 + 16ll) & 16ll) != 0ll)) == 0ll ) goto label$434;
 	{
 		fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"_Z", 3ll, 0 );
 	}
-	label$410:;
-	label$409:;
-	if( DOCPP$1 == 0ll ) goto label$412;
+	label$434:;
+	label$433:;
+	if( DOCPP$1 == 0ll ) goto label$436;
 	{
 		HMANGLENAMESPACE( &MANGLED$1, *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll), -1ll, (int64)-((*(int64*)((uint8*)SYM$1 + 8ll) & 2048ll) != 0ll) );
 	}
-	label$412:;
-	label$411:;
-	if( (*(int64*)((uint8*)SYM$1 + 24ll) & 512ll) == 0ll ) goto label$414;
+	label$436:;
+	label$435:;
+	if( (*(int64*)((uint8*)SYM$1 + 24ll) & 512ll) == 0ll ) goto label$438;
 	{
-		FBSTRING TMP$240$2;
-		if( DOCPP$1 == 0ll ) goto label$416;
+		FBSTRING TMP$251$2;
+		if( DOCPP$1 == 0ll ) goto label$440;
 		{
-			FBSTRING TMP$239$3;
-			int64 vr$41 = fb_StrLen( *(void**)((uint8*)SYM$1 + 40ll), 0ll );
-			FBSTRING* vr$42 = fb_LongintToStr( vr$41 );
-			__builtin_memset( &TMP$239$3, 0, 24ll );
-			FBSTRING* vr$46 = fb_StrConcat( &TMP$239$3, (void*)&MANGLED$1, -1ll, (void*)vr$42, -1ll );
-			fb_StrAssign( (void*)&MANGLED$1, -1ll, (void*)vr$46, -1ll, 0 );
+			FBSTRING TMP$250$3;
+			int64 vr$43 = fb_StrLen( *(void**)((uint8*)SYM$1 + 40ll), 0ll );
+			FBSTRING* vr$44 = fb_LongintToStr( vr$43 );
+			__builtin_memset( &TMP$250$3, 0, 24ll );
+			FBSTRING* vr$48 = fb_StrConcat( &TMP$250$3, (void*)&MANGLED$1, -1ll, (void*)vr$44, -1ll );
+			fb_StrAssign( (void*)&MANGLED$1, -1ll, (void*)vr$48, -1ll, 0 );
 		}
-		label$416:;
-		label$415:;
-		__builtin_memset( &TMP$240$2, 0, 24ll );
-		FBSTRING* vr$52 = fb_StrConcat( &TMP$240$2, (void*)&MANGLED$1, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll );
-		fb_StrAssign( (void*)&MANGLED$1, -1ll, (void*)vr$52, -1ll, 0 );
+		label$440:;
+		label$439:;
+		__builtin_memset( &TMP$251$2, 0, 24ll );
+		FBSTRING* vr$54 = fb_StrConcat( &TMP$251$2, (void*)&MANGLED$1, -1ll, *(void**)((uint8*)SYM$1 + 40ll), 0ll );
+		fb_StrAssign( (void*)&MANGLED$1, -1ll, (void*)vr$54, -1ll, 0 );
 	}
-	goto label$413;
-	label$414:;
-	if( (*(int64*)((uint8*)SYM$1 + 16ll) & 16ll) == 0ll ) goto label$417;
+	goto label$437;
+	label$438:;
+	if( (*(int64*)((uint8*)SYM$1 + 16ll) & 16ll) == 0ll ) goto label$441;
 	{
-		if( *(int64*)((uint8*)*(struct $10FB_PROCEXT**)((uint8*)SYM$1 + 208ll) + 80ll) != 27ll ) goto label$419;
+		if( *(int64*)((uint8*)*(struct $10FB_PROCEXT**)((uint8*)SYM$1 + 208ll) + 80ll) != 27ll ) goto label$443;
 		{
 			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"cv", 3ll, 0 );
 			SYMBMANGLETYPE( &MANGLED$1, *(int64*)((uint8*)SYM$1 + 56ll), *(struct $8FBSYMBOL**)((uint8*)SYM$1 + 64ll), 0ll );
 		}
-		goto label$418;
-		label$419:;
+		goto label$442;
+		label$443:;
 		{
-			FBSTRING TMP$242$3;
-			char* vr$62 = HGETOPERATORNAME( SYM$1 );
-			__builtin_memset( &TMP$242$3, 0, 24ll );
-			FBSTRING* vr$66 = fb_StrConcat( &TMP$242$3, (void*)&MANGLED$1, -1ll, (void*)vr$62, 0ll );
-			fb_StrAssign( (void*)&MANGLED$1, -1ll, (void*)vr$66, -1ll, 0 );
+			FBSTRING TMP$253$3;
+			char* vr$64 = HGETOPERATORNAME( SYM$1 );
+			__builtin_memset( &TMP$253$3, 0, 24ll );
+			FBSTRING* vr$68 = fb_StrConcat( &TMP$253$3, (void*)&MANGLED$1, -1ll, (void*)vr$64, 0ll );
+			fb_StrAssign( (void*)&MANGLED$1, -1ll, (void*)vr$68, -1ll, 0 );
 		}
-		label$418:;
+		label$442:;
 	}
-	goto label$413;
-	label$417:;
-	if( (*(int64*)((uint8*)SYM$1 + 16ll) & 4ll) == 0ll ) goto label$420;
+	goto label$437;
+	label$441:;
+	if( (*(int64*)((uint8*)SYM$1 + 16ll) & 4ll) == 0ll ) goto label$444;
 	{
 		fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"C1", 3ll, 0 );
 	}
-	goto label$413;
-	label$420:;
-	if( (*(int64*)((uint8*)SYM$1 + 16ll) & 4096ll) == 0ll ) goto label$421;
+	goto label$437;
+	label$444:;
+	if( (*(int64*)((uint8*)SYM$1 + 16ll) & 4096ll) == 0ll ) goto label$445;
 	{
 		fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"D0", 3ll, 0 );
 	}
-	goto label$413;
-	label$421:;
-	if( (*(int64*)((uint8*)SYM$1 + 16ll) & 8ll) == 0ll ) goto label$422;
+	goto label$437;
+	label$445:;
+	if( (*(int64*)((uint8*)SYM$1 + 16ll) & 8ll) == 0ll ) goto label$446;
 	{
 		fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"D1", 3ll, 0 );
 	}
-	goto label$413;
-	label$422:;
+	goto label$437;
+	label$446:;
 	{
-		FBSTRING TMP$246$2;
-		if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 0ll ) goto label$424;
+		FBSTRING TMP$257$2;
+		if( (int64)*(int16*)((uint8*)SYM$1 + 74ll) != 0ll ) goto label$448;
 		{
 			ID$1 = *(char**)((uint8*)SYM$1 + 32ll);
 		}
-		goto label$423;
-		label$424:;
+		goto label$447;
+		label$448:;
 		{
 			ID$1 = *(char**)((uint8*)SYM$1 + 40ll);
 		}
-		label$423:;
-		if( DOCPP$1 == 0ll ) goto label$426;
+		label$447:;
+		if( DOCPP$1 == 0ll ) goto label$450;
 		{
-			int64 vr$81 = fb_StrLen( (void*)ID$1, 0ll );
-			LENGTH$1 = vr$81;
-			if( (*(int64*)((uint8*)SYM$1 + 16ll) & 32ll) == 0ll ) goto label$428;
+			int64 vr$83 = fb_StrLen( (void*)ID$1, 0ll );
+			LENGTH$1 = vr$83;
+			if( (*(int64*)((uint8*)SYM$1 + 16ll) & 32ll) == 0ll ) goto label$452;
 			{
 				LENGTH$1 = LENGTH$1 + 7ll;
 			}
-			label$428:;
-			label$427:;
-			FBSTRING* vr$85 = fb_LongintToStr( LENGTH$1 );
-			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)vr$85, -1ll, 0 );
+			label$452:;
+			label$451:;
+			FBSTRING* vr$87 = fb_LongintToStr( LENGTH$1 );
+			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)vr$87, -1ll, 0 );
 		}
-		label$426:;
-		label$425:;
-		__builtin_memset( &TMP$246$2, 0, 24ll );
-		FBSTRING* vr$90 = fb_StrConcat( &TMP$246$2, (void*)&MANGLED$1, -1ll, (void*)ID$1, 0ll );
-		fb_StrAssign( (void*)&MANGLED$1, -1ll, (void*)vr$90, -1ll, 0 );
-		if( (*(int64*)((uint8*)SYM$1 + 16ll) & 32ll) == 0ll ) goto label$430;
+		label$450:;
+		label$449:;
+		__builtin_memset( &TMP$257$2, 0, 24ll );
+		FBSTRING* vr$92 = fb_StrConcat( &TMP$257$2, (void*)&MANGLED$1, -1ll, (void*)ID$1, 0ll );
+		fb_StrAssign( (void*)&MANGLED$1, -1ll, (void*)vr$92, -1ll, 0 );
+		if( (*(int64*)((uint8*)SYM$1 + 16ll) & 32ll) == 0ll ) goto label$454;
 		{
-			if( (*(int64*)((uint8*)SYM$1 + 56ll) & 511ll) != 0ll ) goto label$432;
+			if( (*(int64*)((uint8*)SYM$1 + 56ll) & 511ll) != 0ll ) goto label$456;
 			{
 				fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"__set__", 8ll, 0 );
 			}
-			goto label$431;
-			label$432:;
+			goto label$455;
+			label$456:;
 			{
 				fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"__get__", 8ll, 0 );
 			}
-			label$431:;
+			label$455:;
 		}
-		label$430:;
-		label$429:;
+		label$454:;
+		label$453:;
 	}
-	label$413:;
-	if( DOCPP$1 == 0ll ) goto label$434;
+	label$437:;
+	if( DOCPP$1 == 0ll ) goto label$458;
 	{
-		if( *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll) == (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$436;
+		if( *(struct $8FBSYMBOL**)*(struct $8FBHASHTB**)((uint8*)SYM$1 + 248ll) == (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$460;
 		{
 			fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"E", 2ll, 0 );
 		}
-		label$436:;
-		label$435:;
+		label$460:;
+		label$459:;
 		HGETPROCPARAMSTYPECODE( &MANGLED$1, SYM$1, -1ll );
 	}
-	label$434:;
-	label$433:;
-	if( ADD_STDCALL_SUFFIX$1 == 0ll ) goto label$438;
+	label$458:;
+	label$457:;
+	if( ADD_STDCALL_SUFFIX$1 == 0ll ) goto label$462;
 	{
 		fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"@", 2ll, 0 );
-		int64 vr$104 = SYMBPROCCALCSTDCALLSUFFIXN( SYM$1 );
-		FBSTRING* vr$105 = fb_LongintToStr( vr$104 );
-		fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)vr$105, -1ll, 0 );
+		int64 vr$106 = SYMBPROCCALCSTDCALLSUFFIXN( SYM$1 );
+		FBSTRING* vr$107 = fb_LongintToStr( vr$106 );
+		fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)vr$107, -1ll, 0 );
 	}
-	label$438:;
-	label$437:;
-	if( QUOTE_MANGLED_NAME$1 == 0ll ) goto label$440;
+	label$462:;
+	label$461:;
+	if( QUOTE_MANGLED_NAME$1 == 0ll ) goto label$464;
 	{
 		fb_StrConcatAssign( (void*)&MANGLED$1, -1ll, (void*)"\x22", 2ll, 0 );
 	}
-	label$440:;
-	label$439:;
+	label$464:;
+	label$463:;
 	SYMBSETMANGLEDID( SYM$1, &MANGLED$1 );
 	fb_StrDelete( (FBSTRING*)&MANGLED$1 );
-	label$387:;
+	label$411:;
 }

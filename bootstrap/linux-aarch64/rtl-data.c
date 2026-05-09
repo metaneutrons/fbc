@@ -29,6 +29,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -57,8 +67,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -122,10 +134,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -195,7 +208,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -263,6 +276,16 @@ struct $7FBS_VAR {
 	int64 BITS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7FBS_VAR ) == 104 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -368,9 +391,9 @@ struct $8FBS_ENUM {
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -500,9 +523,9 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
-typedef FBSTRING* (*tmp$29)( void*, int64* );
-typedef uint32* (*tmp$30)( void*, int64* );
+typedef FBSTRING* (*tmp$29)( void );
+typedef FBSTRING* (*tmp$30)( void*, int64* );
+typedef uint32* (*tmp$31)( void*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -514,11 +537,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -593,7 +616,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -626,7 +649,7 @@ struct $14FB_RTL_PROCDEF {
 	char* ALIAS;
 	$11FB_DATATYPE DTYPE;
 	$11FB_FUNCMODE CALLCONV;
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 	$10FB_RTL_OPT OPTIONS;
 	int64 PARAMS;
 	struct $15FB_RTL_PARAMDEF PARAMTB[16];
@@ -658,7 +681,7 @@ struct $7ASTNODE* ASTADD( struct $7ASTNODE* );
 struct $7ASTNODE* ASTADDAFTER( struct $7ASTNODE*, struct $7ASTNODE* );
 struct $7ASTNODE* ASTNEWCONSTI( int64, int64, struct $8FBSYMBOL* );
 struct $7ASTNODE* ASTNEWVAR( struct $8FBSYMBOL*, int64, int64, struct $8FBSYMBOL* );
-struct $7ASTNODE* ASTNEWCALL( struct $8FBSYMBOL*, struct $7ASTNODE* );
+struct $7ASTNODE* ASTNEWCALL( struct $8FBSYMBOL*, struct $7ASTNODE*, int64 );
 struct $7ASTNODE* ASTNEWARG( struct $7ASTNODE*, struct $7ASTNODE*, int64, int64 );
 struct $7ASTNODE* ASTNEWADDROF( struct $7ASTNODE* );
 struct $7ASTNODE* ASTDATASTMTBEGIN( void );
@@ -739,7 +762,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 extern struct $13SYMB_DATATYPE SYMB_DTYPETB$[26];
 struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $13SYMB_DATATYPE* DATA;
@@ -751,7 +774,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -762,8 +785,8 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
-static struct $14FB_RTL_PROCDEF FUNCDATA$[15] = { { (char*)"fb_DataRestore", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"fb_DataReadStr", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 3ll, { { 0ll, 2ll, 0ll }, { 520ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 1ll } } }, { (char*)"fb_DataReadWstr", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 2ll, { { 39ll, 1ll, 0ll }, { 520ll, 1ll, 0ll } } }, { (char*)"fb_DataReadBool", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 128ll, 1ll, { { 1ll, 2ll, 0ll } } }, { (char*)"fb_DataReadByte", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 2ll, 2ll, 0ll } } }, { (char*)"fb_DataReadShort", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 5ll, 2ll, 0ll } } }, { (char*)"fb_DataReadInt", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 11ll, 2ll, 0ll } } }, { (char*)"fb_DataReadLongint", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 13ll, 2ll, 0ll } } }, { (char*)"fb_DataReadUByte", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 3ll, 2ll, 0ll } } }, { (char*)"fb_DataReadUShort", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 6ll, 2ll, 0ll } } }, { (char*)"fb_DataReadUInt", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 12ll, 2ll, 0ll } } }, { (char*)"fb_DataReadULongint", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 14ll, 2ll, 0ll } } }, { (char*)"fb_DataReadSingle", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 15ll, 2ll, 0ll } } }, { (char*)"fb_DataReadDouble", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 16ll, 2ll, 0ll } } }, { (char*)0ull } };
+static struct $8FBARRAY2IlE tmp$85$;
+static struct $14FB_RTL_PROCDEF FUNCDATA$[15] = { { (char*)"fb_DataRestore", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"fb_DataReadStr", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 3ll, { { 0ll, 2ll, 0ll }, { 520ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 1ll } } }, { (char*)"fb_DataReadWstr", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 2ll, { { 39ll, 1ll, 0ll }, { 520ll, 1ll, 0ll } } }, { (char*)"fb_DataReadBool", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 128ll, 1ll, { { 1ll, 2ll, 0ll } } }, { (char*)"fb_DataReadByte", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 2ll, 2ll, 0ll } } }, { (char*)"fb_DataReadShort", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 5ll, 2ll, 0ll } } }, { (char*)"fb_DataReadInt", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 11ll, 2ll, 0ll } } }, { (char*)"fb_DataReadLongint", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 13ll, 2ll, 0ll } } }, { (char*)"fb_DataReadUByte", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 3ll, 2ll, 0ll } } }, { (char*)"fb_DataReadUShort", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 6ll, 2ll, 0ll } } }, { (char*)"fb_DataReadUInt", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 12ll, 2ll, 0ll } } }, { (char*)"fb_DataReadULongint", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 14ll, 2ll, 0ll } } }, { (char*)"fb_DataReadSingle", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 15ll, 2ll, 0ll } } }, { (char*)"fb_DataReadDouble", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 16ll, 2ll, 0ll } } }, { (char*)0ull } };
 
 void RTLDATAMODINIT( void )
 {
@@ -793,99 +816,99 @@ int64 RTLDATAREAD( struct $7ASTNODE* VAREXPR$1 )
 	ARGS$1 = 1ll;
 	DTYPE$1 = *(int64*)((uint8*)VAREXPR$1 + 8ll) & 511ll;
 	{
-		int64 TMP$99$2;
-		uint64 TMP$100$2;
+		int64 TMP$102$2;
+		uint64 TMP$103$2;
 		if( (DTYPE$1 & 480ll) == 0ll ) goto label$16;
-		TMP$99$2 = 24ll;
+		TMP$102$2 = 24ll;
 		goto label$52;
 		label$16:;
-		TMP$99$2 = DTYPE$1 & 31ll;
+		TMP$102$2 = DTYPE$1 & 31ll;
 		label$52:;
-		TMP$100$2 = (uint64)TMP$99$2;
+		TMP$103$2 = (uint64)TMP$102$2;
 		goto label$18;
 		label$19:;
 		{
-			struct $8FBSYMBOL* vr$5 = RTLPROCLOOKUP( (char*)"fb_DataReadStr", 146ll );
+			struct $8FBSYMBOL* vr$5 = RTLPROCLOOKUP( (char*)"fb_DataReadStr", 152ll );
 			F$1 = vr$5;
 			ARGS$1 = 3ll;
 		}
 		goto label$17;
 		label$20:;
 		{
-			struct $8FBSYMBOL* vr$6 = RTLPROCLOOKUP( (char*)"fb_DataReadWstr", 147ll );
+			struct $8FBSYMBOL* vr$6 = RTLPROCLOOKUP( (char*)"fb_DataReadWstr", 153ll );
 			F$1 = vr$6;
 			ARGS$1 = 2ll;
 		}
 		goto label$17;
 		label$21:;
 		{
-			struct $8FBSYMBOL* vr$7 = RTLPROCLOOKUP( (char*)"fb_DataReadBool", 148ll );
+			struct $8FBSYMBOL* vr$7 = RTLPROCLOOKUP( (char*)"fb_DataReadBool", 154ll );
 			F$1 = vr$7;
 		}
 		goto label$17;
 		label$22:;
 		{
 			{
-				int64 TMP$101$4;
-				uint64 TMP$102$4;
+				int64 TMP$104$4;
+				uint64 TMP$105$4;
 				if( (DTYPE$1 & 480ll) == 0ll ) goto label$23;
-				TMP$101$4 = 24ll;
+				TMP$104$4 = 24ll;
 				goto label$53;
 				label$23:;
-				TMP$101$4 = DTYPE$1 & 31ll;
+				TMP$104$4 = DTYPE$1 & 31ll;
 				label$53:;
-				TMP$102$4 = *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$101$4 * 56ll)) + 40ll);
+				TMP$105$4 = *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$104$4 * 56ll)) + 40ll);
 				goto label$25;
 				label$26:;
 				{
-					struct $8FBSYMBOL* vr$11 = RTLPROCLOOKUP( (char*)"fb_DataReadByte", 149ll );
+					struct $8FBSYMBOL* vr$11 = RTLPROCLOOKUP( (char*)"fb_DataReadByte", 155ll );
 					F$1 = vr$11;
 				}
 				goto label$24;
 				label$27:;
 				{
-					struct $8FBSYMBOL* vr$12 = RTLPROCLOOKUP( (char*)"fb_DataReadUByte", 153ll );
+					struct $8FBSYMBOL* vr$12 = RTLPROCLOOKUP( (char*)"fb_DataReadUByte", 159ll );
 					F$1 = vr$12;
 				}
 				goto label$24;
 				label$28:;
 				{
-					struct $8FBSYMBOL* vr$13 = RTLPROCLOOKUP( (char*)"fb_DataReadShort", 150ll );
+					struct $8FBSYMBOL* vr$13 = RTLPROCLOOKUP( (char*)"fb_DataReadShort", 156ll );
 					F$1 = vr$13;
 				}
 				goto label$24;
 				label$29:;
 				{
-					struct $8FBSYMBOL* vr$14 = RTLPROCLOOKUP( (char*)"fb_DataReadUShort", 154ll );
+					struct $8FBSYMBOL* vr$14 = RTLPROCLOOKUP( (char*)"fb_DataReadUShort", 160ll );
 					F$1 = vr$14;
 				}
 				goto label$24;
 				label$30:;
 				{
-					struct $8FBSYMBOL* vr$15 = RTLPROCLOOKUP( (char*)"fb_DataReadInt", 151ll );
+					struct $8FBSYMBOL* vr$15 = RTLPROCLOOKUP( (char*)"fb_DataReadInt", 157ll );
 					F$1 = vr$15;
 				}
 				goto label$24;
 				label$31:;
 				{
-					struct $8FBSYMBOL* vr$16 = RTLPROCLOOKUP( (char*)"fb_DataReadUInt", 155ll );
+					struct $8FBSYMBOL* vr$16 = RTLPROCLOOKUP( (char*)"fb_DataReadUInt", 161ll );
 					F$1 = vr$16;
 				}
 				goto label$24;
 				label$32:;
 				{
-					struct $8FBSYMBOL* vr$17 = RTLPROCLOOKUP( (char*)"fb_DataReadLongint", 152ll );
+					struct $8FBSYMBOL* vr$17 = RTLPROCLOOKUP( (char*)"fb_DataReadLongint", 158ll );
 					F$1 = vr$17;
 				}
 				goto label$24;
 				label$33:;
 				{
-					struct $8FBSYMBOL* vr$18 = RTLPROCLOOKUP( (char*)"fb_DataReadULongint", 156ll );
+					struct $8FBSYMBOL* vr$18 = RTLPROCLOOKUP( (char*)"fb_DataReadULongint", 162ll );
 					F$1 = vr$18;
 				}
 				goto label$24;
 				label$25:;
-				static const void* tmp$103[8ll] = {
+				static const void* tmp$106[8ll] = {
 					&&label$26,
 					&&label$27,
 					&&label$28,
@@ -895,21 +918,21 @@ int64 RTLDATAREAD( struct $7ASTNODE* VAREXPR$1 )
 					&&label$32,
 					&&label$33,
 				};
-				if( (TMP$102$4 - 1ull) > 7ull ) goto label$24;
-				goto *tmp$103[TMP$102$4 - 1ull];
+				if( (TMP$105$4 - 1ull) > 7ull ) goto label$24;
+				goto *tmp$106[TMP$105$4 - 1ull];
 				label$24:;
 			}
 		}
 		goto label$17;
 		label$34:;
 		{
-			struct $8FBSYMBOL* vr$19 = RTLPROCLOOKUP( (char*)"fb_DataReadSingle", 157ll );
+			struct $8FBSYMBOL* vr$19 = RTLPROCLOOKUP( (char*)"fb_DataReadSingle", 163ll );
 			F$1 = vr$19;
 		}
 		goto label$17;
 		label$35:;
 		{
-			struct $8FBSYMBOL* vr$20 = RTLPROCLOOKUP( (char*)"fb_DataReadDouble", 158ll );
+			struct $8FBSYMBOL* vr$20 = RTLPROCLOOKUP( (char*)"fb_DataReadDouble", 164ll );
 			F$1 = vr$20;
 		}
 		goto label$17;
@@ -924,7 +947,7 @@ int64 RTLDATAREAD( struct $7ASTNODE* VAREXPR$1 )
 		}
 		goto label$17;
 		label$18:;
-		static const void* tmp$104[24ll] = {
+		static const void* tmp$107[24ll] = {
 			&&label$21,
 			&&label$22,
 			&&label$22,
@@ -950,8 +973,8 @@ int64 RTLDATAREAD( struct $7ASTNODE* VAREXPR$1 )
 			&&label$37,
 			&&label$22,
 		};
-		if( (TMP$100$2 - 1ull) > 23ull ) goto label$37;
-		goto *tmp$104[TMP$100$2 - 1ull];
+		if( (TMP$103$2 - 1ull) > 23ull ) goto label$37;
+		goto *tmp$107[TMP$103$2 - 1ull];
 		label$17:;
 	}
 	if( F$1 != (struct $8FBSYMBOL*)0ull ) goto label$39;
@@ -960,7 +983,7 @@ int64 RTLDATAREAD( struct $7ASTNODE* VAREXPR$1 )
 	}
 	label$39:;
 	label$38:;
-	struct $7ASTNODE* vr$21 = ASTNEWCALL( F$1, (struct $7ASTNODE*)0ull );
+	struct $7ASTNODE* vr$21 = ASTNEWCALL( F$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$21;
 	if( ARGS$1 <= 1ll ) goto label$41;
 	{
@@ -1012,7 +1035,7 @@ int64 RTLDATAREAD( struct $7ASTNODE* VAREXPR$1 )
 	return fb$result$1;
 }
 
-int64 RTLDATARESTORE( struct $8FBSYMBOL* LABEL$1, struct $7ASTNODE* AFTERNODE$1 )
+int64 RTLDATARESTORE( struct $8FBSYMBOL* LABEL$1, struct $7ASTNODE* AFTERNODE$1, int64 CANPROFILE$1 )
 {
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
@@ -1021,8 +1044,8 @@ int64 RTLDATARESTORE( struct $8FBSYMBOL* LABEL$1, struct $7ASTNODE* AFTERNODE$1 
 	struct $7ASTNODE* EXPR$1;
 	struct $8FBSYMBOL* SYM$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_DataRestore", 145ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_DataRestore", 151ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, CANPROFILE$1 );
 	PROC$1 = vr$2;
 	if( LABEL$1 != (struct $8FBSYMBOL*)0ull ) goto label$57;
 	{

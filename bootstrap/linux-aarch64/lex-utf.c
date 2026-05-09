@@ -28,6 +28,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -56,8 +66,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -121,10 +133,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -194,7 +207,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -262,6 +275,16 @@ struct $7FBS_VAR {
 	int64 BITS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7FBS_VAR ) == 104 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -359,9 +382,9 @@ struct $8FBS_ENUM {
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $11FB_FUNCMODE;
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -491,7 +514,7 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
+typedef FBSTRING* (*tmp$29)( void );
 struct $8DZSTRING {
 	char* DATA;
 	int64 LEN;
@@ -516,8 +539,8 @@ struct $11LEXPP_ARGTB {
 	int64 COUNT;
 };
 __FB_STATIC_ASSERT( sizeof( struct $11LEXPP_ARGTB ) == 776 );
-typedef FBSTRING* (*tmp$29)( struct $11LEXPP_ARGTB*, int64* );
-typedef uint32* (*tmp$30)( struct $11LEXPP_ARGTB*, int64* );
+typedef FBSTRING* (*tmp$30)( struct $11LEXPP_ARGTB*, int64* );
+typedef uint32* (*tmp$31)( struct $11LEXPP_ARGTB*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -529,11 +552,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -608,7 +631,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -651,6 +674,7 @@ struct $7FBTOKEN {
 	union {
 		int64 PRDPOS;
 		int64 HASESC;
+		int64 HASSUFFIX;
 	};
 	int64 SUFFIXCHAR;
 	int64 AFTER_SPACE;
@@ -764,7 +788,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 typedef int64 $12FB_DATACLASS;
 struct $13SYMB_DATATYPE {
 	$12FB_DATACLASS CLASS;
@@ -786,7 +810,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -797,7 +821,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
 typedef int64 $10FB_BACKEND;
 typedef int64 $13FB_COMPTARGET;
@@ -830,6 +854,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -853,8 +878,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -897,11 +924,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 typedef int64 $16FB_RESTART_FLAGS;
 struct $7TSTRSET {
 	struct $5TLIST LIST;
@@ -939,7 +967,7 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
 struct $7LEX_CTX {
 	struct $9LEX_TKCTX CTXTB[17];
@@ -1115,7 +1143,7 @@ static int64 HUTF8TOCHAR( void )
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$10:;
 	static uint8 SRC$1[7];
-	static struct $8FBARRAY1IhE tmp$94$1 = { (uint8*)SRC$1, (uint8*)SRC$1, 7ll, 1ll, 1ll, 49ll, { { 7ll, 0ll, 6ll } } };
+	static struct $8FBARRAY1IhE tmp$97$1 = { (uint8*)SRC$1, (uint8*)SRC$1, 7ll, 1ll, 1ll, 49ll, { { 7ll, 0ll, 6ll } } };
 	static uint8* P$1;
 	static uint64 C$1;
 	static uint8* DST$1;
@@ -1127,14 +1155,14 @@ static int64 HUTF8TOCHAR( void )
 	label$12:;
 	if( CHARS$1 >= 8192ll ) goto label$13;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$15;
 		{
 			goto label$13;
 		}
 		label$15:;
 		label$14:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)SRC$1, 1ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)SRC$1, 1ull );
 		if( (int64)vr$7 == 0ll ) goto label$17;
 		{
 			goto label$13;
@@ -1146,7 +1174,7 @@ static int64 HUTF8TOCHAR( void )
 		P$1 = (uint8*)SRC$1;
 		if( EXTBYTES$1 <= 0ll ) goto label$19;
 		{
-			int32 vr$12 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)((uint8*)SRC$1 + 1ll), (uint64)EXTBYTES$1 );
+			int32 vr$12 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)((uint8*)SRC$1 + 1ll), (uint64)EXTBYTES$1 );
 			if( (int64)vr$12 == 0ll ) goto label$21;
 			{
 				goto label$13;
@@ -1192,7 +1220,7 @@ static int64 HUTF8TOUTF16LE( void )
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$27:;
 	static uint8 SRC$1[7];
-	static struct $8FBARRAY1IhE tmp$96$1 = { (uint8*)SRC$1, (uint8*)SRC$1, 7ll, 1ll, 1ll, 49ll, { { 7ll, 0ll, 6ll } } };
+	static struct $8FBARRAY1IhE tmp$99$1 = { (uint8*)SRC$1, (uint8*)SRC$1, 7ll, 1ll, 1ll, 49ll, { { 7ll, 0ll, 6ll } } };
 	static uint8* P$1;
 	static uint64 C$1;
 	static uint16* DST$1;
@@ -1204,14 +1232,14 @@ static int64 HUTF8TOUTF16LE( void )
 	label$29:;
 	if( CHARS$1 >= 8192ll ) goto label$30;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$32;
 		{
 			goto label$30;
 		}
 		label$32:;
 		label$31:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)SRC$1, 1ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)SRC$1, 1ull );
 		if( (int64)vr$7 == 0ll ) goto label$34;
 		{
 			goto label$30;
@@ -1223,7 +1251,7 @@ static int64 HUTF8TOUTF16LE( void )
 		P$1 = (uint8*)SRC$1;
 		if( EXTBYTES$1 <= 0ll ) goto label$36;
 		{
-			int32 vr$12 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)((uint8*)SRC$1 + 1ll), (uint64)EXTBYTES$1 );
+			int32 vr$12 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)((uint8*)SRC$1 + 1ll), (uint64)EXTBYTES$1 );
 			if( (int64)vr$12 == 0ll ) goto label$38;
 			{
 				goto label$30;
@@ -1250,7 +1278,7 @@ static int64 HUTF8TOUTF16LE( void )
 		{
 			if( CHARS$1 >= 8191ll ) goto label$45;
 			{
-				*DST$1 = (uint16)((C$1 >> (10ll & 63ll)) + 55296ull);
+				*DST$1 = (uint16)(((C$1 + 18446744073709486080ull) >> (10ll & 63ll)) + 55296ull);
 				DST$1 = (uint16*)((uint8*)DST$1 + 2ll);
 				CHARS$1 = CHARS$1 + 1ll;
 			}
@@ -1277,7 +1305,7 @@ static int64 HUTF8TOUTF32LE( void )
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$46:;
 	static uint8 SRC$1[7];
-	static struct $8FBARRAY1IhE tmp$97$1 = { (uint8*)SRC$1, (uint8*)SRC$1, 7ll, 1ll, 1ll, 49ll, { { 7ll, 0ll, 6ll } } };
+	static struct $8FBARRAY1IhE tmp$100$1 = { (uint8*)SRC$1, (uint8*)SRC$1, 7ll, 1ll, 1ll, 49ll, { { 7ll, 0ll, 6ll } } };
 	static uint8* P$1;
 	static uint64 C$1;
 	static uint32* DST$1;
@@ -1289,14 +1317,14 @@ static int64 HUTF8TOUTF32LE( void )
 	label$48:;
 	if( CHARS$1 >= 8192ll ) goto label$49;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$51;
 		{
 			goto label$49;
 		}
 		label$51:;
 		label$50:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)SRC$1, 1ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)SRC$1, 1ull );
 		if( (int64)vr$7 == 0ll ) goto label$53;
 		{
 			goto label$49;
@@ -1308,7 +1336,7 @@ static int64 HUTF8TOUTF32LE( void )
 		P$1 = (uint8*)SRC$1;
 		if( EXTBYTES$1 <= 0ll ) goto label$55;
 		{
-			int32 vr$12 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)((uint8*)SRC$1 + 1ll), (uint64)EXTBYTES$1 );
+			int32 vr$12 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)((uint8*)SRC$1 + 1ll), (uint64)EXTBYTES$1 );
 			if( (int64)vr$12 == 0ll ) goto label$57;
 			{
 				goto label$49;
@@ -1355,14 +1383,14 @@ static int64 HUTF16LETOCHAR( void )
 	label$74:;
 	if( CHARS$1 >= 8192ll ) goto label$75;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$77;
 		{
 			goto label$75;
 		}
 		label$77:;
 		label$76:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 2ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 2ull );
 		if( (int64)vr$7 == 0ll ) goto label$79;
 		{
 			goto label$75;
@@ -1375,7 +1403,7 @@ static int64 HUTF16LETOCHAR( void )
 			{
 				if( (int64)C$1 > 56319ll ) goto label$85;
 				{
-					int32 vr$13 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 2ull );
+					int32 vr$13 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 2ull );
 					if( (int64)vr$13 == 0ll ) goto label$87;
 					{
 						goto label$75;
@@ -1408,10 +1436,10 @@ static int64 HUTF16LETOUTF16LE( void )
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$88:;
-	int32 vr$4 = fb_FileGetWstrLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (uint32*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 16856ll), 8193ll );
+	int32 vr$4 = fb_FileGetWstrLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (uint32*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 16856ll), 8193ll );
 	if( (int64)vr$4 != 0ll ) goto label$91;
 	{
-		int64 vr$7 = fb_FileTell( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int64 vr$7 = fb_FileTell( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		*(int64*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 49648ll) = vr$7;
 		fb$result$1 = (int64)((uint64)(*(int64*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 49648ll) - *(int64*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 49632ll)) >> (1ull & 63ll));
 	}
@@ -1439,14 +1467,14 @@ static int64 HUTF16LETOUTF32LE( void )
 	label$94:;
 	if( CHARS$1 >= 8192ll ) goto label$95;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$97;
 		{
 			goto label$95;
 		}
 		label$97:;
 		label$96:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 2ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 2ull );
 		if( (int64)vr$7 == 0ll ) goto label$99;
 		{
 			goto label$95;
@@ -1458,7 +1486,7 @@ static int64 HUTF16LETOUTF32LE( void )
 		{
 			if( WC$1 > 56319ull ) goto label$103;
 			{
-				int32 vr$11 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 2ull );
+				int32 vr$11 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 2ull );
 				if( (int64)vr$11 == 0ll ) goto label$105;
 				{
 					goto label$95;
@@ -1496,14 +1524,14 @@ static int64 HUTF16BETOCHAR( void )
 	label$119:;
 	if( CHARS$1 >= 8192ll ) goto label$120;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$122;
 		{
 			goto label$120;
 		}
 		label$122:;
 		label$121:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 2ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 2ull );
 		if( (int64)vr$7 == 0ll ) goto label$124;
 		{
 			goto label$120;
@@ -1517,7 +1545,7 @@ static int64 HUTF16BETOCHAR( void )
 			{
 				if( (int64)C$1 > 56319ll ) goto label$130;
 				{
-					int32 vr$20 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 2ull );
+					int32 vr$20 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 2ull );
 					if( (int64)vr$20 == 0ll ) goto label$132;
 					{
 						goto label$120;
@@ -1559,8 +1587,8 @@ static int64 HUTF16BETOUTF16LE( void )
 	DST$1 = (uint16*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 16856ll);
 	{
 		I$1 = 1ll;
-		int64 TMP$100$2;
-		TMP$100$2 = CHARS$1;
+		int64 TMP$103$2;
+		TMP$103$2 = CHARS$1;
 		goto label$135;
 		label$138:;
 		{
@@ -1571,7 +1599,7 @@ static int64 HUTF16BETOUTF16LE( void )
 		label$136:;
 		I$1 = I$1 + 1ll;
 		label$135:;
-		if( I$1 <= TMP$100$2 ) goto label$138;
+		if( I$1 <= TMP$103$2 ) goto label$138;
 		label$137:;
 	}
 	fb$result$1 = CHARS$1;
@@ -1593,14 +1621,14 @@ static int64 HUTF16BETOUTF32LE( void )
 	label$141:;
 	if( CHARS$1 >= 8192ll ) goto label$142;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$144;
 		{
 			goto label$142;
 		}
 		label$144:;
 		label$143:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 2ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 2ull );
 		if( (int64)vr$7 == 0ll ) goto label$146;
 		{
 			goto label$142;
@@ -1612,7 +1640,7 @@ static int64 HUTF16BETOUTF32LE( void )
 		{
 			if( WC$1 > 56319ull ) goto label$150;
 			{
-				int32 vr$16 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 2ull );
+				int32 vr$16 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 2ull );
 				if( (int64)vr$16 == 0ll ) goto label$152;
 				{
 					goto label$142;
@@ -1650,14 +1678,14 @@ static int64 HUTF32LETOCHAR( void )
 	label$162:;
 	if( CHARS$1 >= 8192ll ) goto label$163;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$165;
 		{
 			goto label$163;
 		}
 		label$165:;
 		label$164:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 8ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 8ull );
 		if( (int64)vr$7 == 0ll ) goto label$167;
 		{
 			goto label$163;
@@ -1694,14 +1722,14 @@ static int64 HUTF32LETOUTF16LE( void )
 	label$172:;
 	if( CHARS$1 >= 8192ll ) goto label$173;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$175;
 		{
 			goto label$173;
 		}
 		label$175:;
 		label$174:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 8ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 8ull );
 		if( (int64)vr$7 == 0ll ) goto label$177;
 		{
 			goto label$173;
@@ -1712,7 +1740,7 @@ static int64 HUTF32LETOUTF16LE( void )
 		{
 			if( CHARS$1 >= 8191ll ) goto label$181;
 			{
-				*DST$1 = (uint16)((C$1 >> (10ll & 63ll)) + 55296ull);
+				*DST$1 = (uint16)(((C$1 + 18446744073709486080ull) >> (10ll & 63ll)) + 55296ull);
 				DST$1 = (uint16*)((uint8*)DST$1 + 2ll);
 				CHARS$1 = CHARS$1 + 1ll;
 			}
@@ -1738,10 +1766,10 @@ static int64 HUTF32LETOUTF32LE( void )
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$182:;
-	int32 vr$4 = fb_FileGetWstrLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (uint32*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 16856ll), 8193ll );
+	int32 vr$4 = fb_FileGetWstrLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (uint32*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 16856ll), 8193ll );
 	if( (int64)vr$4 != 0ll ) goto label$185;
 	{
-		int64 vr$7 = fb_FileTell( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int64 vr$7 = fb_FileTell( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		*(int64*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 49648ll) = vr$7;
 		fb$result$1 = (int64)((uint64)(*(int64*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 49648ll) - *(int64*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 49632ll)) >> (2ull & 63ll));
 	}
@@ -1768,14 +1796,14 @@ static int64 HUTF32BETOCHAR( void )
 	label$199:;
 	if( CHARS$1 >= 8192ll ) goto label$200;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$202;
 		{
 			goto label$200;
 		}
 		label$202:;
 		label$201:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 8ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 8ull );
 		if( (int64)vr$7 == 0ll ) goto label$204;
 		{
 			goto label$200;
@@ -1813,14 +1841,14 @@ static int64 HUTF32BETOUTF16LE( void )
 	label$209:;
 	if( CHARS$1 >= 8192ll ) goto label$210;
 	{
-		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 600ll) );
+		int32 vr$4 = fb_FileEof( (int32)*(int64*)((uint8*)&ENV$ + 624ll) );
 		if( (int64)vr$4 == 0ll ) goto label$212;
 		{
 			goto label$210;
 		}
 		label$212:;
 		label$211:;
-		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 600ll), 0ll, (void*)&C$1, 8ull );
+		int32 vr$7 = fb_FileGetLarge( (int32)*(int64*)((uint8*)&ENV$ + 624ll), 0ll, (void*)&C$1, 8ull );
 		if( (int64)vr$7 == 0ll ) goto label$214;
 		{
 			goto label$210;
@@ -1832,7 +1860,7 @@ static int64 HUTF32BETOUTF16LE( void )
 		{
 			if( CHARS$1 >= 8191ll ) goto label$218;
 			{
-				*DST$1 = (uint16)((C$1 >> (10ll & 63ll)) + 55296ull);
+				*DST$1 = (uint16)(((C$1 + 18446744073709486080ull) >> (10ll & 63ll)) + 55296ull);
 				DST$1 = (uint16*)((uint8*)DST$1 + 2ll);
 				CHARS$1 = CHARS$1 + 1ll;
 			}
@@ -1867,8 +1895,8 @@ static int64 HUTF32BETOUTF32LE( void )
 	DST$1 = (uint32*)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 16856ll);
 	{
 		I$1 = 1ll;
-		int64 TMP$102$2;
-		TMP$102$2 = CHARS$1;
+		int64 TMP$105$2;
+		TMP$105$2 = CHARS$1;
 		goto label$221;
 		label$224:;
 		{
@@ -1879,7 +1907,7 @@ static int64 HUTF32BETOUTF32LE( void )
 		label$222:;
 		I$1 = I$1 + 1ll;
 		label$221:;
-		if( I$1 <= TMP$102$2 ) goto label$224;
+		if( I$1 <= TMP$105$2 ) goto label$224;
 		label$223:;
 	}
 	fb$result$1 = CHARS$1;

@@ -1663,10 +1663,10 @@ dim shared as FBGNUOSINFO gnuosmap(0 to ...) => _
 	(@"netbsd"     , FB_COMPTARGET_NETBSD   ), _
 	(@"openbsd"    , FB_COMPTARGET_OPENBSD  ), _
 	(@"xbox"       , FB_COMPTARGET_XBOX     ), _
+	(@"amigaos4"   , FB_COMPTARGET_AMIGAOS4 ), _ '' Must appear before amigaos
 	(@"amigaos"    , FB_COMPTARGET_AMIGA    ), _
 	(@"aros"       , FB_COMPTARGET_AROS     ), _
-	(@"morphos"    , FB_COMPTARGET_MORPHOS  ), _
-	(@"amigaos4"   , FB_COMPTARGET_AMIGAOS4 )  _
+	(@"morphos"    , FB_COMPTARGET_MORPHOS  )  _
 }
 
 '' Architectures recognized when parsing GNU triplets (-target option)

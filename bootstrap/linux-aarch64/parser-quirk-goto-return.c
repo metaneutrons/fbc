@@ -29,6 +29,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -57,8 +67,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -122,10 +134,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -195,7 +208,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -263,6 +276,16 @@ struct $7FBS_VAR {
 	int64 BITS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7FBS_VAR ) == 104 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -369,9 +392,9 @@ struct $8FBS_ENUM {
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $11FB_FUNCMODE;
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -501,7 +524,7 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
+typedef FBSTRING* (*tmp$29)( void );
 struct $8DZSTRING {
 	char* DATA;
 	int64 LEN;
@@ -526,8 +549,8 @@ struct $11LEXPP_ARGTB {
 	int64 COUNT;
 };
 __FB_STATIC_ASSERT( sizeof( struct $11LEXPP_ARGTB ) == 776 );
-typedef FBSTRING* (*tmp$29)( struct $11LEXPP_ARGTB*, int64* );
-typedef uint32* (*tmp$30)( struct $11LEXPP_ARGTB*, int64* );
+typedef FBSTRING* (*tmp$30)( struct $11LEXPP_ARGTB*, int64* );
+typedef uint32* (*tmp$31)( struct $11LEXPP_ARGTB*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -539,11 +562,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -618,7 +641,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -803,7 +826,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 struct $12FBHASHTBLIST {
 	struct $8FBHASHTB* HEAD;
 	struct $8FBHASHTB* TAIL;
@@ -897,7 +920,7 @@ struct $7SYMBCTX {
 	struct $8FBSYMBOL* LASTLBL;
 	struct $15FB_GLOBCTORLIST GLOBCTORLIST;
 	struct $15FB_GLOBCTORLIST GLOBDTORLIST;
-	struct $10SYMB_OVLOP GLOBOPOVLTB[121];
+	struct $10SYMB_OVLOP GLOBOPOVLTB[122];
 	int64 FBARRAY_DATA;
 	int64 FBARRAY_PTR;
 	int64 FBARRAY_SIZE;
@@ -907,7 +930,7 @@ struct $7SYMBCTX {
 	int64 FBARRAYDIM_UBOUND;
 	struct $10FB_RTTICTX RTTI;
 };
-__FB_STATIC_ASSERT( sizeof( struct $7SYMBCTX ) == 199248 );
+__FB_STATIC_ASSERT( sizeof( struct $7SYMBCTX ) == 199256 );
 extern struct $7SYMBCTX SYMB$;
 typedef int64 $12FB_DATACLASS;
 struct $13SYMB_DATATYPE {
@@ -930,7 +953,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -941,7 +964,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
 typedef int64 $10FB_BACKEND;
 typedef int64 $13FB_COMPTARGET;
@@ -974,6 +997,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -997,8 +1021,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -1040,11 +1066,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 typedef int64 $16FB_RESTART_FLAGS;
 struct $7TSTRSET {
 	struct $5TLIST LIST;
@@ -1082,7 +1109,7 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
 struct $17FBPARSER_STMT_LET {
 	struct $5TLIST LIST;
@@ -1129,8 +1156,8 @@ int64 CGOTOSTMT( $8FB_TOKEN TK$1 )
 	struct $8FBSYMBOL* L$1;
 	fb$result$1 = 0ll;
 	{
-		uint64 TMP$97$2;
-		TMP$97$2 = (uint64)TK$1;
+		uint64 TMP$100$2;
+		TMP$100$2 = (uint64)TK$1;
 		goto label$52;
 		label$53:;
 		{
@@ -1148,7 +1175,7 @@ int64 CGOTOSTMT( $8FB_TOKEN TK$1 )
 		goto label$51;
 		label$56:;
 		{
-			if( (*(int64*)((uint8*)&ENV$ + 1424ll) & 65536ll) != 0ll ) goto label$58;
+			if( (*(int64*)((uint8*)&ENV$ + 1448ll) & 65536ll) != 0ll ) goto label$58;
 			{
 				ERRREPORTNOTALLOWED( 65536ll, 146ll, (char*)0ull );
 				HSKIPUNTIL( -1ll, 0ll, 0ll, 0ll );
@@ -1157,7 +1184,7 @@ int64 CGOTOSTMT( $8FB_TOKEN TK$1 )
 			}
 			label$58:;
 			label$57:;
-			if( *(int64*)((uint8*)&ENV$ + 1544ll) == 0ll ) goto label$60;
+			if( *(int64*)((uint8*)&ENV$ + 1576ll) == 0ll ) goto label$60;
 			{
 				HGOSUBBRANCH(  );
 			}
@@ -1174,9 +1201,9 @@ int64 CGOTOSTMT( $8FB_TOKEN TK$1 )
 		goto label$51;
 		label$61:;
 		{
-			if( (*(int64*)((uint8*)&ENV$ + 1424ll) & 65536ll) == 0ll ) goto label$63;
+			if( (*(int64*)((uint8*)&ENV$ + 1448ll) & 65536ll) == 0ll ) goto label$63;
 			{
-				if( *(int64*)((uint8*)&ENV$ + 1544ll) == 0ll ) goto label$65;
+				if( *(int64*)((uint8*)&ENV$ + 1576ll) == 0ll ) goto label$65;
 				{
 					int64 vr$4 = HGOSUBRETURN(  );
 					fb$result$1 = vr$4;
@@ -1194,7 +1221,7 @@ int64 CGOTOSTMT( $8FB_TOKEN TK$1 )
 		goto label$51;
 		label$66:;
 		{
-			if( (*(int64*)((uint8*)&ENV$ + 1424ll) & 134217728ll) != 0ll ) goto label$68;
+			if( (*(int64*)((uint8*)&ENV$ + 1448ll) & 134217728ll) != 0ll ) goto label$68;
 			{
 				ERRREPORTNOTALLOWED( 134217728ll, 146ll, (char*)0ull );
 				HSKIPUNTIL( -1ll, 0ll, 0ll, 0ll );
@@ -1210,7 +1237,7 @@ int64 CGOTOSTMT( $8FB_TOKEN TK$1 )
 		}
 		goto label$51;
 		label$52:;
-		static const void* tmp$98[111ll] = {
+		static const void* tmp$101[111ll] = {
 			&&label$61,
 			&&label$53,
 			&&label$56,
@@ -1323,8 +1350,8 @@ int64 CGOTOSTMT( $8FB_TOKEN TK$1 )
 			&&label$51,
 			&&label$66,
 		};
-		if( (TMP$97$2 - 392ull) > 110ull ) goto label$51;
-		goto *tmp$98[TMP$97$2 - 392ull];
+		if( (TMP$100$2 - 392ull) > 110ull ) goto label$51;
+		goto *tmp$101[TMP$100$2 - 392ull];
 		label$51:;
 	}
 	label$50:;
@@ -1373,9 +1400,9 @@ static int64 HFUNCRETURN( void )
 	label$17:;
 	{
 		{
-			uint64 TMP$94$3;
+			uint64 TMP$97$3;
 			int64 vr$4 = LEXGETTOKEN( 0ll );
-			TMP$94$3 = (uint64)vr$4;
+			TMP$97$3 = (uint64)vr$4;
 			goto label$19;
 			label$20:;
 			{
@@ -1388,7 +1415,7 @@ static int64 HFUNCRETURN( void )
 			}
 			goto label$18;
 			label$19:;
-			static const void* tmp$99[85ll] = {
+			static const void* tmp$102[85ll] = {
 				&&label$20,
 				&&label$20,
 				&&label$20,
@@ -1475,8 +1502,8 @@ static int64 HFUNCRETURN( void )
 				&&label$21,
 				&&label$20,
 			};
-			if( (TMP$94$3 - 256ull) > 84ull ) goto label$21;
-			goto *tmp$99[TMP$94$3 - 256ull];
+			if( (TMP$97$3 - 256ull) > 84ull ) goto label$21;
+			goto *tmp$102[TMP$97$3 - 256ull];
 			label$18:;
 		}
 	}
@@ -1506,9 +1533,9 @@ static struct $8FBSYMBOL* HGETLABELID( void )
 	label$26:;
 	struct $8FBSYMBOL* SYM$1;
 	{
-		uint64 TMP$95$2;
+		uint64 TMP$98$2;
 		int64 vr$1 = LEXGETCLASS( 0ll );
-		TMP$95$2 = (uint64)vr$1;
+		TMP$98$2 = (uint64)vr$1;
 		goto label$29;
 		label$30:;
 		{
@@ -1536,14 +1563,14 @@ static struct $8FBSYMBOL* HGETLABELID( void )
 		}
 		goto label$28;
 		label$29:;
-		static const void* tmp$100[4ll] = {
+		static const void* tmp$103[4ll] = {
 			&&label$31,
 			&&label$31,
 			&&label$31,
 			&&label$30,
 		};
-		if( TMP$95$2 > 3ull ) goto label$32;
-		goto *tmp$100[TMP$95$2 - 0ull];
+		if( TMP$98$2 > 3ull ) goto label$32;
+		goto *tmp$103[TMP$98$2 - 0ull];
 		label$28:;
 	}
 	if( SYM$1 != (struct $8FBSYMBOL*)0ull ) goto label$34;
@@ -1590,9 +1617,9 @@ static int64 HGOSUBRETURN( void )
 	struct $8FBSYMBOL* L$1;
 	LEXSKIPTOKEN( 2048ll );
 	{
-		uint64 TMP$96$2;
+		uint64 TMP$99$2;
 		int64 vr$1 = LEXGETTOKEN( 0ll );
-		TMP$96$2 = (uint64)vr$1;
+		TMP$99$2 = (uint64)vr$1;
 		goto label$44;
 		label$45:;
 		{
@@ -1618,7 +1645,7 @@ static int64 HGOSUBRETURN( void )
 		}
 		goto label$43;
 		label$44:;
-		static const void* tmp$101[85ll] = {
+		static const void* tmp$104[85ll] = {
 			&&label$45,
 			&&label$45,
 			&&label$45,
@@ -1705,8 +1732,8 @@ static int64 HGOSUBRETURN( void )
 			&&label$46,
 			&&label$45,
 		};
-		if( (TMP$96$2 - 256ull) > 84ull ) goto label$46;
-		goto *tmp$101[TMP$96$2 - 256ull];
+		if( (TMP$99$2 - 256ull) > 84ull ) goto label$46;
+		goto *tmp$104[TMP$99$2 - 256ull];
 		label$43:;
 	}
 	label$42:;

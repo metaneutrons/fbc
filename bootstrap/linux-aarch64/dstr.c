@@ -82,7 +82,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 typedef int64 $12FB_DATACLASS;
 typedef int64 $11FB_DATATYPE;
 struct $13SYMB_DATATYPE {
@@ -105,7 +105,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -116,7 +116,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 
 void DZSTRZERO( struct $8DZSTRING* DST$1 )
 {
@@ -169,17 +169,17 @@ void DZSTRRESET( struct $8DZSTRING* DST$1 )
 
 void DZSTRASSIGN( struct $8DZSTRING* DST$1, char* SRC$1 )
 {
-	int64 TMP$83$1;
+	int64 TMP$86$1;
 	label$24:;
 	int64 SRC_LEN$1;
 	if( SRC$1 == (char*)0ull ) goto label$26;
 	int64 vr$0 = fb_StrLen( (void*)SRC$1, 0ll );
-	TMP$83$1 = vr$0;
+	TMP$86$1 = vr$0;
 	goto label$35;
 	label$26:;
-	TMP$83$1 = 0ll;
+	TMP$86$1 = 0ll;
 	label$35:;
-	SRC_LEN$1 = TMP$83$1;
+	SRC_LEN$1 = TMP$86$1;
 	if( SRC_LEN$1 != 0ll ) goto label$28;
 	{
 		if( *(char**)DST$1 == (char*)0ull ) goto label$30;
@@ -212,17 +212,17 @@ void DZSTRASSIGN( struct $8DZSTRING* DST$1, char* SRC$1 )
 
 void DZSTRASSIGNW( struct $8DZSTRING* DST$1, uint32* SRC$1 )
 {
-	int64 TMP$84$1;
+	int64 TMP$87$1;
 	label$36:;
 	int64 SRC_LEN$1;
 	if( SRC$1 == (uint32*)0ull ) goto label$38;
 	int64 vr$0 = fb_WstrLen( SRC$1 );
-	TMP$84$1 = vr$0;
+	TMP$87$1 = vr$0;
 	goto label$47;
 	label$38:;
-	TMP$84$1 = 0ll;
+	TMP$87$1 = 0ll;
 	label$47:;
-	SRC_LEN$1 = TMP$84$1;
+	SRC_LEN$1 = TMP$87$1;
 	if( SRC_LEN$1 != 0ll ) goto label$40;
 	{
 		if( *(char**)DST$1 == (char*)0ull ) goto label$42;
@@ -291,17 +291,17 @@ void DZSTRASSIGNC( struct $8DZSTRING* DST$1, uint64 SRC$1 )
 
 void DZSTRCONCATASSIGN( struct $8DZSTRING* DST$1, char* SRC$1 )
 {
-	int64 TMP$85$1;
+	int64 TMP$88$1;
 	label$58:;
 	int64 SRC_LEN$1;
 	if( SRC$1 == (char*)0ull ) goto label$60;
 	int64 vr$0 = fb_StrLen( (void*)SRC$1, 0ll );
-	TMP$85$1 = vr$0;
+	TMP$88$1 = vr$0;
 	goto label$65;
 	label$60:;
-	TMP$85$1 = 0ll;
+	TMP$88$1 = 0ll;
 	label$65:;
-	SRC_LEN$1 = TMP$85$1;
+	SRC_LEN$1 = TMP$88$1;
 	int64 DST_LEN$1;
 	DST_LEN$1 = *(int64*)((uint8*)DST$1 + 8ll);
 	if( SRC_LEN$1 != 0ll ) goto label$62;
@@ -322,17 +322,17 @@ void DZSTRCONCATASSIGN( struct $8DZSTRING* DST$1, char* SRC$1 )
 
 void DZSTRCONCATASSIGNW( struct $8DZSTRING* DST$1, uint32* SRC$1 )
 {
-	int64 TMP$86$1;
+	int64 TMP$89$1;
 	label$66:;
 	int64 SRC_LEN$1;
 	if( SRC$1 == (uint32*)0ull ) goto label$68;
 	int64 vr$0 = fb_WstrLen( SRC$1 );
-	TMP$86$1 = vr$0;
+	TMP$89$1 = vr$0;
 	goto label$73;
 	label$68:;
-	TMP$86$1 = 0ll;
+	TMP$89$1 = 0ll;
 	label$73:;
-	SRC_LEN$1 = TMP$86$1;
+	SRC_LEN$1 = TMP$89$1;
 	int64 DST_LEN$1;
 	DST_LEN$1 = *(int64*)((uint8*)DST$1 + 8ll);
 	if( SRC_LEN$1 != 0ll ) goto label$70;
@@ -426,17 +426,17 @@ void DWSTRRESET( struct $8DWSTRING* DST$1 )
 
 void DWSTRASSIGN( struct $8DWSTRING* DST$1, uint32* SRC$1 )
 {
-	int64 TMP$87$1;
+	int64 TMP$90$1;
 	label$94:;
 	int64 SRC_LEN$1;
 	if( SRC$1 == (uint32*)0ull ) goto label$96;
 	int64 vr$0 = fb_WstrLen( SRC$1 );
-	TMP$87$1 = vr$0;
+	TMP$90$1 = vr$0;
 	goto label$105;
 	label$96:;
-	TMP$87$1 = 0ll;
+	TMP$90$1 = 0ll;
 	label$105:;
-	SRC_LEN$1 = TMP$87$1;
+	SRC_LEN$1 = TMP$90$1;
 	if( SRC_LEN$1 != 0ll ) goto label$98;
 	{
 		if( *(uint32**)DST$1 == (uint32*)0ull ) goto label$100;
@@ -469,17 +469,17 @@ void DWSTRASSIGN( struct $8DWSTRING* DST$1, uint32* SRC$1 )
 
 void DWSTRASSIGNA( struct $8DWSTRING* DST$1, char* SRC$1 )
 {
-	int64 TMP$88$1;
+	int64 TMP$91$1;
 	label$106:;
 	int64 SRC_LEN$1;
 	if( SRC$1 == (char*)0ull ) goto label$108;
 	int64 vr$0 = fb_StrLen( (void*)SRC$1, 0ll );
-	TMP$88$1 = vr$0;
+	TMP$91$1 = vr$0;
 	goto label$117;
 	label$108:;
-	TMP$88$1 = 0ll;
+	TMP$91$1 = 0ll;
 	label$117:;
-	SRC_LEN$1 = TMP$88$1;
+	SRC_LEN$1 = TMP$91$1;
 	if( SRC_LEN$1 != 0ll ) goto label$110;
 	{
 		if( *(uint32**)DST$1 == (uint32*)0ull ) goto label$112;
@@ -548,17 +548,17 @@ void DWSTRASSIGNC( struct $8DWSTRING* DST$1, uint64 SRC$1 )
 
 void DWSTRCONCATASSIGN( struct $8DWSTRING* DST$1, uint32* SRC$1 )
 {
-	int64 TMP$89$1;
+	int64 TMP$92$1;
 	label$128:;
 	int64 SRC_LEN$1;
 	if( SRC$1 == (uint32*)0ull ) goto label$130;
 	int64 vr$0 = fb_WstrLen( SRC$1 );
-	TMP$89$1 = vr$0;
+	TMP$92$1 = vr$0;
 	goto label$135;
 	label$130:;
-	TMP$89$1 = 0ll;
+	TMP$92$1 = 0ll;
 	label$135:;
-	SRC_LEN$1 = TMP$89$1;
+	SRC_LEN$1 = TMP$92$1;
 	int64 DST_LEN$1;
 	DST_LEN$1 = *(int64*)((uint8*)DST$1 + 8ll);
 	if( SRC_LEN$1 != 0ll ) goto label$132;
@@ -579,17 +579,17 @@ void DWSTRCONCATASSIGN( struct $8DWSTRING* DST$1, uint32* SRC$1 )
 
 void DWSTRCONCATASSIGNA( struct $8DWSTRING* DST$1, char* SRC$1 )
 {
-	int64 TMP$90$1;
+	int64 TMP$93$1;
 	label$136:;
 	int64 SRC_LEN$1;
 	if( SRC$1 == (char*)0ull ) goto label$138;
 	int64 vr$0 = fb_StrLen( (void*)SRC$1, 0ll );
-	TMP$90$1 = vr$0;
+	TMP$93$1 = vr$0;
 	goto label$143;
 	label$138:;
-	TMP$90$1 = 0ll;
+	TMP$93$1 = 0ll;
 	label$143:;
-	SRC_LEN$1 = TMP$90$1;
+	SRC_LEN$1 = TMP$93$1;
 	int64 DST_LEN$1;
 	DST_LEN$1 = *(int64*)((uint8*)DST$1 + 8ll);
 	if( SRC_LEN$1 != 0ll ) goto label$140;
