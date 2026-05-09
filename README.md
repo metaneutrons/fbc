@@ -1,15 +1,14 @@
 # FreeBASIC
 
-A free, open-source BASIC compiler. Fork of [FreeBASIC 1.10.2](https://www.freebasic.net/) with a modern CMake build system and improved platform support.
+A free, open-source, multi-platform BASIC compiler. Fork of [freebasic/fbc](https://github.com/freebasic/fbc) with a modern CMake build system and macOS Apple Silicon support.
 
 ## Supported Platforms
 
 | OS | x86_64 | aarch64 |
 |----|--------|---------|
 | Linux | ✅ | ✅ |
-| macOS | ✅ | ✅ |
+| macOS | ✅ | ✅ (Apple Silicon) |
 | Windows (MinGW) | ✅ | — |
-| FreeBSD | ✅ | ✅ |
 
 ## Building
 
@@ -51,6 +50,15 @@ cmake --install build --prefix /usr/local
 ./build/src/compiler/fbc -gen gcc -r hello.bas
 ```
 
+## What's different from upstream?
+
+- **CMake build system** — replaces the old GNU makefile for supported targets
+- **macOS arm64 support** — automatic bootstrap from linux-aarch64 C sources
+- **Clang compatibility** — fixes computed goto issues in generated C code
+- **GitHub Actions CI** — automated builds for all platforms
+
+The original makefile is still present and works for targets not yet covered by CMake (DOS, Xbox, etc.).
+
 ## Architecture
 
 ```
@@ -64,4 +72,7 @@ cmake/          Build system modules
 
 ## License
 
-GNU GPL v2+ (see original FreeBASIC license)
+- Compiler (fbc): GNU GPL v2+
+- Runtime libraries (libfb, libfbgfx): GNU LGPL v2+ with static linking exception
+
+See [LICENSE](LICENSE) and [readme.txt](readme.txt) for details.
