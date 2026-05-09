@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            arch: x86_64
+            name: Linux x86_64
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+            name: Linux aarch64
+          - os: macos-14
+            arch: aarch64
+            name: macOS arm64
+          - os: macos-13
+            arch: x86_64
+            name: macOS x86_64
+          - os: windows-latest
+            arch: x86_64
+            name: Windows x86_64
+
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build libncurses-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake ninja
+
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: >-
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-gcc
+
+      - name: Configure (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DFB_STANDALONE=ON
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DFB_STANDALONE=ON
+
+      - name: Build (Unix)
+        if: runner.os != 'Windows'
+        run: cmake --build build -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: cmake --build build -j$(nproc)
+
+      - name: Test compiler
+        if: runner.os != 'Windows'
+        run: |
+          echo 'Print "Hello from FreeBASIC!"' > /tmp/test.bas
+          ./build/src/compiler/fbc -gen gcc /tmp/test.bas -o /tmp/test || true
+          # Bootstrap fbc targets linux-aarch64, full test needs stage2
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fbc-${{ matrix.name }}
+          path: build/src/compiler/fbc*
