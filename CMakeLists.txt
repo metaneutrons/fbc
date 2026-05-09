@@ -14,13 +14,16 @@ endif()
 # Options
 option(FB_STANDALONE "Build as self-contained installation" ON)
 option(FB_BUILD_GFXLIB "Build the graphics library" ON)
+option(FB_BUILD_COMPILER "Build the fbc compiler" ON)
 option(FB_BUILD_TESTS "Build tests" OFF)
 
 # Platform detection (sets FB_TARGET_OS, FB_TARGET_ARCH, FB_TARGET_ID)
 include(cmake/DetectPlatform.cmake)
 
 # Bootstrap logic (determines how to build fbc)
-include(cmake/Bootstrap.cmake)
+if(FB_BUILD_COMPILER)
+    include(cmake/Bootstrap.cmake)
+endif()
 
 # Install paths (needed by subdirectories)
 include(cmake/Install.cmake)
@@ -34,7 +37,9 @@ if(FB_BUILD_GFXLIB)
 endif()
 
 # Compiler (fbc)
-add_subdirectory(src/compiler)
+if(FB_BUILD_COMPILER)
+    add_subdirectory(src/compiler)
+endif()
 
 # Summary
 message(STATUS "")

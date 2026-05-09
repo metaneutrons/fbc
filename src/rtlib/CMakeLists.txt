@@ -35,6 +35,8 @@ elseif(UNIX)
     endif()
 
     set(RTLIB_PLATFORM_SOURCES ${RTLIB_UNIX_SOURCES} ${RTLIB_OS_SOURCES})
+elseif(FB_TARGET_OS MATCHES "^(amiga|aros|morphos|amigaos4)$")
+    file(GLOB RTLIB_PLATFORM_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/amiga/*.c")
 endif()
 
 # Architecture-specific sources (x86 asm helpers, etc.)
@@ -141,6 +143,8 @@ if(FB_NEED_PIC)
 endif()
 
 # --- fbrt0.o (runtime startup object) ---
+# Amiga targets use clib2/newlib startup, not fbrt0
+if(NOT FB_TARGET_OS MATCHES "^(amiga|aros|morphos|amigaos4)$")
 # We need the raw .o file, not a .a archive. Compile it directly.
 set(FBRT0_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/static/fbrt0.c")
 set(FBRT0_OBJ "${CMAKE_CURRENT_BINARY_DIR}/fbrt0${CMAKE_C_OUTPUT_EXTENSION}")
@@ -148,6 +152,7 @@ set(FBRT0_OBJ "${CMAKE_CURRENT_BINARY_DIR}/fbrt0${CMAKE_C_OUTPUT_EXTENSION}")
 add_custom_command(
     OUTPUT "${FBRT0_OBJ}"
     COMMAND ${CMAKE_C_COMPILER} -c -I "${CMAKE_CURRENT_SOURCE_DIR}" -o "${FBRT0_OBJ}" "${FBRT0_SOURCE}"
+    COMMAND_EXPAND_LISTS
     DEPENDS "${FBRT0_SOURCE}"
     COMMENT "Compiling fbrt0${CMAKE_C_OUTPUT_EXTENSION}"
     VERBATIM
@@ -165,15 +170,20 @@ if(FB_NEED_PIC)
     )
     add_custom_target(fbrt0pic ALL DEPENDS "${FBRT0PIC_OBJ}")
 endif()
+endif() # not amiga
 
 # --- Installation ---
 install(TARGETS fb ARCHIVE DESTINATION "${FB_INSTALL_LIBDIR}")
-install(FILES "${FBRT0_OBJ}" DESTINATION "${FB_INSTALL_LIBDIR}" RENAME "fbrt0${CMAKE_C_OUTPUT_EXTENSION}")
+if(DEFINED FBRT0_OBJ)
+    install(FILES "${FBRT0_OBJ}" DESTINATION "${FB_INSTALL_LIBDIR}" RENAME "fbrt0${CMAKE_C_OUTPUT_EXTENSION}")
+endif()
 
 if(TARGET fbmt)
     install(TARGETS fbmt ARCHIVE DESTINATION "${FB_INSTALL_LIBDIR}")
 endif()
 if(FB_NEED_PIC)
     install(TARGETS fbpic ARCHIVE DESTINATION "${FB_INSTALL_LIBDIR}")
-    install(FILES "${FBRT0PIC_OBJ}" DESTINATION "${FB_INSTALL_LIBDIR}" RENAME "fbrt0pic${CMAKE_C_OUTPUT_EXTENSION}")
+    if(DEFINED FBRT0PIC_OBJ)
+        install(FILES "${FBRT0PIC_OBJ}" DESTINATION "${FB_INSTALL_LIBDIR}" RENAME "fbrt0pic${CMAKE_C_OUTPUT_EXTENSION}")
+    endif()
 endif()
