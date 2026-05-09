@@ -4442,6 +4442,29 @@ private sub hAddDefaultLibs( )
 			fbcAddDefLib( "gmon" )
 		end if
 
+
+	case FB_COMPTARGET_AMIGA
+		fbcAddDefLib( "gcc" )
+		fbcAddDefLib( "amiga" )
+		fbcAddDefLib( "m" )
+
+	case FB_COMPTARGET_AROS
+		fbcAddDefLib( "gcc" )
+		fbcAddDefLib( "arosc" )
+		fbcAddDefLib( "autoinit" )
+		fbcAddDefLib( "m" )
+
+	case FB_COMPTARGET_MORPHOS
+		fbcAddDefLib( "gcc" )
+		fbcAddDefLib( "c" )
+		fbcAddDefLib( "m" )
+
+	case FB_COMPTARGET_AMIGAOS4
+		fbcAddDefLib( "gcc" )
+		fbcAddDefLib( "c" )
+		fbcAddDefLib( "m" )
+		fbcAddDefLib( "auto" )
+
 	end select
 
 end sub
