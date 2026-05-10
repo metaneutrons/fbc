@@ -126,3 +126,53 @@ jobs:
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: fbc-${{ matrix.name }}.*
+
+  amiga-test:
+    name: AmigaOS m68k (cross + vamos)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install m68k-amigaos-gcc
+        run: |
+          sudo mkdir -p /opt/amiga
+          curl -L https://github.com/bebbo/amiga-gcc/releases/download/v6.5.0b-2024-11-17/amiga-gcc-ubuntu-amd64.tar.xz \
+            | sudo tar -xJ -C /opt/amiga
+          echo "/opt/amiga/bin" >> $GITHUB_PATH
+
+      - name: Install vamos
+        run: pip install amitools machine68k
+
+      - name: Build fbc (host)
+        run: |
+          sudo apt-get install -y cmake ninja-build libncurses-dev
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DFB_STANDALONE=ON
+          cmake --build build
+
+      - name: Cross-compile test program
+        run: |
+          echo 'Print "Hello Amiga from FreeBASIC!"' > /tmp/hello.bas
+          echo 'Print "Test passed!"' >> /tmp/hello.bas
+          ./build/src/compiler/fbc -gen gcc -r -m hello -target amiga-m68k /tmp/hello.bas
+
+          SYSROOT=/opt/amiga/m68k-amigaos
+          m68k-amigaos-gcc -m68020 -fno-common \
+            -isystem $SYSROOT/ndk-include -isystem $SYSROOT/sys-include \
+            -O2 -fno-builtin -c /tmp/hello.c -o /tmp/hello.o
+
+          m68k-amigaos-as src/rtlib/amiga/startup.s -o /tmp/startup.o
+
+          m68k-amigaos-gcc -m68020 -fno-common \
+            -isystem $SYSROOT/ndk-include -isystem $SYSROOT/sys-include \
+            -O2 -fno-builtin -c src/rtlib/amiga/fb_amiga_rt.c -o /tmp/fb_amiga_rt.o
+
+          m68k-amigaos-gcc -m68020 -nostdlib \
+            /tmp/startup.o /tmp/hello.o /tmp/fb_amiga_rt.o \
+            -o /tmp/hello_amiga
+
+      - name: Test with vamos
+        run: |
+          OUTPUT=$(vamos -C 68020 /tmp/hello_amiga 2>/dev/null)
+          echo "$OUTPUT"
+          echo "$OUTPUT" | grep -q "Test passed!" || (echo "FAIL: expected output not found" && exit 1)
+          echo "✅ AmigaOS test passed!"
