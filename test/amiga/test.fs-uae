@@ -1,0 +1,6 @@
+[fs-uae]
+amiga_model = A1200
+kickstart_file = rom/A1200.47.102.rom
+hard_drive_0 = hd
+hard_drive_0_label = System
+uae_cpu_speed = max

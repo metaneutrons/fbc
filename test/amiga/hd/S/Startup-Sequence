@@ -1,0 +1,15 @@
+C:SetPatch QUIET
+C:Version >NIL:
+
+FailAt 21
+C:MakeDir RAM:T RAM:Clipboards RAM:ENV RAM:ENV/Sys
+Assign >NIL: ENV: RAM:ENV
+Assign >NIL: T: RAM:T
+
+Path >NIL: RAM: C: SYS:L S:
+
+C:hello_amiga
+Wait 5
+
+C:LoadWB
+EndCLI >NIL:
