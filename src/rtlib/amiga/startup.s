@@ -1,4 +1,4 @@
-| FreeBASIC AmigaOS startup - opens dos.library, calls _main, cleans up
+| FreeBASIC AmigaOS startup - opens libraries, calls _main, cleans up
     .text
     .globl _start
 _start:
@@ -11,6 +11,9 @@ _start:
     jsr     -552(a6)
     move.l  d0,_DOSBase
     beq.s   .fail
+
+    | Init math libraries (for soft-float)
+    jsr     ___fb_init_mathlibs
 
     | Call main(0, NULL)
     pea     0
