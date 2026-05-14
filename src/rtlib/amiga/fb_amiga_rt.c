@@ -388,3 +388,33 @@ FBSTRING *fb_Inkey(void) {
     result.size = 0;
     return &result;
 }
+
+/* === Sleep / Timer === */
+
+/* dos.library Delay() - ticks are 1/50th second */
+static void dos_Delay(long ticks) {
+    register void *a6 __asm("a6") = DOSBase;
+    register long d1 __asm("d1") = ticks;
+    __asm volatile ("jsr -198(%%a6)" : : "r"(a6), "r"(d1) : "d0","a0","a1","memory");
+}
+
+/* FB Sleep takes milliseconds */
+void fb_Sleep(int32 msecs) {
+    if (msecs <= 0) msecs = 1;
+    long ticks = msecs / 20; /* 1 tick = 20ms (50Hz) */
+    if (ticks < 1) ticks = 1;
+    dos_Delay(ticks);
+}
+
+void fb_Delay(int32 msecs) { fb_Sleep(msecs); }
+
+/* Timer - returns seconds as double using DateStamp */
+double fb_Timer(void) {
+    /* DateStamp: days, minutes, ticks (1/50s) */
+    long ds[3];
+    register void *a6 __asm("a6") = DOSBase;
+    register long *d1 __asm("d1") = ds;
+    __asm volatile ("jsr -192(%%a6)" : : "r"(a6), "r"(d1) : "d0","a0","a1","memory");
+    /* Convert to seconds */
+    return (double)ds[1] * 60.0 + (double)ds[2] / 50.0;
+}
