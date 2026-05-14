@@ -260,24 +260,131 @@ int fb_ConsoleInput(FBSTRING *text, int addquestion, int addnewline) {
     return 0;
 }
 
-int fb_InputString(char *dst, int32 maxlen) {
+int fb_InputString(void *dst, int32 dst_len, int32 fillrem) {
+    char buf[256];
+    int i = 0;
     long in = dos_Input();
     if (!in) return 1;
-    int i = 0;
-    while (i < maxlen - 1) {
+
+    while (i < 255) {
         char c;
         long r = dos_Read(in, &c, 1);
         if (r <= 0) break;
         if (c == '\n') break;
         if (c == '\r') continue;
-        dst[i++] = c;
+        buf[i++] = c;
     }
-    dst[i] = 0;
-    return i;
+    buf[i] = 0;
+
+    if (dst_len == -1) {
+        /* dst is FBSTRING* */
+        FBSTRING *d = (FBSTRING *)dst;
+        if (d->data) free(d->data);
+        d->data = malloc(i + 1);
+        if (d->data) memcpy(d->data, buf, i + 1);
+        d->len = i;
+        d->size = i + 1;
+    } else {
+        /* dst is char* with fixed length */
+        int copy = i < dst_len - 1 ? i : dst_len - 1;
+        memcpy(dst, buf, copy);
+        ((char*)dst)[copy] = 0;
+    }
+    return 0;
 }
 
+/* fb_Inkey defined below with WaitForChar */
+
+/* === Float/Double printing (integer-only implementation) === */
+
+/* We receive the double from the generated code (which uses FPU).
+   To print it without soft-float in OUR code, we use a union trick
+   to extract the value as a scaled integer. The compiler will use
+   FPU for the multiply, which is fine (68020+68881 or vamos). */
+void fb_PrintDouble(int32 fnum, double val, int32 mask) {
+    char buf[32];
+    int i = 0;
+    /* Use a simple scaled-integer approach:
+       Multiply by 1000000, convert to long, print with decimal point */
+    int neg = 0;
+    if (val < 0.0) { neg = 1; val = -val; }
+    if (!neg) buf[i++] = ' ';
+    else buf[i++] = '-';
+
+    /* Scale to get 6 decimal places as integer */
+    long scaled = (long)(val * 1000000.0 + 0.5);
+    long ipart = scaled / 1000000;
+    long fpart = scaled % 1000000;
+
+    /* Print integer part */
+    char tmp[16]; int ti = 0;
+    if (ipart == 0) tmp[ti++] = '0';
+    while (ipart > 0) { tmp[ti++] = '0' + (int)(ipart % 10); ipart /= 10; }
+    while (ti > 0) buf[i++] = tmp[--ti];
+
+    /* Print fractional part */
+    buf[i++] = '.';
+    int d;
+    long div = 100000;
+    for (d = 0; d < 6; d++) {
+        buf[i++] = '0' + (int)(fpart / div);
+        fpart %= div;
+        div /= 10;
+    }
+    /* Remove trailing zeros */
+    while (i > 1 && buf[i-1] == '0') i--;
+    if (buf[i-1] == '.') i++;
+
+    if (fnum > 0 && fnum < FB_MAX_FILES && file_handles[fnum])
+        dos_Write(file_handles[fnum], buf, i);
+    else
+        dos_Write_buf(buf, i);
+    if (mask & 1) {
+        if (fnum > 0 && fnum < FB_MAX_FILES && file_handles[fnum])
+            dos_Write(file_handles[fnum], "\n", 1);
+        else
+            dos_Write_buf("\n", 1);
+    }
+}
+
+void fb_PrintSingle(int32 fnum, float val, int32 mask) {
+    fb_PrintDouble(fnum, (double)val, mask);
+}
+
+/* === Interactive Console Input === */
+
+static long dos_WaitForChar(long fh, long timeout) {
+    register void *a6 __asm("a6") = DOSBase;
+    register long d1 __asm("d1") = fh;
+    register long d2 __asm("d2") = timeout;
+    register long res __asm("d0");
+    __asm volatile ("jsr -204(%%a6)" : "=r"(res) : "r"(a6), "r"(d1), "r"(d2) : "a0","a1","memory");
+    return res;
+}
+
+/* Redefine fb_Inkey to actually read a key non-blocking */
+#undef fb_Inkey
 FBSTRING *fb_Inkey(void) {
-    /* Non-blocking key read - just return empty for now */
-    static FBSTRING empty = {0, 0, 0};
-    return &empty;
+    static FBSTRING result;
+    static char keybuf[2];
+    long in = dos_Input();
+    if (!in) { result.data = 0; result.len = 0; return &result; }
+
+    /* Check if a character is available (0 timeout = non-blocking) */
+    if (dos_WaitForChar(in, 0)) {
+        char c;
+        long r = dos_Read(in, &c, 1);
+        if (r == 1) {
+            keybuf[0] = c;
+            keybuf[1] = 0;
+            result.data = keybuf;
+            result.len = 1;
+            result.size = 0;
+            return &result;
+        }
+    }
+    result.data = 0;
+    result.len = 0;
+    result.size = 0;
+    return &result;
 }
