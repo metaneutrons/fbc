@@ -40,6 +40,13 @@ static void dos_Write_buf(const void *buf, long len) {
     __asm volatile ("jsr -48(%%a6)" : : "r"(a6), "r"(d1), "r"(d2), "r"(d3) : "d0","a0","a1","memory");
 }
 
+/* Forward declarations for file I/O */
+static long dos_Open(const char *name, long mode);
+static void dos_Close(long fh);
+static long dos_Read(long fh, void *buf, long len);
+static long dos_Write(long fh, const void *buf, long len);
+static long dos_Input(void);
+
 /* C stdlib */
 void *malloc(size_t size) {
     void *p = amiga_alloc(size + 4);
@@ -57,6 +64,10 @@ void *memset(void *s, int c, size_t n) { char *p=s; while(n--) *p++=c; return s;
 void *memcpy(void *d, const void *s, size_t n) { char *dd=d;const char *ss=s; while(n--) *dd++=*ss++; return d; }
 size_t strlen(const char *s) { const char *p=s; while(*p)p++; return p-s; }
 
+/* File handle table (defined below) */
+#define FB_MAX_FILES 16
+static long file_handles[FB_MAX_FILES];
+
 /* FB Runtime */
 void fb_Init(int32 argc, char **argv, int32 lang) { }
 void fb_End(int32 code) { }
@@ -68,8 +79,17 @@ FBSTRING *fb_StrAllocTempDescZEx(char *str, int32 len) {
 }
 
 void fb_PrintString(int32 fnum, FBSTRING *s, int32 mask) {
-    if (s && s->data && s->len > 0) dos_Write_buf(s->data, s->len);
-    if (mask & 1) dos_Write_buf("\n", 1);
+    if (fnum > 0 && fnum < FB_MAX_FILES && file_handles[fnum]) {
+        /* Write to file */
+        if (s && s->data && s->len > 0)
+            dos_Write(file_handles[fnum], s->data, s->len);
+        if (mask & 1)
+            dos_Write(file_handles[fnum], "\n", 1);
+    } else {
+        /* Write to stdout */
+        if (s && s->data && s->len > 0) dos_Write_buf(s->data, s->len);
+        if (mask & 1) dos_Write_buf("\n", 1);
+    }
 }
 
 void fb_PrintInt(int32 fnum, int32 val, int32 mask) {
@@ -117,3 +137,147 @@ int32 fb_StrLen(void *s, int32 s_size) {
     return strlen((char*)s);
 }
 
+
+/* === File I/O via dos.library === */
+
+/* file_handles declared above */
+
+static long dos_Open(const char *name, long mode) {
+    register void *a6 __asm("a6") = DOSBase;
+    register const char *d1 __asm("d1") = name;
+    register long d2 __asm("d2") = mode;
+    register long res __asm("d0");
+    __asm volatile ("jsr -30(%%a6)" : "=r"(res) : "r"(a6), "r"(d1), "r"(d2) : "a0","a1","memory");
+    return res;
+}
+
+static void dos_Close(long fh) {
+    register void *a6 __asm("a6") = DOSBase;
+    register long d1 __asm("d1") = fh;
+    __asm volatile ("jsr -36(%%a6)" : : "r"(a6), "r"(d1) : "d0","a0","a1","memory");
+}
+
+static long dos_Read(long fh, void *buf, long len) {
+    register void *a6 __asm("a6") = DOSBase;
+    register long d1 __asm("d1") = fh;
+    register void *d2 __asm("d2") = buf;
+    register long d3 __asm("d3") = len;
+    register long res __asm("d0");
+    __asm volatile ("jsr -42(%%a6)" : "=r"(res) : "r"(a6), "r"(d1), "r"(d2), "r"(d3) : "a0","a1","memory");
+    return res;
+}
+
+static long dos_Write(long fh, const void *buf, long len) {
+    register void *a6 __asm("a6") = DOSBase;
+    register long d1 __asm("d1") = fh;
+    register const void *d2 __asm("d2") = buf;
+    register long d3 __asm("d3") = len;
+    register long res __asm("d0");
+    __asm volatile ("jsr -48(%%a6)" : "=r"(res) : "r"(a6), "r"(d1), "r"(d2), "r"(d3) : "a0","a1","memory");
+    return res;
+}
+
+/* MODE_OLDFILE=1005, MODE_NEWFILE=1006, MODE_READWRITE=1004 */
+int fb_FileOpen(FBSTRING *str, unsigned int mode, unsigned int access,
+                unsigned int lock, int fnum, int len) {
+    if (fnum < 1 || fnum >= FB_MAX_FILES || !str || !str->data) return 1;
+    long amiga_mode;
+    if (mode == 3) amiga_mode = 1006; /* Output -> MODE_NEWFILE */
+    else if (mode == 4) amiga_mode = 1004; /* Append -> MODE_READWRITE */
+    else amiga_mode = 1005; /* Input -> MODE_OLDFILE */
+
+    long fh = dos_Open(str->data, amiga_mode);
+    if (!fh) return 1;
+    file_handles[fnum] = fh;
+    return 0;
+}
+
+int fb_FileClose(int fnum) {
+    if (fnum < 1 || fnum >= FB_MAX_FILES) return 1;
+    if (file_handles[fnum]) {
+        dos_Close(file_handles[fnum]);
+        file_handles[fnum] = 0;
+    }
+    return 0;
+}
+
+int fb_FileLineInput(int fnum, void *dst, int32 dst_len, int fillrem) {
+    FBSTRING *d = (FBSTRING *)dst;
+    char buf[256];
+    int i = 0;
+    long fh = (fnum > 0 && fnum < FB_MAX_FILES) ? file_handles[fnum] : 0;
+    if (!fh) return 1;
+
+    while (i < 255) {
+        char c;
+        long r = dos_Read(fh, &c, 1);
+        if (r <= 0) break;
+        if (c == '\n') break;
+        if (c == '\r') continue;
+        buf[i++] = c;
+    }
+    buf[i] = 0;
+
+    if (d->data) free(d->data);
+    d->data = malloc(i + 1);
+    if (d->data) memcpy(d->data, buf, i + 1);
+    d->len = i;
+    d->size = i + 1;
+    return 0;
+}
+
+/* === Console Input === */
+
+static long dos_Input(void) {
+    register void *a6 __asm("a6") = DOSBase;
+    register long res __asm("d0");
+    __asm volatile ("jsr -54(%%a6)" : "=r"(res) : "r"(a6) : "a0","a1","d1","memory");
+    return res;
+}
+
+int fb_ConsoleInput(FBSTRING *text, int addquestion, int addnewline) {
+    /* Print prompt */
+    if (text && text->data && text->len > 0)
+        dos_Write_buf(text->data, text->len);
+    if (addquestion) dos_Write_buf("? ", 2);
+
+    /* Read line from stdin */
+    char buf[256];
+    int i = 0;
+    long in = dos_Input();
+    if (!in) return 1;
+
+    while (i < 255) {
+        char c;
+        long r = dos_Read(in, &c, 1);
+        if (r <= 0) break;
+        if (c == '\n') break;
+        if (c == '\r') continue;
+        buf[i++] = c;
+    }
+    buf[i] = 0;
+    if (addnewline) dos_Write_buf("\n", 1);
+    return 0;
+}
+
+int fb_InputString(char *dst, int32 maxlen) {
+    long in = dos_Input();
+    if (!in) return 1;
+    int i = 0;
+    while (i < maxlen - 1) {
+        char c;
+        long r = dos_Read(in, &c, 1);
+        if (r <= 0) break;
+        if (c == '\n') break;
+        if (c == '\r') continue;
+        dst[i++] = c;
+    }
+    dst[i] = 0;
+    return i;
+}
+
+FBSTRING *fb_Inkey(void) {
+    /* Non-blocking key read - just return empty for now */
+    static FBSTRING empty = {0, 0, 0};
+    return &empty;
+}
