@@ -29,6 +29,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -57,8 +67,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -122,10 +134,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -195,7 +208,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -263,6 +276,16 @@ struct $7FBS_VAR {
 	int64 BITS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7FBS_VAR ) == 104 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -368,9 +391,9 @@ struct $8FBS_ENUM {
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -500,9 +523,9 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
-typedef FBSTRING* (*tmp$29)( void*, int64* );
-typedef uint32* (*tmp$30)( void*, int64* );
+typedef FBSTRING* (*tmp$29)( void );
+typedef FBSTRING* (*tmp$30)( void*, int64* );
+typedef uint32* (*tmp$31)( void*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -514,11 +537,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -593,7 +616,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -626,12 +649,23 @@ struct $14FB_RTL_PROCDEF {
 	char* ALIAS;
 	$11FB_DATATYPE DTYPE;
 	$11FB_FUNCMODE CALLCONV;
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 	$10FB_RTL_OPT OPTIONS;
 	int64 PARAMS;
 	struct $15FB_RTL_PARAMDEF PARAMTB[16];
 };
 __FB_STATIC_ASSERT( sizeof( struct $14FB_RTL_PROCDEF ) == 568 );
+typedef int64 $12FB_DATACLASS;
+struct $13SYMB_DATATYPE {
+	$12FB_DATACLASS CLASS;
+	int64 SIZE;
+	int64 SIGNED;
+	int64 INTRANK;
+	$11FB_DATATYPE REMAPTYPE;
+	int64 SIZETYPE;
+	char* NAME;
+};
+__FB_STATIC_ASSERT( sizeof( struct $13SYMB_DATATYPE ) == 56 );
 struct $11TSTRSETITEM {
 	FBSTRING S;
 	int64 USERDATA;
@@ -644,7 +678,7 @@ void fb_StrDelete( FBSTRING* );
 static void fb_ctor__rtlzmath( void ) __attribute__(( constructor ));
 static void _ZN11TSTRSETITEMaSERKS_( struct $11TSTRSETITEM*, struct $11TSTRSETITEM* );
 int64 FBRESTARTGETCOUNT( void );
-struct $7ASTNODE* ASTNEWCALL( struct $8FBSYMBOL*, struct $7ASTNODE* );
+struct $7ASTNODE* ASTNEWCALL( struct $8FBSYMBOL*, struct $7ASTNODE*, int64 );
 struct $7ASTNODE* ASTNEWARG( struct $7ASTNODE*, struct $7ASTNODE*, int64, int64 );
 void FBADDLIB( char* );
 void RTLADDINTRINSICPROCS( struct $14FB_RTL_PROCDEF* );
@@ -675,18 +709,8 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
-typedef int64 $12FB_DATACLASS;
-struct $13SYMB_DATATYPE {
-	$12FB_DATACLASS CLASS;
-	int64 SIZE;
-	int64 SIGNED;
-	int64 INTRANK;
-	$11FB_DATATYPE REMAPTYPE;
-	int64 SIZETYPE;
-	char* NAME;
-};
-__FB_STATIC_ASSERT( sizeof( struct $13SYMB_DATATYPE ) == 56 );
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
+extern struct $13SYMB_DATATYPE SYMB_DTYPETB$[26];
 struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $13SYMB_DATATYPE* DATA;
 	struct $13SYMB_DATATYPE* PTR;
@@ -697,7 +721,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -708,7 +732,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
 typedef int64 $10FB_BACKEND;
 typedef int64 $10FB_CPUTYPE;
@@ -740,6 +764,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -763,8 +788,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -807,11 +834,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 typedef int64 $16FB_RESTART_FLAGS;
 struct $7TSTRSET {
 	struct $5TLIST LIST;
@@ -849,9 +877,9 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
-static struct $14FB_RTL_PROCDEF FUNCDATA$[31] = { { (char*)"fb___divdi3", (char*)"__divdi3", 13ll, 3ll, (tmp$34)0ull, 0ll, 2ll, { { 13ll, 1ll, 0ll }, { 13ll, 1ll, 0ll } } }, { (char*)"fb___udivdi3", (char*)"__udivdi3", 14ll, 3ll, (tmp$34)0ull, 0ll, 2ll, { { 14ll, 1ll, 0ll }, { 14ll, 1ll, 0ll } } }, { (char*)"fb___moddi3", (char*)"__moddi3", 13ll, 3ll, (tmp$34)0ull, 0ll, 2ll, { { 13ll, 1ll, 0ll }, { 13ll, 1ll, 0ll } } }, { (char*)"fb___umoddi3", (char*)"__umoddi3", 14ll, 3ll, (tmp$34)0ull, 0ll, 2ll, { { 14ll, 1ll, 0ll }, { 14ll, 1ll, 0ll } } }, { (char*)"fb___fixunsdfdi", (char*)"__fixunsdfdi", 14ll, 3ll, (tmp$34)0ull, 0ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"fb_Pow", (char*)"pow", 16ll, 3ll, (tmp$34)0ull, 0ll, 2ll, { { 16ll, 1ll, 0ll }, { 16ll, 1ll, 0ll } } }, { (char*)"randomize", (char*)"fb_Randomize", 0ll, -1ll, (tmp$34)&HRNDCALLBACK, 0ll, 2ll, { { 16ll, 1ll, -1ll, -1ll }, { 11ll, 1ll, -1ll, 0ll } } }, { (char*)"rnd", (char*)"fb_Rnd", 16ll, -1ll, (tmp$34)&HRNDCALLBACK, 0ll, 1ll, { { 15ll, 1ll, -1ll, 1ll } } }, { (char*)"{asin}", (char*)"asinf", 15ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{asin}", (char*)"asin", 16ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{acos}", (char*)"acosf", 15ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{acos}", (char*)"acos", 16ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{tan}", (char*)"tanf", 15ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{tan}", (char*)"tan", 16ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{atan}", (char*)"atanf", 15ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{atan}", (char*)"atan", 16ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{abs}", (char*)"abs", 11ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 11ll, 1ll, 0ll } } }, { (char*)"{abs}", (char*)"llabs", 13ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 13ll, 1ll, 0ll } } }, { (char*)"{abs}", (char*)"fabsf", 15ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{abs}", (char*)"fabs", 16ll, 3ll, (tmp$34)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{sgn}", (char*)"fb_SGNi", 11ll, -1ll, (tmp$34)0ull, 1ll, 1ll, { { 11ll, 1ll, 0ll } } }, { (char*)"{sgn}", (char*)"fb_SGNl", 11ll, -1ll, (tmp$34)0ull, 1ll, 1ll, { { 13ll, 1ll, 0ll } } }, { (char*)"{sgn}", (char*)"fb_SGNSingle", 11ll, -1ll, (tmp$34)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{sgn}", (char*)"fb_SGNDouble", 11ll, -1ll, (tmp$34)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{fix}", (char*)"fb_FIXSingle", 15ll, -1ll, (tmp$34)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{fix}", (char*)"fb_FIXDouble", 16ll, -1ll, (tmp$34)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{frac}", (char*)"fb_FRACf", 15ll, -1ll, (tmp$34)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{frac}", (char*)"fb_FRACd", 16ll, -1ll, (tmp$34)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{atan2}", (char*)"atan2f", 15ll, 3ll, (tmp$34)0ull, 1ll, 2ll, { { 15ll, 1ll, 0ll }, { 15ll, 1ll, 0ll } } }, { (char*)"{atan2}", (char*)"atan2", 16ll, 3ll, (tmp$34)0ull, 1ll, 2ll, { { 16ll, 1ll, 0ll }, { 16ll, 1ll, 0ll } } }, { (char*)0ull } };
+static struct $14FB_RTL_PROCDEF FUNCDATA$[31] = { { (char*)"fb___divdi3", (char*)"__divdi3", 13ll, 3ll, (tmp$35)0ull, 0ll, 2ll, { { 13ll, 1ll, 0ll }, { 13ll, 1ll, 0ll } } }, { (char*)"fb___udivdi3", (char*)"__udivdi3", 14ll, 3ll, (tmp$35)0ull, 0ll, 2ll, { { 14ll, 1ll, 0ll }, { 14ll, 1ll, 0ll } } }, { (char*)"fb___moddi3", (char*)"__moddi3", 13ll, 3ll, (tmp$35)0ull, 0ll, 2ll, { { 13ll, 1ll, 0ll }, { 13ll, 1ll, 0ll } } }, { (char*)"fb___umoddi3", (char*)"__umoddi3", 14ll, 3ll, (tmp$35)0ull, 0ll, 2ll, { { 14ll, 1ll, 0ll }, { 14ll, 1ll, 0ll } } }, { (char*)"fb___fixunsdfdi", (char*)"__fixunsdfdi", 14ll, 3ll, (tmp$35)0ull, 0ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"fb_Pow", (char*)"pow", 16ll, 3ll, (tmp$35)0ull, 0ll, 2ll, { { 16ll, 1ll, 0ll }, { 16ll, 1ll, 0ll } } }, { (char*)"randomize", (char*)"fb_Randomize", 0ll, -1ll, (tmp$35)&HRNDCALLBACK, 0ll, 2ll, { { 16ll, 1ll, -1ll, -1ll }, { 11ll, 1ll, -1ll, 0ll } } }, { (char*)"rnd", (char*)"fb_Rnd", 16ll, -1ll, (tmp$35)&HRNDCALLBACK, 0ll, 1ll, { { 15ll, 1ll, -1ll, 1ll } } }, { (char*)"{asin}", (char*)"asinf", 15ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{asin}", (char*)"asin", 16ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{acos}", (char*)"acosf", 15ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{acos}", (char*)"acos", 16ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{tan}", (char*)"tanf", 15ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{tan}", (char*)"tan", 16ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{atan}", (char*)"atanf", 15ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{atan}", (char*)"atan", 16ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{abs}", (char*)"abs", 11ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 11ll, 1ll, 0ll } } }, { (char*)"{abs}", (char*)"llabs", 13ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 13ll, 1ll, 0ll } } }, { (char*)"{abs}", (char*)"fabsf", 15ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{abs}", (char*)"fabs", 16ll, 3ll, (tmp$35)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{sgn}", (char*)"fb_SGNi", 11ll, -1ll, (tmp$35)0ull, 1ll, 1ll, { { 11ll, 1ll, 0ll } } }, { (char*)"{sgn}", (char*)"fb_SGNl", 11ll, -1ll, (tmp$35)0ull, 1ll, 1ll, { { 13ll, 1ll, 0ll } } }, { (char*)"{sgn}", (char*)"fb_SGNSingle", 11ll, -1ll, (tmp$35)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{sgn}", (char*)"fb_SGNDouble", 11ll, -1ll, (tmp$35)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{fix}", (char*)"fb_FIXSingle", 15ll, -1ll, (tmp$35)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{fix}", (char*)"fb_FIXDouble", 16ll, -1ll, (tmp$35)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{frac}", (char*)"fb_FRACf", 15ll, -1ll, (tmp$35)0ull, 1ll, 1ll, { { 15ll, 1ll, 0ll } } }, { (char*)"{frac}", (char*)"fb_FRACd", 16ll, -1ll, (tmp$35)0ull, 1ll, 1ll, { { 16ll, 1ll, 0ll } } }, { (char*)"{atan2}", (char*)"atan2f", 15ll, 3ll, (tmp$35)0ull, 1ll, 2ll, { { 15ll, 1ll, 0ll }, { 15ll, 1ll, 0ll } } }, { (char*)"{atan2}", (char*)"atan2", 16ll, 3ll, (tmp$35)0ull, 1ll, 2ll, { { 16ll, 1ll, 0ll }, { 16ll, 1ll, 0ll } } }, { (char*)0ull } };
 
 void RTLMATHMODINIT( void )
 {
@@ -873,8 +901,8 @@ struct $7ASTNODE* RTLMATHPOW( struct $7ASTNODE* XEXPR$1, struct $7ASTNODE* YEXPR
 	label$14:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = (struct $7ASTNODE*)0ull;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_Pow", 159ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_Pow", 165ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, XEXPR$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$17;
@@ -897,7 +925,7 @@ struct $7ASTNODE* RTLMATHPOW( struct $7ASTNODE* XEXPR$1, struct $7ASTNODE* YEXPR
 
 struct $7ASTNODE* RTLMATHLONGINTDIV( int64 DTYPE$1, struct $7ASTNODE* LEXPR$1, int64 LDTYPE$1, struct $7ASTNODE* REXPR$1, int64 RDTYPE$1 )
 {
-	int64 TMP$132$1;
+	int64 TMP$135$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$20:;
@@ -905,34 +933,34 @@ struct $7ASTNODE* RTLMATHLONGINTDIV( int64 DTYPE$1, struct $7ASTNODE* LEXPR$1, i
 	struct $8FBSYMBOL* F$1;
 	fb$result$1 = (struct $7ASTNODE*)0ull;
 	if( (DTYPE$1 & 480ll) == 0ll ) goto label$22;
-	TMP$132$1 = 24ll;
+	TMP$135$1 = 24ll;
 	goto label$29;
 	label$22:;
-	TMP$132$1 = DTYPE$1 & 31ll;
+	TMP$135$1 = DTYPE$1 & 31ll;
 	label$29:;
-	if( TMP$132$1 != 13ll ) goto label$24;
+	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$135$1 * 56ll)) + 16ll) == 0ll ) goto label$24;
 	{
-		struct $8FBSYMBOL* vr$3 = RTLPROCLOOKUP( (char*)"fb___divdi3", 116ll );
-		F$1 = vr$3;
+		struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"fb___divdi3", 118ll );
+		F$1 = vr$4;
 	}
 	goto label$23;
 	label$24:;
 	{
-		struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"fb___udivdi3", 117ll );
-		F$1 = vr$4;
+		struct $8FBSYMBOL* vr$5 = RTLPROCLOOKUP( (char*)"fb___udivdi3", 119ll );
+		F$1 = vr$5;
 	}
 	label$23:;
-	struct $7ASTNODE* vr$5 = ASTNEWCALL( F$1, (struct $7ASTNODE*)0ull );
-	PROC$1 = vr$5;
-	struct $7ASTNODE* vr$6 = ASTNEWARG( PROC$1, LEXPR$1, LDTYPE$1, -1ll );
-	if( vr$6 != (struct $7ASTNODE*)0ull ) goto label$26;
+	struct $7ASTNODE* vr$6 = ASTNEWCALL( F$1, (struct $7ASTNODE*)0ull, -1ll );
+	PROC$1 = vr$6;
+	struct $7ASTNODE* vr$7 = ASTNEWARG( PROC$1, LEXPR$1, LDTYPE$1, -1ll );
+	if( vr$7 != (struct $7ASTNODE*)0ull ) goto label$26;
 	{
 		goto label$21;
 	}
 	label$26:;
 	label$25:;
-	struct $7ASTNODE* vr$7 = ASTNEWARG( PROC$1, REXPR$1, RDTYPE$1, -1ll );
-	if( vr$7 != (struct $7ASTNODE*)0ull ) goto label$28;
+	struct $7ASTNODE* vr$8 = ASTNEWARG( PROC$1, REXPR$1, RDTYPE$1, -1ll );
+	if( vr$8 != (struct $7ASTNODE*)0ull ) goto label$28;
 	{
 		goto label$21;
 	}
@@ -945,7 +973,7 @@ struct $7ASTNODE* RTLMATHLONGINTDIV( int64 DTYPE$1, struct $7ASTNODE* LEXPR$1, i
 
 struct $7ASTNODE* RTLMATHLONGINTMOD( int64 DTYPE$1, struct $7ASTNODE* LEXPR$1, int64 LDTYPE$1, struct $7ASTNODE* REXPR$1, int64 RDTYPE$1 )
 {
-	int64 TMP$133$1;
+	int64 TMP$136$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$30:;
@@ -953,34 +981,34 @@ struct $7ASTNODE* RTLMATHLONGINTMOD( int64 DTYPE$1, struct $7ASTNODE* LEXPR$1, i
 	struct $8FBSYMBOL* F$1;
 	fb$result$1 = (struct $7ASTNODE*)0ull;
 	if( (DTYPE$1 & 480ll) == 0ll ) goto label$32;
-	TMP$133$1 = 24ll;
+	TMP$136$1 = 24ll;
 	goto label$39;
 	label$32:;
-	TMP$133$1 = DTYPE$1 & 31ll;
+	TMP$136$1 = DTYPE$1 & 31ll;
 	label$39:;
-	if( TMP$133$1 != 13ll ) goto label$34;
+	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$136$1 * 56ll)) + 16ll) == 0ll ) goto label$34;
 	{
-		struct $8FBSYMBOL* vr$3 = RTLPROCLOOKUP( (char*)"fb___moddi3", 118ll );
-		F$1 = vr$3;
+		struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"fb___moddi3", 120ll );
+		F$1 = vr$4;
 	}
 	goto label$33;
 	label$34:;
 	{
-		struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"fb___umoddi3", 119ll );
-		F$1 = vr$4;
+		struct $8FBSYMBOL* vr$5 = RTLPROCLOOKUP( (char*)"fb___umoddi3", 121ll );
+		F$1 = vr$5;
 	}
 	label$33:;
-	struct $7ASTNODE* vr$5 = ASTNEWCALL( F$1, (struct $7ASTNODE*)0ull );
-	PROC$1 = vr$5;
-	struct $7ASTNODE* vr$6 = ASTNEWARG( PROC$1, LEXPR$1, LDTYPE$1, -1ll );
-	if( vr$6 != (struct $7ASTNODE*)0ull ) goto label$36;
+	struct $7ASTNODE* vr$6 = ASTNEWCALL( F$1, (struct $7ASTNODE*)0ull, -1ll );
+	PROC$1 = vr$6;
+	struct $7ASTNODE* vr$7 = ASTNEWARG( PROC$1, LEXPR$1, LDTYPE$1, -1ll );
+	if( vr$7 != (struct $7ASTNODE*)0ull ) goto label$36;
 	{
 		goto label$31;
 	}
 	label$36:;
 	label$35:;
-	struct $7ASTNODE* vr$7 = ASTNEWARG( PROC$1, REXPR$1, RDTYPE$1, -1ll );
-	if( vr$7 != (struct $7ASTNODE*)0ull ) goto label$38;
+	struct $7ASTNODE* vr$8 = ASTNEWARG( PROC$1, REXPR$1, RDTYPE$1, -1ll );
+	if( vr$8 != (struct $7ASTNODE*)0ull ) goto label$38;
 	{
 		goto label$31;
 	}
@@ -998,8 +1026,8 @@ struct $7ASTNODE* RTLMATHFP2ULONGINT( struct $7ASTNODE* EXPR$1, int64 DTYPE$1 )
 	label$40:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = (struct $7ASTNODE*)0ull;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb___fixunsdfdi", 120ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb___fixunsdfdi", 122ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, EXPR$1, DTYPE$1, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$43;
@@ -1020,54 +1048,54 @@ struct $7ASTNODE* RTLMATHUOP( int64 OP$1, struct $7ASTNODE* EXPR$1 )
 	label$44:;
 	struct $8FBSYMBOL* SYM$1;
 	{
-		uint64 TMP$134$2;
-		TMP$134$2 = (uint64)OP$1;
+		uint64 TMP$137$2;
+		TMP$137$2 = (uint64)OP$1;
 		goto label$47;
 		label$48:;
 		{
-			struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"{sgn}", 341ll );
+			struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"{sgn}", 354ll );
 			SYM$1 = vr$1;
 		}
 		goto label$46;
 		label$49:;
 		{
-			struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"{abs}", 346ll );
+			struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"{abs}", 359ll );
 			SYM$1 = vr$2;
 		}
 		goto label$46;
 		label$50:;
 		{
-			struct $8FBSYMBOL* vr$3 = RTLPROCLOOKUP( (char*)"{fix}", 347ll );
+			struct $8FBSYMBOL* vr$3 = RTLPROCLOOKUP( (char*)"{fix}", 360ll );
 			SYM$1 = vr$3;
 		}
 		goto label$46;
 		label$51:;
 		{
-			struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"{frac}", 348ll );
+			struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"{frac}", 361ll );
 			SYM$1 = vr$4;
 		}
 		goto label$46;
 		label$52:;
 		{
-			struct $8FBSYMBOL* vr$5 = RTLPROCLOOKUP( (char*)"{asin}", 342ll );
+			struct $8FBSYMBOL* vr$5 = RTLPROCLOOKUP( (char*)"{asin}", 355ll );
 			SYM$1 = vr$5;
 		}
 		goto label$46;
 		label$53:;
 		{
-			struct $8FBSYMBOL* vr$6 = RTLPROCLOOKUP( (char*)"{acos}", 343ll );
+			struct $8FBSYMBOL* vr$6 = RTLPROCLOOKUP( (char*)"{acos}", 356ll );
 			SYM$1 = vr$6;
 		}
 		goto label$46;
 		label$54:;
 		{
-			struct $8FBSYMBOL* vr$7 = RTLPROCLOOKUP( (char*)"{tan}", 344ll );
+			struct $8FBSYMBOL* vr$7 = RTLPROCLOOKUP( (char*)"{tan}", 357ll );
 			SYM$1 = vr$7;
 		}
 		goto label$46;
 		label$55:;
 		{
-			struct $8FBSYMBOL* vr$8 = RTLPROCLOOKUP( (char*)"{atan}", 345ll );
+			struct $8FBSYMBOL* vr$8 = RTLPROCLOOKUP( (char*)"{atan}", 358ll );
 			SYM$1 = vr$8;
 		}
 		goto label$46;
@@ -1077,7 +1105,7 @@ struct $7ASTNODE* RTLMATHUOP( int64 OP$1, struct $7ASTNODE* EXPR$1 )
 		}
 		goto label$46;
 		label$47:;
-		static const void* tmp$135[17ll] = {
+		static const void* tmp$138[17ll] = {
 			&&label$49,
 			&&label$48,
 			&&label$56,
@@ -1096,8 +1124,8 @@ struct $7ASTNODE* RTLMATHUOP( int64 OP$1, struct $7ASTNODE* EXPR$1 )
 			&&label$50,
 			&&label$51,
 		};
-		if( (TMP$134$2 - 56ull) > 16ull ) goto label$56;
-		goto *tmp$135[TMP$134$2 - 56ull];
+		if( (TMP$137$2 - 57ull) > 16ull ) goto label$56;
+		goto *tmp$138[TMP$137$2 - 57ull];
 		label$46:;
 	}
 	struct $7ASTNODE* vr$9 = RTLOVLPROCCALL( SYM$1, EXPR$1, (struct $7ASTNODE*)0ull );
@@ -1113,12 +1141,12 @@ struct $7ASTNODE* RTLMATHBOP( int64 OP$1, struct $7ASTNODE* LEXPR$1, struct $7AS
 	label$57:;
 	struct $8FBSYMBOL* SYM$1;
 	{
-		uint64 TMP$136$2;
-		TMP$136$2 = (uint64)OP$1;
+		uint64 TMP$139$2;
+		TMP$139$2 = (uint64)OP$1;
 		goto label$60;
 		label$61:;
 		{
-			struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"{atan2}", 349ll );
+			struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"{atan2}", 362ll );
 			SYM$1 = vr$1;
 		}
 		goto label$59;
@@ -1128,11 +1156,11 @@ struct $7ASTNODE* RTLMATHBOP( int64 OP$1, struct $7ASTNODE* LEXPR$1, struct $7AS
 		}
 		goto label$59;
 		label$60:;
-		static const void* tmp$137[1ll] = {
+		static const void* tmp$140[1ll] = {
 			&&label$61,
 		};
-		if( (TMP$136$2 - 64ull) > 0ull ) goto label$62;
-		goto *tmp$137[TMP$136$2 - 64ull];
+		if( (TMP$139$2 - 65ull) > 0ull ) goto label$62;
+		goto *tmp$140[TMP$139$2 - 65ull];
 		label$59:;
 	}
 	struct $7ASTNODE* vr$2 = RTLOVLPROCCALL( SYM$1, LEXPR$1, REXPR$1 );
@@ -1176,11 +1204,11 @@ static int64 HRNDCALLBACK( struct $8FBSYMBOL* SYM$1 )
 	{
 		LIBSADDED$1 = -1ll;
 		{
-			$13FB_COMPTARGET TMP$138$3;
-			TMP$138$3 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
-			if( TMP$138$3 == 0ll ) goto label$71;
+			$13FB_COMPTARGET TMP$141$3;
+			TMP$141$3 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
+			if( TMP$141$3 == 0ll ) goto label$71;
 			label$72:;
-			if( TMP$138$3 != 1ll ) goto label$70;
+			if( TMP$141$3 != 1ll ) goto label$70;
 			label$71:;
 			{
 				FBADDLIB( (char*)"advapi32" );

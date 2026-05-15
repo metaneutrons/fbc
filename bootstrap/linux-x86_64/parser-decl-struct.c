@@ -28,6 +28,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -56,8 +66,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -121,10 +133,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -194,7 +207,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -262,6 +275,16 @@ struct $7FBS_VAR {
 	int64 BITS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7FBS_VAR ) == 104 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -368,9 +391,9 @@ struct $8FBS_ENUM {
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $11FB_FUNCMODE;
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -500,7 +523,7 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
+typedef FBSTRING* (*tmp$29)( void );
 struct $8DZSTRING {
 	char* DATA;
 	int64 LEN;
@@ -525,8 +548,8 @@ struct $11LEXPP_ARGTB {
 	int64 COUNT;
 };
 __FB_STATIC_ASSERT( sizeof( struct $11LEXPP_ARGTB ) == 776 );
-typedef FBSTRING* (*tmp$29)( struct $11LEXPP_ARGTB*, int64* );
-typedef uint32* (*tmp$30)( struct $11LEXPP_ARGTB*, int64* );
+typedef FBSTRING* (*tmp$30)( struct $11LEXPP_ARGTB*, int64* );
+typedef uint32* (*tmp$31)( struct $11LEXPP_ARGTB*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -538,11 +561,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -617,7 +640,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -758,6 +781,7 @@ struct $7FBTOKEN {
 	union {
 		int64 PRDPOS;
 		int64 HASESC;
+		int64 HASSUFFIX;
 	};
 	int64 SUFFIXCHAR;
 	int64 AFTER_SPACE;
@@ -1041,7 +1065,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 struct $12FBHASHTBLIST {
 	struct $8FBHASHTB* HEAD;
 	struct $8FBHASHTB* TAIL;
@@ -1135,7 +1159,7 @@ struct $7SYMBCTX {
 	struct $8FBSYMBOL* LASTLBL;
 	struct $15FB_GLOBCTORLIST GLOBCTORLIST;
 	struct $15FB_GLOBCTORLIST GLOBDTORLIST;
-	struct $10SYMB_OVLOP GLOBOPOVLTB[121];
+	struct $10SYMB_OVLOP GLOBOPOVLTB[122];
 	int64 FBARRAY_DATA;
 	int64 FBARRAY_PTR;
 	int64 FBARRAY_SIZE;
@@ -1145,7 +1169,7 @@ struct $7SYMBCTX {
 	int64 FBARRAYDIM_UBOUND;
 	struct $10FB_RTTICTX RTTI;
 };
-__FB_STATIC_ASSERT( sizeof( struct $7SYMBCTX ) == 199248 );
+__FB_STATIC_ASSERT( sizeof( struct $7SYMBCTX ) == 199256 );
 extern struct $7SYMBCTX SYMB$;
 extern struct $13SYMB_DATATYPE SYMB_DTYPETB$[26];
 struct $8FBARRAY1I13SYMB_DATATYPEE {
@@ -1158,7 +1182,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -1169,7 +1193,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
 typedef int64 $10FB_BACKEND;
 typedef int64 $13FB_COMPTARGET;
@@ -1202,6 +1226,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -1225,8 +1250,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -1268,11 +1295,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 typedef int64 $16FB_RESTART_FLAGS;
 struct $7TSTRSET {
 	struct $5TLIST LIST;
@@ -1310,7 +1338,7 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
 struct $7LEX_CTX {
 	struct $9LEX_TKCTX CTXTB[17];
@@ -1388,9 +1416,9 @@ void CTYPEDECL( $13FB_SYMBATTRIB ATTRIB$1 )
 	LEXSKIPTOKEN( 2048ll );
 	CHECKID$1 = -1ll;
 	{
-		uint64 TMP$105$2;
+		uint64 TMP$108$2;
 		int64 vr$3 = LEXGETCLASS( 0ll );
-		TMP$105$2 = (uint64)vr$3;
+		TMP$108$2 = (uint64)vr$3;
 		goto label$275;
 		label$276:;
 		{
@@ -1426,19 +1454,19 @@ void CTYPEDECL( $13FB_SYMBATTRIB ATTRIB$1 )
 		}
 		goto label$274;
 		label$275:;
-		static const void* tmp$108[3ll] = {
+		static const void* tmp$111[3ll] = {
 			&&label$276,
 			&&label$277,
 			&&label$282,
 		};
-		if( TMP$105$2 > 2ull ) goto label$283;
-		goto *tmp$108[TMP$105$2 - 0ull];
+		if( TMP$108$2 > 2ull ) goto label$283;
+		goto *tmp$111[TMP$108$2 - 0ull];
 		label$274:;
 	}
 	if( CHECKID$1 == 0ll ) goto label$285;
 	{
 		CCURRENTPARENTID(  );
-		if( (*(int64*)((uint8*)&ENV$ + 1424ll) & 524288ll) == 0ll ) goto label$287;
+		if( (*(int64*)((uint8*)&ENV$ + 1448ll) & 524288ll) == 0ll ) goto label$287;
 		{
 			if( *(struct $8FBSYMBOL**)((uint8*)&SYMB$ + 197024ll) == (struct $8FBSYMBOL*)((uint8*)&SYMB$ + 196704ll) ) goto label$289;
 			{
@@ -1497,10 +1525,10 @@ void CTYPEDECL( $13FB_SYMBATTRIB ATTRIB$1 )
 	int64 vr$16 = LEXGETTOKEN( 0ll );
 	if( vr$16 != 351ll ) goto label$299;
 	{
-		int64 TMP$106$2;
+		int64 TMP$109$2;
 		LEXSKIPTOKEN( 2048ll );
-		TMP$106$2 = 0ll;
-		HSYMBOLTYPE( &BASEDTYPE$1, &BASESUBTYPE$1, &TMP$106$2, 0ll, -1ll );
+		TMP$109$2 = 0ll;
+		HSYMBOLTYPE( &BASEDTYPE$1, &BASESUBTYPE$1, &TMP$109$2, 0ll, -1ll );
 		if( BASEDTYPE$1 == 20ll ) goto label$301;
 		{
 			if( ((int64)-(BASEDTYPE$1 == 7ll) | (int64)-(BASEDTYPE$1 == 4ll)) == 0ll ) goto label$303;
@@ -1523,10 +1551,10 @@ void CTYPEDECL( $13FB_SYMBATTRIB ATTRIB$1 )
 			int64 vr$23 = LEXGETTOKEN( 0ll );
 			if( vr$23 != 44ll ) goto label$307;
 			{
-				int64 TMP$107$4;
+				int64 TMP$110$4;
 				LEXSKIPTOKEN( 0ll );
-				TMP$107$4 = 0ll;
-				HSYMBOLTYPE( &BASEDTYPE$1, &BASESUBTYPE$1, &TMP$107$4, 0ll, -1ll );
+				TMP$110$4 = 0ll;
+				HSYMBOLTYPE( &BASEDTYPE$1, &BASESUBTYPE$1, &TMP$110$4, 0ll, -1ll );
 				if( BASEDTYPE$1 == 20ll ) goto label$309;
 				{
 					ERRREPORT( 293ll, 0ll, (char*)0ull );
@@ -1716,7 +1744,7 @@ static void HTYPEPROTODECL( struct $8FBSYMBOL* PARENT$1, $13FB_SYMBATTRIB ATTRIB
 	}
 	label$17:;
 	label$16:;
-	if( (*(int64*)((uint8*)&ENV$ + 1424ll) & 64ll) != 0ll ) goto label$19;
+	if( (*(int64*)((uint8*)&ENV$ + 1448ll) & 64ll) != 0ll ) goto label$19;
 	{
 		ERRREPORTNOTALLOWED( 64ll, 146ll, (char*)0ull );
 	}
@@ -1905,7 +1933,7 @@ static void HFIELDINIT( struct $8FBSYMBOL* PARENT$1, struct $8FBSYMBOL* SYM$1, s
 	}
 	label$53:;
 	label$52:;
-	if( (*(int64*)((uint8*)&ENV$ + 1424ll) & 128ll) != 0ll ) goto label$71;
+	if( (*(int64*)((uint8*)&ENV$ + 1448ll) & 128ll) != 0ll ) goto label$71;
 	{
 		ERRREPORTNOTALLOWED( 128ll, 146ll, (char*)0ull );
 		HSKIPUNTIL( 257ll, 0ll, 0ll, 0ll );
@@ -1966,17 +1994,17 @@ static void HFIELDTYPE( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1, int64* LG
 	int64 vr$2 = SYMBISPARENTNAMESPACE( *($11FB_DATATYPE*)DTYPE$1, *SUBTYPE$1, (struct $8FBSYMBOL*)0ull );
 	if( vr$2 == 0ll ) goto label$85;
 	{
-		int64 TMP$93$2;
+		int64 TMP$96$2;
 		ERRREPORT( 24ll, 0ll, (char*)0ull );
 		*DTYPE$1 = 8ll;
 		*SUBTYPE$1 = (struct $8FBSYMBOL*)0ull;
 		if( (*DTYPE$1 & 480ll) == 0ll ) goto label$86;
-		TMP$93$2 = 24ll;
+		TMP$96$2 = 24ll;
 		goto label$378;
 		label$86:;
-		TMP$93$2 = *DTYPE$1 & 31ll;
+		TMP$96$2 = *DTYPE$1 & 31ll;
 		label$378:;
-		*LGT$1 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$93$2 * 56ll)) + 8ll);
+		*LGT$1 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$96$2 * 56ll)) + 8ll);
 	}
 	label$85:;
 	label$84:;
@@ -1988,7 +2016,7 @@ static void HARRAYORBITFIELD( int64 TOKEN$1, int64* ATTRIB$1, int64* BITS$1, int
 {
 	label$87:;
 	static struct $7ASTNODE* EXPRTB$1[8][2];
-	static struct $8FBARRAY2IP7ASTNODEE tmp$94$1 = { (struct $7ASTNODE**)EXPRTB$1, (struct $7ASTNODE**)EXPRTB$1, 128ll, 8ll, 2ll, 50ll, { { 8ll, 0ll, 7ll }, { 2ll, 0ll, 1ll } } };
+	static struct $8FBARRAY2IP7ASTNODEE tmp$97$1 = { (struct $7ASTNODE**)EXPRTB$1, (struct $7ASTNODE**)EXPRTB$1, 128ll, 8ll, 2ll, 50ll, { { 8ll, 0ll, 7ll }, { 2ll, 0ll, 1ll } } };
 	int64 HAVE_BOUNDS$1;
 	*BITS$1 = 0ll;
 	*DIMS$1 = 0ll;
@@ -1999,18 +2027,18 @@ static void HARRAYORBITFIELD( int64 TOKEN$1, int64* ATTRIB$1, int64* BITS$1, int
 	{
 		struct $7ASTNODE* vr$4 = ASTTYPEINIBEGIN( 8ll, (struct $8FBSYMBOL*)0ull, 0ll, 0ll );
 		*BOUNDSTYPEINI$1 = vr$4;
-		CARRAYDECL( DIMS$1, &HAVE_BOUNDS$1, (struct $7FBARRAYIP7ASTNODEE*)&tmp$94$1 );
+		CARRAYDECL( DIMS$1, &HAVE_BOUNDS$1, (struct $7FBARRAYIP7ASTNODEE*)&tmp$97$1 );
 		if( HAVE_BOUNDS$1 == 0ll ) goto label$92;
 		{
-			HCOMPLAINABOUTELLIPSIS( *DIMS$1, (struct $7FBARRAYIP7ASTNODEE*)&tmp$94$1, 77ll );
-			HMAYBECONVERTEXPRTB2DIMTB( ($13FB_SYMBATTRIB*)ATTRIB$1, *DIMS$1, (struct $7FBARRAYIP7ASTNODEE*)&tmp$94$1, DTB$1 );
+			HCOMPLAINABOUTELLIPSIS( *DIMS$1, (struct $7FBARRAYIP7ASTNODEE*)&tmp$97$1, 77ll );
+			HMAYBECONVERTEXPRTB2DIMTB( ($13FB_SYMBATTRIB*)ATTRIB$1, *DIMS$1, (struct $7FBARRAYIP7ASTNODEE*)&tmp$97$1, DTB$1 );
 			if( (*ATTRIB$1 & 4ll) == 0ll ) goto label$94;
 			{
 				{
 					int64 I$5;
 					I$5 = 0ll;
-					int64 TMP$95$5;
-					TMP$95$5 = *DIMS$1 + -1ll;
+					int64 TMP$98$5;
+					TMP$98$5 = *DIMS$1 + -1ll;
 					goto label$95;
 					label$98:;
 					{
@@ -2020,7 +2048,7 @@ static void HARRAYORBITFIELD( int64 TOKEN$1, int64* ATTRIB$1, int64* BITS$1, int
 					label$96:;
 					I$5 = I$5 + 1ll;
 					label$95:;
-					if( I$5 <= TMP$95$5 ) goto label$98;
+					if( I$5 <= TMP$98$5 ) goto label$98;
 					label$97:;
 				}
 			}
@@ -2170,14 +2198,14 @@ static char* HFIELDID( struct $8FBSYMBOL* PARENT$1 )
 	label$129:;
 	static char ID$1[129];
 	{
-		int64 TMP$96$2;
+		int64 TMP$99$2;
 		int64 vr$1 = LEXGETCLASS( 0ll );
-		TMP$96$2 = vr$1;
-		if( TMP$96$2 == 0ll ) goto label$133;
+		TMP$99$2 = vr$1;
+		if( TMP$99$2 == 0ll ) goto label$133;
 		label$134:;
-		if( TMP$96$2 == 1ll ) goto label$133;
+		if( TMP$99$2 == 1ll ) goto label$133;
 		label$135:;
-		if( TMP$96$2 != 2ll ) goto label$132;
+		if( TMP$99$2 != 2ll ) goto label$132;
 		label$133:;
 		{
 			if( *(int64*)((uint8*)*(struct $7FBTOKEN**)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 16712ll) + 16ll) == 2147483648ll ) goto label$137;
@@ -2231,7 +2259,7 @@ static void HTYPEMULTELEMENTDECL( int64 TOKEN$1, struct $8FBSYMBOL* PARENT$1, $1
 {
 	label$145:;
 	static struct $10FBARRAYDIM DTB$1[8];
-	static struct $8FBARRAY1I10FBARRAYDIME tmp$97$1 = { (struct $10FBARRAYDIM*)DTB$1, (struct $10FBARRAYDIM*)DTB$1, 128ll, 16ll, 1ll, 49ll, { { 8ll, 0ll, 7ll } } };
+	static struct $8FBARRAY1I10FBARRAYDIME tmp$100$1 = { (struct $10FBARRAYDIM*)DTB$1, (struct $10FBARRAYDIM*)DTB$1, 128ll, 16ll, 1ll, 49ll, { { 8ll, 0ll, 7ll } } };
 	char* ID$1;
 	struct $8FBSYMBOL* SUBTYPE$1;
 	int64 DTYPE$1;
@@ -2247,8 +2275,8 @@ static void HTYPEMULTELEMENTDECL( int64 TOKEN$1, struct $8FBSYMBOL* PARENT$1, $1
 		FIELDATTRIB$1 = ATTRIB$1;
 		char* vr$3 = HFIELDID( PARENT$1 );
 		ID$1 = vr$3;
-		HARRAYORBITFIELD( TOKEN$1, &FIELDATTRIB$1, &BITS$1, &DIMS$1, (struct $7FBARRAYI10FBARRAYDIME*)&tmp$97$1, &BOUNDSTYPEINI$1 );
-		HADDANDINITFIELD( PARENT$1, ID$1, DIMS$1, (struct $7FBARRAYI10FBARRAYDIME*)&tmp$97$1, BOUNDSTYPEINI$1, DTYPE$1, SUBTYPE$1, LGT$1, BITS$1, FIELDATTRIB$1 );
+		HARRAYORBITFIELD( TOKEN$1, &FIELDATTRIB$1, &BITS$1, &DIMS$1, (struct $7FBARRAYI10FBARRAYDIME*)&tmp$100$1, &BOUNDSTYPEINI$1 );
+		HADDANDINITFIELD( PARENT$1, ID$1, DIMS$1, (struct $7FBARRAYI10FBARRAYDIME*)&tmp$100$1, BOUNDSTYPEINI$1, DTYPE$1, SUBTYPE$1, LGT$1, BITS$1, FIELDATTRIB$1 );
 	}
 	label$149:;
 	int64 vr$8 = HMATCH( 44ll, 0ll );
@@ -2261,7 +2289,7 @@ static void HTYPEELEMENTDECL( int64 TOKEN$1, struct $8FBSYMBOL* PARENT$1, $13FB_
 {
 	label$150:;
 	static struct $10FBARRAYDIM DTB$1[8];
-	static struct $8FBARRAY1I10FBARRAYDIME tmp$98$1 = { (struct $10FBARRAYDIM*)DTB$1, (struct $10FBARRAYDIM*)DTB$1, 128ll, 16ll, 1ll, 49ll, { { 8ll, 0ll, 7ll } } };
+	static struct $8FBARRAY1I10FBARRAYDIME tmp$101$1 = { (struct $10FBARRAYDIM*)DTB$1, (struct $10FBARRAYDIM*)DTB$1, 128ll, 16ll, 1ll, 49ll, { { 8ll, 0ll, 7ll } } };
 	char* ID$1;
 	struct $8FBSYMBOL* SUBTYPE$1;
 	int64 DTYPE$1;
@@ -2271,7 +2299,7 @@ static void HTYPEELEMENTDECL( int64 TOKEN$1, struct $8FBSYMBOL* PARENT$1, $13FB_
 	struct $7ASTNODE* BOUNDSTYPEINI$1;
 	char* vr$0 = HFIELDID( PARENT$1 );
 	ID$1 = vr$0;
-	HARRAYORBITFIELD( TOKEN$1, (int64*)&ATTRIB$1, &BITS$1, &DIMS$1, (struct $7FBARRAYI10FBARRAYDIME*)&tmp$98$1, &BOUNDSTYPEINI$1 );
+	HARRAYORBITFIELD( TOKEN$1, (int64*)&ATTRIB$1, &BITS$1, &DIMS$1, (struct $7FBARRAYI10FBARRAYDIME*)&tmp$101$1, &BOUNDSTYPEINI$1 );
 	int64 vr$5 = LEXGETTOKEN( 0ll );
 	if( vr$5 == 376ll ) goto label$153;
 	{
@@ -2284,7 +2312,7 @@ static void HTYPEELEMENTDECL( int64 TOKEN$1, struct $8FBSYMBOL* PARENT$1, $13FB_
 	}
 	label$152:;
 	HFIELDTYPE( &DTYPE$1, &SUBTYPE$1, &LGT$1 );
-	HADDANDINITFIELD( PARENT$1, ID$1, DIMS$1, (struct $7FBARRAYI10FBARRAYDIME*)&tmp$98$1, BOUNDSTYPEINI$1, DTYPE$1, SUBTYPE$1, LGT$1, BITS$1, ATTRIB$1 );
+	HADDANDINITFIELD( PARENT$1, ID$1, DIMS$1, (struct $7FBARRAYI10FBARRAYDIME*)&tmp$101$1, BOUNDSTYPEINI$1, DTYPE$1, SUBTYPE$1, LGT$1, BITS$1, ATTRIB$1 );
 	label$151:;
 }
 
@@ -2348,7 +2376,7 @@ static struct $8FBSYMBOL* HTYPEADD( struct $8FBSYMBOL* PARENT$1, char* ID$1, cha
 	CCOMMENT( 0ll );
 	if( *(int64*)((uint8*)&ENV$ + 296ll) == 0ll ) goto label$174;
 	{
-		if( *(int64*)((uint8*)&ENV$ + 1272ll) != 0ll ) goto label$176;
+		if( *(int64*)((uint8*)&ENV$ + 1296ll) != 0ll ) goto label$176;
 		{
 			struct $7ASTNODE* vr$17 = ASTNEWLIT( *(char**)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 49656ll) );
 			ASTADD( vr$17 );
@@ -2378,16 +2406,16 @@ static struct $8FBSYMBOL* HTYPEADD( struct $8FBSYMBOL* PARENT$1, char* ID$1, cha
 	goto label$179;
 	label$180:;
 	{
-		$8FB_TOKEN TMP$99$2;
+		$8FB_TOKEN TMP$102$2;
 		LEXSKIPTOKEN( 2048ll );
 		int64 vr$25 = LEXGETTOKEN( 0ll );
 		if( ISUNION$1 == 0ll ) goto label$181;
-		TMP$99$2 = 337ll;
+		TMP$102$2 = 337ll;
 		goto label$379;
 		label$181:;
-		TMP$99$2 = 336ll;
+		TMP$102$2 = 336ll;
 		label$379:;
-		if( vr$25 == TMP$99$2 ) goto label$183;
+		if( vr$25 == TMP$102$2 ) goto label$183;
 		{
 			ERRREPORT( 19ll, 0ll, (char*)0ull );
 			HSKIPUNTIL( -1ll, 0ll, 0ll, 0ll );
@@ -2455,7 +2483,7 @@ static int64 CFIELDALIGNMENTATTRIBUTE( void )
 	}
 	goto label$194;
 	label$195:;
-	if( ALIGN$1 <= *(int64*)((uint8*)&ENV$ + 592ll) ) goto label$196;
+	if( ALIGN$1 <= *(int64*)((uint8*)&ENV$ + 616ll) ) goto label$196;
 	{
 		ALIGN$1 = 0ll;
 	}
@@ -2482,9 +2510,9 @@ static void HTYPEBODY( struct $8FBSYMBOL* S$1 )
 	label$200:;
 	{
 		{
-			uint64 TMP$100$3;
+			uint64 TMP$103$3;
 			int64 vr$0 = LEXGETTOKEN( 0ll );
-			TMP$100$3 = (uint64)vr$0;
+			TMP$103$3 = (uint64)vr$0;
 			goto label$204;
 			label$205:;
 			{
@@ -2495,24 +2523,24 @@ static void HTYPEBODY( struct $8FBSYMBOL* S$1 )
 				label$207:;
 				label$206:;
 				{
-					int64 TMP$101$5;
+					int64 TMP$104$5;
 					int64 vr$4 = LEXGETTOKEN( 0ll );
-					TMP$101$5 = vr$4;
-					if( TMP$101$5 != 378ll ) goto label$209;
+					TMP$104$5 = vr$4;
+					if( TMP$104$5 != 378ll ) goto label$209;
 					label$210:;
 					{
 						ATTRIB$1 = 0ll;
 					}
 					goto label$208;
 					label$209:;
-					if( TMP$101$5 != 379ll ) goto label$211;
+					if( TMP$104$5 != 379ll ) goto label$211;
 					label$212:;
 					{
 						ATTRIB$1 = 2097152ll;
 					}
 					goto label$208;
 					label$211:;
-					if( TMP$101$5 != 380ll ) goto label$213;
+					if( TMP$104$5 != 380ll ) goto label$213;
 					label$214:;
 					{
 						ATTRIB$1 = 4194304ll;
@@ -2549,14 +2577,14 @@ static void HTYPEBODY( struct $8FBSYMBOL* S$1 )
 			label$220:;
 			{
 				{
-					int64 TMP$102$5;
+					int64 TMP$105$5;
 					int64 vr$6 = LEXGETLOOKAHEAD( 1ll, 0ll );
-					TMP$102$5 = vr$6;
-					if( TMP$102$5 == 376ll ) goto label$223;
+					TMP$105$5 = vr$6;
+					if( TMP$105$5 == 376ll ) goto label$223;
 					label$224:;
-					if( TMP$102$5 == 40ll ) goto label$223;
+					if( TMP$105$5 == 40ll ) goto label$223;
 					label$225:;
-					if( TMP$102$5 != 258ll ) goto label$222;
+					if( TMP$105$5 != 258ll ) goto label$222;
 					label$223:;
 					{
 						HTYPEELEMENTDECL( 308ll, S$1, ATTRIB$1 );
@@ -2574,9 +2602,9 @@ static void HTYPEBODY( struct $8FBSYMBOL* S$1 )
 			label$227:;
 			{
 				{
-					uint64 TMP$103$5;
+					uint64 TMP$106$5;
 					int64 vr$7 = LEXGETLOOKAHEAD( 1ll, 0ll );
-					TMP$103$5 = (uint64)vr$7;
+					TMP$106$5 = (uint64)vr$7;
 					goto label$229;
 					label$230:;
 					{
@@ -2642,14 +2670,14 @@ static void HTYPEBODY( struct $8FBSYMBOL* S$1 )
 					goto label$228;
 					label$244:;
 					{
-						int64 TMP$104$6;
+						int64 TMP$107$6;
 						if( *(int64*)S$1 != 10ll ) goto label$245;
-						TMP$104$6 = (int64)-(((int64)*(int32*)((uint8*)S$1 + 208ll) & 2ll) != 0ll);
+						TMP$107$6 = (int64)-(((int64)*(int32*)((uint8*)S$1 + 208ll) & 2ll) != 0ll);
 						goto label$380;
 						label$245:;
-						TMP$104$6 = 0ll;
+						TMP$107$6 = 0ll;
 						label$380:;
-						if( TMP$104$6 == 0ll ) goto label$247;
+						if( TMP$107$6 == 0ll ) goto label$247;
 						{
 							HTYPEELEMENTDECL( 308ll, S$1, ATTRIB$1 );
 						}
@@ -2664,7 +2692,7 @@ static void HTYPEBODY( struct $8FBSYMBOL* S$1 )
 					}
 					goto label$228;
 					label$229:;
-					static const void* tmp$109[238ll] = {
+					static const void* tmp$112[238ll] = {
 						&&label$230,
 						&&label$230,
 						&&label$240,
@@ -2904,8 +2932,8 @@ static void HTYPEBODY( struct $8FBSYMBOL* S$1 )
 						&&label$244,
 						&&label$230,
 					};
-					if( (TMP$103$5 - 256ull) > 237ull ) goto label$244;
-					goto *tmp$109[TMP$103$5 - 256ull];
+					if( (TMP$106$5 - 256ull) > 237ull ) goto label$244;
+					goto *tmp$112[TMP$106$5 - 256ull];
 					label$228:;
 				}
 			}
@@ -2948,7 +2976,7 @@ static void HTYPEBODY( struct $8FBSYMBOL* S$1 )
 			}
 			goto label$203;
 			label$204:;
-			static const void* tmp$110[125ll] = {
+			static const void* tmp$113[125ll] = {
 				&&label$219,
 				&&label$218,
 				&&label$254,
@@ -3075,14 +3103,14 @@ static void HTYPEBODY( struct $8FBSYMBOL* S$1 )
 				&&label$205,
 				&&label$205,
 			};
-			if( (TMP$100$3 - 256ull) > 124ull ) goto label$254;
-			goto *tmp$110[TMP$100$3 - 256ull];
+			if( (TMP$103$3 - 256ull) > 124ull ) goto label$254;
+			goto *tmp$113[TMP$103$3 - 256ull];
 			label$203:;
 		}
 		CCOMMENT( 0ll );
 		if( *(int64*)((uint8*)&ENV$ + 296ll) == 0ll ) goto label$256;
 		{
-			if( *(int64*)((uint8*)&ENV$ + 1272ll) != 0ll ) goto label$258;
+			if( *(int64*)((uint8*)&ENV$ + 1296ll) != 0ll ) goto label$258;
 			{
 				struct $7ASTNODE* vr$49 = ASTNEWLIT( *(char**)((uint8*)*(struct $9LEX_TKCTX**)((uint8*)&LEX$ + 844696ll) + 49656ll) );
 				ASTADD( vr$49 );

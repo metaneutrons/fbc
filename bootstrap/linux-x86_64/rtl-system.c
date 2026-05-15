@@ -29,6 +29,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -57,8 +67,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -122,10 +134,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -195,7 +208,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -263,6 +276,16 @@ struct $7FBS_VAR {
 	int64 BITS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7FBS_VAR ) == 104 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -368,9 +391,9 @@ struct $8FBS_ENUM {
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -500,9 +523,9 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
-typedef FBSTRING* (*tmp$29)( void*, int64* );
-typedef uint32* (*tmp$30)( void*, int64* );
+typedef FBSTRING* (*tmp$29)( void );
+typedef FBSTRING* (*tmp$30)( void*, int64* );
+typedef uint32* (*tmp$31)( void*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -514,11 +537,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -593,7 +616,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -626,7 +649,7 @@ struct $14FB_RTL_PROCDEF {
 	char* ALIAS;
 	$11FB_DATATYPE DTYPE;
 	$11FB_FUNCMODE CALLCONV;
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 	$10FB_RTL_OPT OPTIONS;
 	int64 PARAMS;
 	struct $15FB_RTL_PARAMDEF PARAMTB[16];
@@ -647,12 +670,13 @@ static void _ZN11TSTRSETITEMaSERKS_( struct $11TSTRSETITEM*, struct $11TSTRSETIT
 typedef int64 $16FB_RESTART_FLAGS;
 void FBRESTARTBEGINREQUEST( $16FB_RESTART_FLAGS );
 int64 FBRESTARTGETCOUNT( void );
+int64 FBGETOPTION( int64 );
 int64 FBGETCPUFAMILY( void );
 struct $7ASTNODE* ASTADD( struct $7ASTNODE* );
 struct $7ASTNODE* ASTNEWBOP( int64, struct $7ASTNODE*, struct $7ASTNODE*, struct $8FBSYMBOL*, $9AST_OPOPT );
 struct $7ASTNODE* ASTNEWCONSTI( int64, int64, struct $8FBSYMBOL* );
 struct $7ASTNODE* ASTNEWVAR( struct $8FBSYMBOL*, int64, int64, struct $8FBSYMBOL* );
-struct $7ASTNODE* ASTNEWCALL( struct $8FBSYMBOL*, struct $7ASTNODE* );
+struct $7ASTNODE* ASTNEWCALL( struct $8FBSYMBOL*, struct $7ASTNODE*, int64 );
 struct $7ASTNODE* ASTNEWARG( struct $7ASTNODE*, struct $7ASTNODE*, int64, int64 );
 struct $7ASTNODE* ASTNEWLABEL( struct $8FBSYMBOL*, int64 );
 typedef int64 $10FB_SYMBOPT;
@@ -666,6 +690,8 @@ void RTLPROFILECALL_MONSTARTUP( void );
 static int64 HMULTITHREAD_CB( struct $8FBSYMBOL* );
 static int64 HTHREADCALL_CB( struct $8FBSYMBOL* );
 static int64 RTLX86CPUCHECK( void );
+struct $7ASTNODE* RTLINITPROFILE( void );
+struct $7ASTNODE* RTLINITPROFILECYCLES( void );
 typedef int64 $11AST_OPFLAGS;
 struct $10AST_OPINFO {
 	$13AST_NODECLASS CLASS;
@@ -690,7 +716,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 typedef int64 $12FB_DATACLASS;
 struct $13SYMB_DATATYPE {
 	$12FB_DATACLASS CLASS;
@@ -712,7 +738,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -723,7 +749,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
 typedef int64 $10FB_BACKEND;
 typedef int64 $10FB_CPUTYPE;
@@ -755,6 +781,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -778,8 +805,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -822,11 +851,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 struct $7TSTRSET {
 	struct $5TLIST LIST;
 	struct $5THASH HASH;
@@ -863,9 +893,9 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
-static struct $14FB_RTL_PROCDEF FUNCDATA$[54] = { { (char*)"fb_CpuDetect", (char*)0ull, 12ll, 3ll, (tmp$34)0ull, 16384ll, 0ll }, { (char*)"fb_Init", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 3ll, { { 11ll, 1ll, 0ll }, { 68ll, 1ll, 0ll }, { 11ll, 1ll, 0ll } } }, { (char*)"fb_InitSignals", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 0ll }, { (char*)"fb___main", (char*)"__main", 0ll, 3ll, (tmp$34)0ull, 0ll, 0ll }, { (char*)"fb_End", (char*)0ull, 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 523ll, 1ll, 0ll } } }, { (char*)"fb_atexit", (char*)"atexit", 11ll, 3ll, (tmp$34)0ull, 0ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"command", (char*)"fb_Command", 17ll, -1ll, (tmp$34)0ull, 64ll, 1ll, { { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"curdir", (char*)"fb_CurDir", 17ll, -1ll, (tmp$34)0ull, 128ll, 0ll }, { (char*)"exepath", (char*)"fb_ExePath", 17ll, -1ll, (tmp$34)0ull, 128ll, 0ll }, { (char*)"timer", (char*)"fb_Timer", 16ll, -1ll, (tmp$34)0ull, 0ll, 0ll }, { (char*)"time", (char*)"fb_Time", 17ll, -1ll, (tmp$34)0ull, 64ll, 0ll }, { (char*)"date", (char*)"fb_Date", 17ll, -1ll, (tmp$34)0ull, 64ll, 0ll }, { (char*)"shell", (char*)"fb_Shell", 11ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 529ll, 2ll, -1ll, 0ll } } }, { (char*)"system", (char*)"fb_End", 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"stop", (char*)"fb_End", 0ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"run", (char*)"fb_Run", 11ll, -1ll, (tmp$34)0ull, 0ll, 2ll, { { 529ll, 2ll, 0ll }, { 529ll, 2ll, -1ll, 0ll } } }, { (char*)"chain", (char*)"fb_Chain", 11ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"exec", (char*)"fb_Exec", 11ll, -1ll, (tmp$34)0ull, 128ll, 2ll, { { 529ll, 2ll, 0ll }, { 529ll, 2ll, 0ll } } }, { (char*)"environ", (char*)"fb_GetEnviron", 17ll, -1ll, (tmp$34)0ull, 64ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"setenviron", (char*)"fb_SetEnviron", 11ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"sleep", (char*)"fb_Sleep", 0ll, -1ll, (tmp$34)0ull, 129ll, 1ll, { { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"sleep", (char*)"fb_SleepQB", 0ll, -1ll, (tmp$34)0ull, 257ll, 1ll, { { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"sleep", (char*)"fb_SleepEx", 11ll, -1ll, (tmp$34)0ull, 3ll, 2ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"dir", (char*)"fb_DirNext", 17ll, -1ll, (tmp$34)0ull, 129ll, 1ll, { { 43ll, 1ll, -1ll, 0ll } } }, { (char*)"dir", (char*)"fb_DirNext64", 17ll, -1ll, (tmp$34)0ull, 129ll, 1ll, { { 45ll, 1ll, 0ll } } }, { (char*)"dir", (char*)"fb_DirNext", 17ll, -1ll, (tmp$34)0ull, 129ll, 1ll, { { 11ll, 2ll, 0ll } } }, { (char*)"dir", (char*)"fb_DirNext64", 17ll, -1ll, (tmp$34)0ull, 129ll, 1ll, { { 13ll, 2ll, 0ll } } }, { (char*)"dir", (char*)"fb_Dir", 17ll, -1ll, (tmp$34)0ull, 129ll, 3ll, { { 529ll, 2ll, 0ll }, { 523ll, 1ll, -1ll, 33ll }, { 43ll, 1ll, -1ll, 0ll } } }, { (char*)"dir", (char*)"fb_Dir64", 17ll, -1ll, (tmp$34)0ull, 129ll, 3ll, { { 529ll, 2ll, 0ll }, { 523ll, 1ll, -1ll, 33ll }, { 45ll, 1ll, 0ll } } }, { (char*)"dir", (char*)"fb_Dir", 17ll, -1ll, (tmp$34)0ull, 129ll, 3ll, { { 529ll, 2ll, 0ll }, { 523ll, 1ll, -1ll, 33ll }, { 11ll, 2ll, 0ll } } }, { (char*)"dir", (char*)"fb_Dir64", 17ll, -1ll, (tmp$34)0ull, 129ll, 3ll, { { 529ll, 2ll, 0ll }, { 523ll, 1ll, -1ll, 33ll }, { 13ll, 2ll, 0ll } } }, { (char*)"settime", (char*)"fb_SetTime", 11ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"setdate", (char*)"fb_SetDate", 11ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"threadcreate", (char*)"fb_ThreadCreate", 32ll, -1ll, (tmp$34)&HMULTITHREAD_CB, 132ll, 5ll, { { 54ll, 1ll, -1ll, 1ll }, { 32ll, 1ll, 0ll }, { 0ll, 0ll, 0ll }, { 32ll, 1ll, -1ll, 0ll }, { 520ll, 1ll, -1ll, 0ll } } }, { (char*)"threadwait", (char*)"fb_ThreadWait", 0ll, -1ll, (tmp$34)&HMULTITHREAD_CB, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"fb_ThreadCall", (char*)0ull, 32ll, 3ll, (tmp$34)&HTHREADCALL_CB, 132ll, 5ll, { { 32ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 520ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 2147483648ll, 4ll, 0ll } } }, { (char*)"mutexcreate", (char*)"fb_MutexCreate", 32ll, -1ll, (tmp$34)0ull, 132ll, 0ll }, { (char*)"mutexdestroy", (char*)"fb_MutexDestroy", 0ll, -1ll, (tmp$34)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"mutexlock", (char*)"fb_MutexLock", 0ll, -1ll, (tmp$34)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"mutexunlock", (char*)"fb_MutexUnlock", 0ll, -1ll, (tmp$34)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"condcreate", (char*)"fb_CondCreate", 32ll, -1ll, (tmp$34)0ull, 132ll, 0ll }, { (char*)"conddestroy", (char*)"fb_CondDestroy", 0ll, -1ll, (tmp$34)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"condsignal", (char*)"fb_CondSignal", 0ll, -1ll, (tmp$34)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"condbroadcast", (char*)"fb_CondBroadcast", 0ll, -1ll, (tmp$34)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"condwait", (char*)"fb_CondWait", 0ll, -1ll, (tmp$34)0ull, 132ll, 2ll, { { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"dylibload", (char*)"fb_DylibLoad", 32ll, -1ll, (tmp$34)0ull, 128ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"dylibsymbol", (char*)"fb_DylibSymbol", 32ll, -1ll, (tmp$34)0ull, 129ll, 2ll, { { 32ll, 1ll, 0ll }, { 529ll, 2ll, 0ll } } }, { (char*)"dylibsymbol", (char*)"fb_DylibSymbolByOrd", 32ll, -1ll, (tmp$34)0ull, 129ll, 2ll, { { 32ll, 1ll, 0ll }, { 517ll, 1ll, 0ll } } }, { (char*)"dylibfree", (char*)"fb_DylibFree", 0ll, -1ll, (tmp$34)0ull, 128ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"beep", (char*)"fb_Beep", 0ll, -1ll, (tmp$34)0ull, 0ll, 0ll }, { (char*)"mkdir", (char*)"fb_MkDir", 11ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"rmdir", (char*)"fb_RmDir", 11ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"chdir", (char*)"fb_ChDir", 11ll, -1ll, (tmp$34)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)0ull } };
+static struct $14FB_RTL_PROCDEF FUNCDATA$[56] = { { (char*)"fb_CpuDetect", (char*)0ull, 12ll, 3ll, (tmp$35)0ull, 16384ll, 0ll }, { (char*)"fb_Init", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 32ll, 3ll, { { 11ll, 1ll, 0ll }, { 68ll, 1ll, 0ll }, { 11ll, 1ll, 0ll } } }, { (char*)"fb_InitSignals", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 32ll, 0ll }, { (char*)"fb_InitProfile", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 0ll }, { (char*)"fb_InitProfileCycles", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 0ll, 0ll }, { (char*)"fb___main", (char*)"__main", 0ll, 3ll, (tmp$35)0ull, 32ll, 0ll }, { (char*)"fb_End", (char*)0ull, 0ll, -1ll, (tmp$35)0ull, 32ll, 1ll, { { 523ll, 1ll, 0ll } } }, { (char*)"fb_atexit", (char*)"atexit", 11ll, 3ll, (tmp$35)0ull, 0ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"command", (char*)"fb_Command", 17ll, -1ll, (tmp$35)0ull, 64ll, 1ll, { { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"curdir", (char*)"fb_CurDir", 17ll, -1ll, (tmp$35)0ull, 128ll, 0ll }, { (char*)"exepath", (char*)"fb_ExePath", 17ll, -1ll, (tmp$35)0ull, 128ll, 0ll }, { (char*)"timer", (char*)"fb_Timer", 16ll, -1ll, (tmp$35)0ull, 0ll, 0ll }, { (char*)"time", (char*)"fb_Time", 17ll, -1ll, (tmp$35)0ull, 64ll, 0ll }, { (char*)"date", (char*)"fb_Date", 17ll, -1ll, (tmp$35)0ull, 64ll, 0ll }, { (char*)"shell", (char*)"fb_Shell", 11ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 529ll, 2ll, -1ll, 0ll } } }, { (char*)"system", (char*)"fb_End", 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"stop", (char*)"fb_End", 0ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"run", (char*)"fb_Run", 11ll, -1ll, (tmp$35)0ull, 0ll, 2ll, { { 529ll, 2ll, 0ll }, { 529ll, 2ll, -1ll, 0ll } } }, { (char*)"chain", (char*)"fb_Chain", 11ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"exec", (char*)"fb_Exec", 11ll, -1ll, (tmp$35)0ull, 128ll, 2ll, { { 529ll, 2ll, 0ll }, { 529ll, 2ll, 0ll } } }, { (char*)"environ", (char*)"fb_GetEnviron", 17ll, -1ll, (tmp$35)0ull, 64ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"setenviron", (char*)"fb_SetEnviron", 11ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"sleep", (char*)"fb_Sleep", 0ll, -1ll, (tmp$35)0ull, 129ll, 1ll, { { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"sleep", (char*)"fb_SleepQB", 0ll, -1ll, (tmp$35)0ull, 257ll, 1ll, { { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"sleep", (char*)"fb_SleepEx", 11ll, -1ll, (tmp$35)0ull, 3ll, 2ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"dir", (char*)"fb_DirNext", 17ll, -1ll, (tmp$35)0ull, 129ll, 1ll, { { 43ll, 1ll, -1ll, 0ll } } }, { (char*)"dir", (char*)"fb_DirNext64", 17ll, -1ll, (tmp$35)0ull, 129ll, 1ll, { { 45ll, 1ll, 0ll } } }, { (char*)"dir", (char*)"fb_DirNext", 17ll, -1ll, (tmp$35)0ull, 129ll, 1ll, { { 11ll, 2ll, 0ll } } }, { (char*)"dir", (char*)"fb_DirNext64", 17ll, -1ll, (tmp$35)0ull, 129ll, 1ll, { { 13ll, 2ll, 0ll } } }, { (char*)"dir", (char*)"fb_Dir", 17ll, -1ll, (tmp$35)0ull, 129ll, 3ll, { { 529ll, 2ll, 0ll }, { 523ll, 1ll, -1ll, 33ll }, { 43ll, 1ll, -1ll, 0ll } } }, { (char*)"dir", (char*)"fb_Dir64", 17ll, -1ll, (tmp$35)0ull, 129ll, 3ll, { { 529ll, 2ll, 0ll }, { 523ll, 1ll, -1ll, 33ll }, { 45ll, 1ll, 0ll } } }, { (char*)"dir", (char*)"fb_Dir", 17ll, -1ll, (tmp$35)0ull, 129ll, 3ll, { { 529ll, 2ll, 0ll }, { 523ll, 1ll, -1ll, 33ll }, { 11ll, 2ll, 0ll } } }, { (char*)"dir", (char*)"fb_Dir64", 17ll, -1ll, (tmp$35)0ull, 129ll, 3ll, { { 529ll, 2ll, 0ll }, { 523ll, 1ll, -1ll, 33ll }, { 13ll, 2ll, 0ll } } }, { (char*)"settime", (char*)"fb_SetTime", 11ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"setdate", (char*)"fb_SetDate", 11ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"threadcreate", (char*)"fb_ThreadCreate", 32ll, -1ll, (tmp$35)&HMULTITHREAD_CB, 132ll, 5ll, { { 54ll, 1ll, -1ll, 1ll }, { 32ll, 1ll, 0ll }, { 0ll, 0ll, 0ll }, { 32ll, 1ll, -1ll, 0ll }, { 520ll, 1ll, -1ll, 0ll } } }, { (char*)"threadwait", (char*)"fb_ThreadWait", 0ll, -1ll, (tmp$35)&HMULTITHREAD_CB, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"fb_ThreadCall", (char*)0ull, 32ll, 3ll, (tmp$35)&HTHREADCALL_CB, 132ll, 5ll, { { 32ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 520ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 2147483648ll, 4ll, 0ll } } }, { (char*)"mutexcreate", (char*)"fb_MutexCreate", 32ll, -1ll, (tmp$35)0ull, 132ll, 0ll }, { (char*)"mutexdestroy", (char*)"fb_MutexDestroy", 0ll, -1ll, (tmp$35)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"mutexlock", (char*)"fb_MutexLock", 0ll, -1ll, (tmp$35)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"mutexunlock", (char*)"fb_MutexUnlock", 0ll, -1ll, (tmp$35)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"condcreate", (char*)"fb_CondCreate", 32ll, -1ll, (tmp$35)0ull, 132ll, 0ll }, { (char*)"conddestroy", (char*)"fb_CondDestroy", 0ll, -1ll, (tmp$35)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"condsignal", (char*)"fb_CondSignal", 0ll, -1ll, (tmp$35)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"condbroadcast", (char*)"fb_CondBroadcast", 0ll, -1ll, (tmp$35)0ull, 132ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"condwait", (char*)"fb_CondWait", 0ll, -1ll, (tmp$35)0ull, 132ll, 2ll, { { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"dylibload", (char*)"fb_DylibLoad", 32ll, -1ll, (tmp$35)0ull, 128ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"dylibsymbol", (char*)"fb_DylibSymbol", 32ll, -1ll, (tmp$35)0ull, 129ll, 2ll, { { 32ll, 1ll, 0ll }, { 529ll, 2ll, 0ll } } }, { (char*)"dylibsymbol", (char*)"fb_DylibSymbolByOrd", 32ll, -1ll, (tmp$35)0ull, 129ll, 2ll, { { 32ll, 1ll, 0ll }, { 517ll, 1ll, 0ll } } }, { (char*)"dylibfree", (char*)"fb_DylibFree", 0ll, -1ll, (tmp$35)0ull, 128ll, 1ll, { { 32ll, 1ll, 0ll } } }, { (char*)"beep", (char*)"fb_Beep", 0ll, -1ll, (tmp$35)0ull, 0ll, 0ll }, { (char*)"mkdir", (char*)"fb_MkDir", 11ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"rmdir", (char*)"fb_RmDir", 11ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"chdir", (char*)"fb_ChDir", 11ll, -1ll, (tmp$35)0ull, 0ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)0ull } };
 
 void RTLSYSTEMMODINIT( void )
 {
@@ -880,84 +910,138 @@ void RTLSYSTEMMODEND( void )
 	label$13:;
 }
 
-struct $7ASTNODE* RTLINITAPP( struct $7ASTNODE* ARGC$1, struct $7ASTNODE* ARGV$1 )
+struct $7ASTNODE* RTLINITPROFILE( void )
 {
-	int64 TMP$181$1;
-	int64 TMP$182$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$32:;
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_InitProfile", 146ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, 0ll );
+	fb$result$1 = vr$2;
+	label$33:;
+	return fb$result$1;
+}
+
+struct $7ASTNODE* RTLINITPROFILECYCLES( void )
+{
+	struct $7ASTNODE* fb$result$1;
+	__builtin_memset( &fb$result$1, 0, 8ll );
+	label$34:;
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_InitProfileCycles", 147ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, 0ll );
+	fb$result$1 = vr$2;
+	label$35:;
+	return fb$result$1;
+}
+
+struct $7ASTNODE* RTLINITAPP( struct $7ASTNODE* ARGC$1, struct $7ASTNODE* ARGV$1 )
+{
+	struct $7ASTNODE* fb$result$1;
+	__builtin_memset( &fb$result$1, 0, 8ll );
+	label$36:;
 	struct $7ASTNODE* PROC$1;
 	int64 IS_EXE$1;
 	IS_EXE$1 = (int64)-(*(int64*)((uint8*)&ENV$ + 192ll) != 2ll);
-	if( *(int64*)((uint8*)&ENV$ + 208ll) != 0ll ) goto label$35;
+	if( *(int64*)((uint8*)&ENV$ + 208ll) != 0ll ) goto label$39;
 	{
+		if( *(int64*)((uint8*)&ENV$ + 544ll) != 0ll ) goto label$41;
 		{
-			$13FB_COMPTARGET TMP$180$3;
-			TMP$180$3 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
-			if( TMP$180$3 == 0ll ) goto label$38;
-			label$39:;
-			if( TMP$180$3 != 1ll ) goto label$37;
-			label$38:;
 			{
-				if( *(int64*)((uint8*)&ENV$ + 368ll) == 0ll ) goto label$41;
+				$13FB_COMPTARGET TMP$185$4;
+				TMP$185$4 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
+				if( TMP$185$4 == 0ll ) goto label$44;
+				label$45:;
+				if( TMP$185$4 != 1ll ) goto label$43;
+				label$44:;
 				{
-					RTLPROFILECALL_MONSTARTUP(  );
+					int64 vr$2 = FBGETOPTION( 24ll );
+					if( vr$2 != 1ll ) goto label$47;
+					{
+						RTLPROFILECALL_MONSTARTUP(  );
+					}
+					label$47:;
+					label$46:;
 				}
-				label$41:;
-				label$40:;
+				label$43:;
+				label$42:;
 			}
-			label$37:;
-			label$36:;
+			{
+				int64 TMP$186$4;
+				int64 vr$3 = FBGETOPTION( 24ll );
+				TMP$186$4 = vr$3;
+				if( TMP$186$4 != 2ll ) goto label$49;
+				label$50:;
+				{
+					RTLINITPROFILE(  );
+				}
+				goto label$48;
+				label$49:;
+				if( TMP$186$4 != 3ll ) goto label$51;
+				label$52:;
+				{
+					RTLINITPROFILECYCLES(  );
+				}
+				label$51:;
+				label$48:;
+			}
 		}
-		if( *(int64*)((uint8*)&ENV$ + 216ll) != 0ll ) goto label$43;
+		label$41:;
+		label$40:;
+		if( *(int64*)((uint8*)&ENV$ + 216ll) != 0ll ) goto label$54;
 		{
-			struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"fb___main", 142ll );
-			struct $7ASTNODE* vr$3 = ASTNEWCALL( vr$2, (struct $7ASTNODE*)0ull );
-			ASTADD( vr$3 );
+			struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"fb___main", 148ll );
+			struct $7ASTNODE* vr$5 = ASTNEWCALL( vr$4, (struct $7ASTNODE*)0ull, -1ll );
+			ASTADD( vr$5 );
 		}
-		label$43:;
-		label$42:;
+		label$54:;
+		label$53:;
 	}
-	label$35:;
-	label$34:;
-	struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"fb_Init", 140ll );
-	struct $7ASTNODE* vr$5 = ASTNEWCALL( vr$4, (struct $7ASTNODE*)0ull );
-	PROC$1 = vr$5;
+	label$39:;
+	label$38:;
+	struct $8FBSYMBOL* vr$6 = RTLPROCLOOKUP( (char*)"fb_Init", 144ll );
+	struct $7ASTNODE* vr$7 = ASTNEWCALL( vr$6, (struct $7ASTNODE*)0ull, 0ll );
+	PROC$1 = vr$7;
 	ASTNEWARG( PROC$1, ARGC$1, 2147483648ll, -1ll );
 	ASTNEWARG( PROC$1, ARGV$1, 2147483648ll, -1ll );
-	struct $7ASTNODE* vr$6 = ASTNEWCONSTI( *(int64*)((uint8*)&ENV$ + 272ll), 8ll, (struct $8FBSYMBOL*)0ull );
-	ASTNEWARG( PROC$1, vr$6, 2147483648ll, -1ll );
+	struct $7ASTNODE* vr$8 = ASTNEWCONSTI( *(int64*)((uint8*)&ENV$ + 272ll), 8ll, (struct $8FBSYMBOL*)0ull );
+	ASTNEWARG( PROC$1, vr$8, 2147483648ll, -1ll );
 	ASTADD( PROC$1 );
-	if( *(int64*)((uint8*)&ENV$ + 312ll) == 0ll ) goto label$44;
-	TMP$181$1 = (int64)-(IS_EXE$1 != 0ll);
-	goto label$50;
-	label$44:;
-	TMP$181$1 = 0ll;
-	label$50:;
-	if( TMP$181$1 == 0ll ) goto label$45;
-	TMP$182$1 = (int64)-(*(int64*)((uint8*)&ENV$ + 216ll) != 11ll);
-	goto label$51;
-	label$45:;
-	TMP$182$1 = 0ll;
-	label$51:;
-	if( TMP$182$1 == 0ll ) goto label$47;
+	if( *(int64*)((uint8*)&ENV$ + 544ll) != 0ll ) goto label$56;
 	{
-		struct $8FBSYMBOL* vr$9 = RTLPROCLOOKUP( (char*)"fb_InitSignals", 141ll );
-		struct $7ASTNODE* vr$10 = ASTNEWCALL( vr$9, (struct $7ASTNODE*)0ull );
-		ASTADD( vr$10 );
-		int64 vr$11 = FBGETCPUFAMILY(  );
-		if( vr$11 != 0ll ) goto label$49;
+		int64 TMP$187$2;
+		int64 TMP$188$2;
+		if( *(int64*)((uint8*)&ENV$ + 312ll) == 0ll ) goto label$57;
+		TMP$187$2 = (int64)-(IS_EXE$1 != 0ll);
+		goto label$63;
+		label$57:;
+		TMP$187$2 = 0ll;
+		label$63:;
+		if( TMP$187$2 == 0ll ) goto label$58;
+		TMP$188$2 = (int64)-(*(int64*)((uint8*)&ENV$ + 216ll) != 12ll);
+		goto label$64;
+		label$58:;
+		TMP$188$2 = 0ll;
+		label$64:;
+		if( TMP$188$2 == 0ll ) goto label$60;
 		{
-			RTLX86CPUCHECK(  );
+			struct $8FBSYMBOL* vr$11 = RTLPROCLOOKUP( (char*)"fb_InitSignals", 145ll );
+			struct $7ASTNODE* vr$12 = ASTNEWCALL( vr$11, (struct $7ASTNODE*)0ull, 0ll );
+			ASTADD( vr$12 );
+			int64 vr$13 = FBGETCPUFAMILY(  );
+			if( vr$13 != 0ll ) goto label$62;
+			{
+				RTLX86CPUCHECK(  );
+			}
+			label$62:;
+			label$61:;
 		}
-		label$49:;
-		label$48:;
+		label$60:;
+		label$59:;
 	}
-	label$47:;
-	label$46:;
+	label$56:;
+	label$55:;
 	fb$result$1 = PROC$1;
-	label$33:;
+	label$37:;
 	return fb$result$1;
 }
 
@@ -965,29 +1049,29 @@ int64 RTLEXITAPP( struct $7ASTNODE* ERRLEVEL$1 )
 {
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$52:;
+	label$65:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_End", 143ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_End", 149ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, 0ll );
 	PROC$1 = vr$2;
-	if( ERRLEVEL$1 != (struct $7ASTNODE*)0ull ) goto label$55;
+	if( ERRLEVEL$1 != (struct $7ASTNODE*)0ull ) goto label$68;
 	{
 		struct $7ASTNODE* vr$3 = ASTNEWCONSTI( 0ll, 8ll, (struct $8FBSYMBOL*)0ull );
 		ERRLEVEL$1 = vr$3;
 	}
-	label$55:;
-	label$54:;
+	label$68:;
+	label$67:;
 	struct $7ASTNODE* vr$4 = ASTNEWARG( PROC$1, ERRLEVEL$1, 2147483648ll, -1ll );
-	if( vr$4 != (struct $7ASTNODE*)0ull ) goto label$57;
+	if( vr$4 != (struct $7ASTNODE*)0ull ) goto label$70;
 	{
-		goto label$53;
+		goto label$66;
 	}
-	label$57:;
-	label$56:;
+	label$70:;
+	label$69:;
 	ASTADD( PROC$1 );
 	fb$result$1 = -1ll;
-	label$53:;
+	label$66:;
 	return fb$result$1;
 }
 
@@ -995,21 +1079,21 @@ struct $7ASTNODE* RTLATEXIT( struct $7ASTNODE* PROCEXPR$1 )
 {
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$70:;
+	label$83:;
 	static struct $7ASTNODE* PROC$1;
 	fb$result$1 = (struct $7ASTNODE*)0ull;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_atexit", 144ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_atexit", 150ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, PROCEXPR$1, 2147483648ll, -1ll );
-	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$73;
+	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$86;
 	{
-		goto label$71;
+		goto label$84;
 	}
-	label$73:;
-	label$72:;
+	label$86:;
+	label$85:;
 	fb$result$1 = PROC$1;
-	label$71:;
+	label$84:;
 	return fb$result$1;
 }
 
@@ -1030,9 +1114,9 @@ static void _ZN11TSTRSETITEMaSERKS_( struct $11TSTRSETITEM* THIS$1, struct $11TS
 
 static int64 RTLX86CPUCHECK( void )
 {
-	FBSTRING TMP$176$1;
-	FBSTRING TMP$177$1;
-	FBSTRING TMP$178$1;
+	FBSTRING TMP$181$1;
+	FBSTRING TMP$182$1;
+	FBSTRING TMP$183$1;
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$14:;
@@ -1083,8 +1167,8 @@ static int64 RTLX86CPUCHECK( void )
 		label$25:;
 		label$18:;
 	}
-	struct $8FBSYMBOL* vr$6 = RTLPROCLOOKUP( (char*)"fb_CpuDetect", 139ll );
-	struct $7ASTNODE* vr$7 = ASTNEWCALL( vr$6, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$6 = RTLPROCLOOKUP( (char*)"fb_CpuDetect", 143ll );
+	struct $7ASTNODE* vr$7 = ASTNEWCALL( vr$6, (struct $7ASTNODE*)0ull, 0ll );
 	PROC$1 = vr$7;
 	struct $7ASTNODE* vr$8 = ASTNEWCONSTI( 28ll, 9ll, (struct $8FBSYMBOL*)0ull );
 	struct $7ASTNODE* vr$9 = ASTNEWBOP( 42ll, PROC$1, vr$8, (struct $8FBSYMBOL*)0ull, 1ll );
@@ -1094,20 +1178,20 @@ static int64 RTLX86CPUCHECK( void )
 	struct $7ASTNODE* vr$11 = ASTNEWCONSTI( FAMILY$1, 9ll, (struct $8FBSYMBOL*)0ull );
 	struct $7ASTNODE* vr$12 = ASTNEWBOP( 49ll, CPU$1, vr$11, LABEL$1, 0ll );
 	ASTADD( vr$12 );
-	__builtin_memset( &TMP$178$1, 0, 24ll );
-	__builtin_memset( &TMP$176$1, 0, 24ll );
-	FBSTRING* vr$17 = fb_StrConcat( &TMP$176$1, (void*)"This program requires at least a ", 34ll, (void*)&FAMILYSTR$1, -1ll );
-	__builtin_memset( &TMP$177$1, 0, 24ll );
-	FBSTRING* vr$20 = fb_StrConcat( &TMP$177$1, (void*)vr$17, -1ll, (void*)" to run.", 9ll );
-	fb_StrAssign( (void*)&TMP$178$1, -1ll, (void*)vr$20, -1ll, 0 );
-	struct $8FBSYMBOL* vr$22 = SYMBALLOCSTRCONST( (char*)*(char**)&TMP$178$1, -1ll );
+	__builtin_memset( &TMP$183$1, 0, 24ll );
+	__builtin_memset( &TMP$181$1, 0, 24ll );
+	FBSTRING* vr$17 = fb_StrConcat( &TMP$181$1, (void*)"This program requires at least a ", 34ll, (void*)&FAMILYSTR$1, -1ll );
+	__builtin_memset( &TMP$182$1, 0, 24ll );
+	FBSTRING* vr$20 = fb_StrConcat( &TMP$182$1, (void*)vr$17, -1ll, (void*)" to run.", 9ll );
+	fb_StrAssign( (void*)&TMP$183$1, -1ll, (void*)vr$20, -1ll, 0 );
+	struct $8FBSYMBOL* vr$22 = SYMBALLOCSTRCONST( (char*)*(char**)&TMP$183$1, -1ll );
 	S$1 = vr$22;
-	fb_StrDelete( (FBSTRING*)&TMP$178$1 );
+	fb_StrDelete( (FBSTRING*)&TMP$183$1 );
 	struct $7ASTNODE* vr$24 = ASTNEWVAR( S$1, 0ll, 2147483648ll, (struct $8FBSYMBOL*)0ull );
 	struct $7ASTNODE* vr$25 = ASTNEWCONSTI( 0ll, 8ll, (struct $8FBSYMBOL*)0ull );
 	RTLPRINT( vr$25, 0ll, 0ll, vr$24, 0ll );
-	struct $8FBSYMBOL* vr$26 = RTLPROCLOOKUP( (char*)"fb_End", 143ll );
-	struct $7ASTNODE* vr$27 = ASTNEWCALL( vr$26, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$26 = RTLPROCLOOKUP( (char*)"fb_End", 149ll );
+	struct $7ASTNODE* vr$27 = ASTNEWCALL( vr$26, (struct $7ASTNODE*)0ull, 0ll );
 	PROC$1 = vr$27;
 	struct $7ASTNODE* vr$28 = ASTNEWCONSTI( 1ll, 8ll, (struct $8FBSYMBOL*)0ull );
 	struct $7ASTNODE* vr$29 = ASTNEWARG( PROC$1, vr$28, 2147483648ll, -1ll );
@@ -1123,8 +1207,8 @@ static int64 RTLX86CPUCHECK( void )
 	ASTADD( vr$31 );
 	if( *(int64*)((uint8*)&ENV$ + 232ll) != 1ll ) goto label$29;
 	{
-		struct $8FBSYMBOL* vr$32 = RTLPROCLOOKUP( (char*)"fb_CpuDetect", 139ll );
-		struct $7ASTNODE* vr$33 = ASTNEWCALL( vr$32, (struct $7ASTNODE*)0ull );
+		struct $8FBSYMBOL* vr$32 = RTLPROCLOOKUP( (char*)"fb_CpuDetect", 143ll );
+		struct $7ASTNODE* vr$33 = ASTNEWCALL( vr$32, (struct $7ASTNODE*)0ull, -1ll );
 		PROC$1 = vr$33;
 		struct $7ASTNODE* vr$34 = ASTNEWCONSTI( 100663296ll, 9ll, (struct $8FBSYMBOL*)0ull );
 		struct $7ASTNODE* vr$35 = ASTNEWBOP( 34ll, PROC$1, vr$34, (struct $8FBSYMBOL*)0ull, 1ll );
@@ -1139,8 +1223,8 @@ static int64 RTLX86CPUCHECK( void )
 		struct $7ASTNODE* vr$40 = ASTNEWVAR( S$1, 0ll, 2147483648ll, (struct $8FBSYMBOL*)0ull );
 		struct $7ASTNODE* vr$41 = ASTNEWCONSTI( 0ll, 8ll, (struct $8FBSYMBOL*)0ull );
 		RTLPRINT( vr$41, 0ll, 0ll, vr$40, 0ll );
-		struct $8FBSYMBOL* vr$42 = RTLPROCLOOKUP( (char*)"fb_End", 143ll );
-		struct $7ASTNODE* vr$43 = ASTNEWCALL( vr$42, (struct $7ASTNODE*)0ull );
+		struct $8FBSYMBOL* vr$42 = RTLPROCLOOKUP( (char*)"fb_End", 149ll );
+		struct $7ASTNODE* vr$43 = ASTNEWCALL( vr$42, (struct $7ASTNODE*)0ull, 0ll );
 		PROC$1 = vr$43;
 		struct $7ASTNODE* vr$44 = ASTNEWCONSTI( 1ll, 8ll, (struct $8FBSYMBOL*)0ull );
 		struct $7ASTNODE* vr$45 = ASTNEWARG( PROC$1, vr$44, 2147483648ll, -1ll );
@@ -1167,22 +1251,22 @@ static int64 HMULTITHREAD_CB( struct $8FBSYMBOL* SYM$1 )
 {
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$58:;
-	if( *(int64*)((uint8*)&ENV$ + 464ll) != 0ll ) goto label$61;
+	label$71:;
+	if( *(int64*)((uint8*)&ENV$ + 472ll) != 0ll ) goto label$74;
 	{
-		if( (*(int64*)((uint8*)&ENV$ + 1584ll) & 4ll) != 0ll ) goto label$63;
+		if( (*(int64*)((uint8*)&ENV$ + 1616ll) & 4ll) != 0ll ) goto label$76;
 		{
 			FBRESTARTBEGINREQUEST( 4ll );
 		}
-		label$63:;
-		label$62:;
+		label$76:;
+		label$75:;
 	}
-	label$61:;
-	label$60:;
-	*(int64*)((uint8*)&ENV$ + 464ll) = -1ll;
+	label$74:;
+	label$73:;
+	*(int64*)((uint8*)&ENV$ + 472ll) = -1ll;
 	fb$result$1 = -1ll;
-	goto label$59;
-	label$59:;
+	goto label$72;
+	label$72:;
 	return fb$result$1;
 }
 
@@ -1190,28 +1274,28 @@ static int64 HTHREADCALL_CB( struct $8FBSYMBOL* SYM$1 )
 {
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$64:;
+	label$77:;
 	static int64 RESTART_COUNT$1;
 	static int64 LIBSADDED$1 = 0ll;
 	int64 vr$1 = FBRESTARTGETCOUNT(  );
-	if( RESTART_COUNT$1 == vr$1 ) goto label$67;
+	if( RESTART_COUNT$1 == vr$1 ) goto label$80;
 	{
 		int64 vr$2 = FBRESTARTGETCOUNT(  );
 		RESTART_COUNT$1 = vr$2;
 		LIBSADDED$1 = 0ll;
 	}
-	label$67:;
-	label$66:;
-	if( LIBSADDED$1 != 0ll ) goto label$69;
+	label$80:;
+	label$79:;
+	if( LIBSADDED$1 != 0ll ) goto label$82;
 	{
 		LIBSADDED$1 = -1ll;
 		FBADDLIB( (char*)"ffi" );
 	}
-	label$69:;
-	label$68:;
+	label$82:;
+	label$81:;
 	int64 vr$3 = HMULTITHREAD_CB( SYM$1 );
 	fb$result$1 = vr$3;
-	goto label$65;
-	label$65:;
+	goto label$78;
+	label$78:;
 	return fb$result$1;
 }

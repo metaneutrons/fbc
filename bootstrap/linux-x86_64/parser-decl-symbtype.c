@@ -66,6 +66,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -172,9 +182,9 @@ struct $8FBS_ENUM {
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $11FB_FUNCMODE;
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -304,7 +314,7 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
+typedef FBSTRING* (*tmp$29)( void );
 struct $8DZSTRING {
 	char* DATA;
 	int64 LEN;
@@ -329,8 +339,8 @@ struct $11LEXPP_ARGTB {
 	int64 COUNT;
 };
 __FB_STATIC_ASSERT( sizeof( struct $11LEXPP_ARGTB ) == 776 );
-typedef FBSTRING* (*tmp$29)( struct $11LEXPP_ARGTB*, int64* );
-typedef uint32* (*tmp$30)( struct $11LEXPP_ARGTB*, int64* );
+typedef FBSTRING* (*tmp$30)( struct $11LEXPP_ARGTB*, int64* );
+typedef uint32* (*tmp$31)( struct $11LEXPP_ARGTB*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -342,11 +352,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -421,7 +431,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -441,6 +451,16 @@ struct $8FBSYMBOL {
 	struct $8FBSYMBOL* NEXT;
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBSYMBOL ) == 320 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -468,8 +488,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -533,10 +555,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -606,7 +629,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -689,6 +712,7 @@ struct $7FBTOKEN {
 	union {
 		int64 PRDPOS;
 		int64 HASESC;
+		int64 HASSUFFIX;
 	};
 	int64 SUFFIXCHAR;
 	int64 AFTER_SPACE;
@@ -873,7 +897,6 @@ $19FB_CVA_LIST_TYPEDEF FBGETBACKENDVALISTTYPE( void );
 void ASTDELTREE( struct $7ASTNODE* );
 struct $7ASTNODE* ASTNEWCONSTI( int64, int64, struct $8FBSYMBOL* );
 int64 ASTCONSTFLUSHTOINT( struct $7ASTNODE*, int64 );
-struct $7ASTNODE* ASTREMOVENIDXARRAY( struct $7ASTNODE* );
 void ASTDTORLISTSCOPEBEGIN( int64 );
 int64 ASTDTORLISTSCOPEEND( void );
 void ASTDTORLISTSCOPEDELETE( int64 );
@@ -913,6 +936,7 @@ static FBSTRING* HGETTOKENDESCRIPTION( int64 );
 void _ZN19AMBIGIOUSSIZEOFINFO13CHECKSYMCHAINEP10FBSYMCHAIN( struct $19AMBIGIOUSSIZEOFINFO*, struct $10FBSYMCHAIN* );
 void _ZN19AMBIGIOUSSIZEOFINFO9MAYBEWARNEll( struct $19AMBIGIOUSSIZEOFINFO*, int64, int64 );
 static int64 CMANGLEMODIFIER( int64*, struct $8FBSYMBOL** );
+static void HCHECKFIXEDSTRINGSIZE( int64* );
 typedef int64 $11AST_OPFLAGS;
 struct $10AST_OPINFO {
 	$13AST_NODECLASS CLASS;
@@ -931,7 +955,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 extern struct $13SYMB_DATATYPE SYMB_DTYPETB$[26];
 struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $13SYMB_DATATYPE* DATA;
@@ -943,7 +967,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -954,7 +978,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
 typedef int64 $10FB_BACKEND;
 typedef int64 $13FB_COMPTARGET;
@@ -987,6 +1011,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -1010,8 +1035,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -1054,11 +1081,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 typedef int64 $16FB_RESTART_FLAGS;
 struct $7TSTRSET {
 	struct $5TLIST LIST;
@@ -1096,7 +1124,7 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
 struct $7LEX_CTX {
 	struct $9LEX_TKCTX CTXTB[17];
@@ -1194,58 +1222,58 @@ int64 CCONSTINTEXPR( struct $7ASTNODE* EXPR$1, int64 DTYPE$1 )
 
 int64 HISCONSTINRANGE( int64 DTYPE$1, int64 VALUE$1, int64 TODTYPE$1 )
 {
-	int64 TMP$95$1;
-	int64 TMP$96$1;
+	int64 TMP$98$1;
+	int64 TMP$99$1;
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$16:;
 	static struct $11RANGEVALUES RANGE$1[9] = { { -1ll, 0ll, 0ull }, { -128ll, 127ll, 127ull }, { 0ll, 127ll, 255ull }, { -32768ll, 32767ll, 32767ull }, { 0ll, 32767ll, 65535ull }, { -2147483648ll, 2147483647ll, 2147483647ull }, { 0ll, 2147483647ll, 4294967295ull }, { -9223372036854775808ull, 9223372036854775807ll, 9223372036854775807ull }, { 0ll, 9223372036854775807ll, 18446744073709551615ull } };
-	static struct $8FBARRAY1I11RANGEVALUESE tmp$94$1 = { (struct $11RANGEVALUES*)RANGE$1, (struct $11RANGEVALUES*)RANGE$1, 216ll, 24ll, 1ll, 49ll, { { 9ll, 0ll, 8ll } } };
+	static struct $8FBARRAY1I11RANGEVALUESE tmp$97$1 = { (struct $11RANGEVALUES*)RANGE$1, (struct $11RANGEVALUES*)RANGE$1, 216ll, 24ll, 1ll, 49ll, { { 9ll, 0ll, 8ll } } };
 	struct $11RANGEVALUES* R$1;
 	if( (TODTYPE$1 & 480ll) == 0ll ) goto label$18;
-	TMP$95$1 = 24ll;
+	TMP$98$1 = 24ll;
 	goto label$36;
 	label$18:;
-	TMP$95$1 = TODTYPE$1 & 31ll;
+	TMP$98$1 = TODTYPE$1 & 31ll;
 	label$36:;
-	R$1 = (struct $11RANGEVALUES*)((int64)(struct $11RANGEVALUES*)RANGE$1 + (*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$95$1 * 56ll)) + 40ll) * 24ll));
+	R$1 = (struct $11RANGEVALUES*)((int64)(struct $11RANGEVALUES*)RANGE$1 + (*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$98$1 * 56ll)) + 40ll) * 24ll));
 	if( (DTYPE$1 & 480ll) == 0ll ) goto label$19;
-	TMP$96$1 = 24ll;
+	TMP$99$1 = 24ll;
 	goto label$37;
 	label$19:;
-	TMP$96$1 = DTYPE$1 & 31ll;
+	TMP$99$1 = DTYPE$1 & 31ll;
 	label$37:;
-	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$96$1 * 56ll)) + 16ll) == 0ll ) goto label$21;
+	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$99$1 * 56ll)) + 16ll) == 0ll ) goto label$21;
 	{
-		int64 TMP$97$2;
+		int64 TMP$100$2;
 		if( (TODTYPE$1 & 480ll) == 0ll ) goto label$22;
-		TMP$97$2 = 24ll;
+		TMP$100$2 = 24ll;
 		goto label$38;
 		label$22:;
-		TMP$97$2 = TODTYPE$1 & 31ll;
+		TMP$100$2 = TODTYPE$1 & 31ll;
 		label$38:;
-		if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$97$2 * 56ll)) + 16ll) == 0ll ) goto label$24;
+		if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$100$2 * 56ll)) + 16ll) == 0ll ) goto label$24;
 		{
 			fb$result$1 = (int64)-(VALUE$1 >= *(int64*)R$1) & (int64)-(VALUE$1 <= *(int64*)((uint8*)R$1 + 8ll));
 		}
 		goto label$23;
 		label$24:;
 		{
-			int64 TMP$98$3;
-			int64 TMP$99$3;
+			int64 TMP$101$3;
+			int64 TMP$102$3;
 			if( (DTYPE$1 & 480ll) == 0ll ) goto label$25;
-			TMP$98$3 = 24ll;
+			TMP$101$3 = 24ll;
 			goto label$39;
 			label$25:;
-			TMP$98$3 = DTYPE$1 & 31ll;
+			TMP$101$3 = DTYPE$1 & 31ll;
 			label$39:;
 			if( (TODTYPE$1 & 480ll) == 0ll ) goto label$26;
-			TMP$99$3 = 24ll;
+			TMP$102$3 = 24ll;
 			goto label$40;
 			label$26:;
-			TMP$99$3 = TODTYPE$1 & 31ll;
+			TMP$102$3 = TODTYPE$1 & 31ll;
 			label$40:;
-			if( ((int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$98$3 * 56ll)) + 40ll) == 7ll) & (int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$99$3 * 56ll)) + 40ll) == 8ll)) == 0ll ) goto label$28;
+			if( ((int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$101$3 * 56ll)) + 40ll) == 7ll) & (int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$102$3 * 56ll)) + 40ll) == 8ll)) == 0ll ) goto label$28;
 			{
 				fb$result$1 = (int64)-(VALUE$1 >= 0ll) & (int64)-((uint64)VALUE$1 <= *(uint64*)((uint8*)R$1 + 8ll));
 			}
@@ -1261,30 +1289,30 @@ int64 HISCONSTINRANGE( int64 DTYPE$1, int64 VALUE$1, int64 TODTYPE$1 )
 	goto label$20;
 	label$21:;
 	{
-		int64 TMP$100$2;
+		int64 TMP$103$2;
 		if( (TODTYPE$1 & 480ll) == 0ll ) goto label$29;
-		TMP$100$2 = 24ll;
+		TMP$103$2 = 24ll;
 		goto label$41;
 		label$29:;
-		TMP$100$2 = TODTYPE$1 & 31ll;
+		TMP$103$2 = TODTYPE$1 & 31ll;
 		label$41:;
-		if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$100$2 * 56ll)) + 16ll) == 0ll ) goto label$31;
+		if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$103$2 * 56ll)) + 16ll) == 0ll ) goto label$31;
 		{
-			int64 TMP$101$3;
-			int64 TMP$102$3;
+			int64 TMP$104$3;
+			int64 TMP$105$3;
 			if( (DTYPE$1 & 480ll) == 0ll ) goto label$32;
-			TMP$101$3 = 24ll;
+			TMP$104$3 = 24ll;
 			goto label$42;
 			label$32:;
-			TMP$101$3 = DTYPE$1 & 31ll;
+			TMP$104$3 = DTYPE$1 & 31ll;
 			label$42:;
 			if( (TODTYPE$1 & 480ll) == 0ll ) goto label$33;
-			TMP$102$3 = 24ll;
+			TMP$105$3 = 24ll;
 			goto label$43;
 			label$33:;
-			TMP$102$3 = TODTYPE$1 & 31ll;
+			TMP$105$3 = TODTYPE$1 & 31ll;
 			label$43:;
-			if( ((int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$101$3 * 56ll)) + 40ll) == 8ll) & (int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$102$3 * 56ll)) + 40ll) == 7ll)) == 0ll ) goto label$35;
+			if( ((int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$104$3 * 56ll)) + 40ll) == 8ll) & (int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$105$3 * 56ll)) + 40ll) == 7ll)) == 0ll ) goto label$35;
 			{
 				fb$result$1 = (int64)-((uint64)VALUE$1 <= *(uint64*)((uint8*)R$1 + 8ll));
 			}
@@ -1356,13 +1384,13 @@ void _ZN19AMBIGIOUSSIZEOFINFO13CHECKSYMCHAINEP10FBSYMCHAIN( struct $19AMBIGIOUSS
 		label$73:;
 		{
 			{
-				$12FB_SYMBCLASS TMP$107$4;
-				TMP$107$4 = *($12FB_SYMBCLASS*)SYM$2;
-				if( TMP$107$4 == 10ll ) goto label$78;
+				$12FB_SYMBCLASS TMP$110$4;
+				TMP$110$4 = *($12FB_SYMBCLASS*)SYM$2;
+				if( TMP$110$4 == 10ll ) goto label$78;
 				label$79:;
-				if( TMP$107$4 == 13ll ) goto label$78;
+				if( TMP$110$4 == 13ll ) goto label$78;
 				label$80:;
-				if( TMP$107$4 != 14ll ) goto label$77;
+				if( TMP$110$4 != 14ll ) goto label$77;
 				label$78:;
 				{
 					if( *(struct $8FBSYMBOL**)THIS$1 != (struct $8FBSYMBOL*)0ull ) goto label$82;
@@ -1374,9 +1402,9 @@ void _ZN19AMBIGIOUSSIZEOFINFO13CHECKSYMCHAINEP10FBSYMCHAIN( struct $19AMBIGIOUSS
 				}
 				goto label$76;
 				label$77:;
-				if( TMP$107$4 == 1ll ) goto label$84;
+				if( TMP$110$4 == 1ll ) goto label$84;
 				label$85:;
-				if( TMP$107$4 != 2ll ) goto label$83;
+				if( TMP$110$4 != 2ll ) goto label$83;
 				label$84:;
 				{
 					if( *(struct $8FBSYMBOL**)((uint8*)THIS$1 + 8ll) != (struct $8FBSYMBOL*)0ull ) goto label$87;
@@ -1404,8 +1432,8 @@ void _ZN19AMBIGIOUSSIZEOFINFO13CHECKSYMCHAINEP10FBSYMCHAIN( struct $19AMBIGIOUSS
 
 void _ZN19AMBIGIOUSSIZEOFINFO9MAYBEWARNEll( struct $19AMBIGIOUSSIZEOFINFO* THIS$1, int64 TK$1, int64 REFERS_TO_TYPE$1 )
 {
-	FBSTRING TMP$111$1;
-	FBSTRING TMP$112$1;
+	FBSTRING TMP$114$1;
+	FBSTRING TMP$115$1;
 	label$88:;
 	if( ((int64)-(*(struct $8FBSYMBOL**)THIS$1 == (struct $8FBSYMBOL*)0ull) | (int64)-(*(struct $8FBSYMBOL**)((uint8*)THIS$1 + 8ll) == (struct $8FBSYMBOL*)0ull)) == 0ll ) goto label$91;
 	{
@@ -1425,20 +1453,20 @@ void _ZN19AMBIGIOUSSIZEOFINFO9MAYBEWARNEll( struct $19AMBIGIOUSSIZEOFINFO* THIS$
 	if( REFERS_TO_TYPE$1 != 0ll ) goto label$95;
 	{
 		{
-			struct $8FBSYMBOL* TMP$108$3;
-			TMP$108$3 = SYM1$1;
+			struct $8FBSYMBOL* TMP$111$3;
+			TMP$111$3 = SYM1$1;
 			SYM1$1 = SYM2$1;
-			SYM2$1 = TMP$108$3;
+			SYM2$1 = TMP$111$3;
 		}
 	}
 	label$95:;
 	label$94:;
 	FBSTRING MSG$1;
 	FBSTRING* vr$20 = HGETTOKENDESCRIPTION( TK$1 );
-	__builtin_memset( &TMP$111$1, 0, 24ll );
-	FBSTRING* vr$23 = fb_StrConcat( &TMP$111$1, (void*)"Ambigious ", 11ll, (void*)vr$20, -1ll );
-	__builtin_memset( &TMP$112$1, 0, 24ll );
-	FBSTRING* vr$26 = fb_StrConcat( &TMP$112$1, (void*)vr$23, -1ll, (void*)"()", 3ll );
+	__builtin_memset( &TMP$114$1, 0, 24ll );
+	FBSTRING* vr$23 = fb_StrConcat( &TMP$114$1, (void*)"Ambigious ", 11ll, (void*)vr$20, -1ll );
+	__builtin_memset( &TMP$115$1, 0, 24ll );
+	FBSTRING* vr$26 = fb_StrConcat( &TMP$115$1, (void*)vr$23, -1ll, (void*)"()", 3ll );
 	fb_StrInit( (void*)&MSG$1, -1ll, (void*)vr$26, -1ll, 0 );
 	fb_StrConcatAssign( (void*)&MSG$1, -1ll, (void*)", referring to ", 16ll, 0 );
 	FBSTRING* vr$29 = SYMBDUMPPRETTYTOSTR( SYM1$1 );
@@ -1453,8 +1481,8 @@ void _ZN19AMBIGIOUSSIZEOFINFO9MAYBEWARNEll( struct $19AMBIGIOUSSIZEOFINFO* THIS$
 
 struct $7ASTNODE* CTYPEOREXPRESSION( int64 TK$1, int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1, int64* LGT$1, int64* IS_FIXLENSTR$1 )
 {
-	int64 TMP$115$1;
-	int64 TMP$116$1;
+	int64 TMP$118$1;
+	int64 TMP$119$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$96:;
@@ -1481,19 +1509,19 @@ struct $7ASTNODE* CTYPEOREXPRESSION( int64 TK$1, int64* DTYPE$1, struct $8FBSYMB
 	int64 vr$10 = LEXGETLOOKAHEADCLASS( 1ll, 0ll );
 	if( vr$10 != 5ll ) goto label$102;
 	int64 vr$11 = LEXGETLOOKAHEAD( 1ll, 0ll );
-	TMP$115$1 = (int64)-(vr$11 != 42ll);
+	TMP$118$1 = (int64)-(vr$11 != 42ll);
 	goto label$125;
 	label$102:;
-	TMP$115$1 = 0ll;
+	TMP$118$1 = 0ll;
 	label$125:;
-	if( TMP$115$1 == 0ll ) goto label$103;
+	if( TMP$118$1 == 0ll ) goto label$103;
 	int64 vr$13 = LEXGETLOOKAHEAD( 1ll, 0ll );
-	TMP$116$1 = (int64)-(vr$13 != 301ll);
+	TMP$119$1 = (int64)-(vr$13 != 301ll);
 	goto label$126;
 	label$103:;
-	TMP$116$1 = 0ll;
+	TMP$119$1 = 0ll;
 	label$126:;
-	if( TMP$116$1 == 0ll ) goto label$105;
+	if( TMP$119$1 == 0ll ) goto label$105;
 	{
 		MAYBE_TYPE$1 = 0ll;
 	}
@@ -1501,28 +1529,28 @@ struct $7ASTNODE* CTYPEOREXPRESSION( int64 TK$1, int64* DTYPE$1, struct $8FBSYMB
 	label$105:;
 	{
 		{
-			int64 TMP$117$3;
+			int64 TMP$120$3;
 			int64 vr$15 = LEXGETLOOKAHEAD( 1ll, 0ll );
-			TMP$117$3 = vr$15;
-			if( TMP$117$3 != 91ll ) goto label$107;
+			TMP$120$3 = vr$15;
+			if( TMP$120$3 != 91ll ) goto label$107;
 			label$108:;
 			{
 				MAYBE_TYPE$1 = 0ll;
 			}
 			goto label$106;
 			label$107:;
-			if( TMP$117$3 != 40ll ) goto label$109;
+			if( TMP$120$3 != 40ll ) goto label$109;
 			label$110:;
 			{
 				{
-					int64 TMP$118$5;
+					int64 TMP$121$5;
 					int64 vr$16 = LEXGETTOKEN( 0ll );
-					TMP$118$5 = vr$16;
-					if( TMP$118$5 == 377ll ) goto label$113;
+					TMP$121$5 = vr$16;
+					if( TMP$121$5 == 377ll ) goto label$113;
 					label$114:;
-					if( TMP$118$5 == 345ll ) goto label$113;
+					if( TMP$121$5 == 345ll ) goto label$113;
 					label$115:;
-					if( TMP$118$5 != 346ll ) goto label$112;
+					if( TMP$121$5 != 346ll ) goto label$112;
 					label$113:;
 					{
 					}
@@ -1597,12 +1625,10 @@ void CTYPEOF( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1, int64* LGT$1, int64
 	}
 	label$130:;
 	label$129:;
-	struct $7ASTNODE* vr$3 = ASTREMOVENIDXARRAY( EXPR$1 );
-	EXPR$1 = vr$3;
 	*DTYPE$1 = *(int64*)((uint8*)EXPR$1 + 8ll);
 	*SUBTYPE$1 = *(struct $8FBSYMBOL**)((uint8*)EXPR$1 + 16ll);
-	int64 vr$8 = ASTSIZEOF( EXPR$1, IS_FIXLENSTR$1 );
-	*LGT$1 = vr$8;
+	int64 vr$7 = ASTSIZEOF( EXPR$1, IS_FIXLENSTR$1 );
+	*LGT$1 = vr$7;
 	*RET_SYM$1 = *(struct $8FBSYMBOL**)((uint8*)EXPR$1 + 24ll);
 	ASTDELTREE( EXPR$1 );
 	label$128:;
@@ -1668,7 +1694,7 @@ int64 CSYMBOLTYPE( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1, int64* LGT$1, 
 {
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$189:;
+	label$194:;
 	int64 ISUNSIGNED$1;
 	int64 ISFUNCTION$1;
 	fb$result$1 = 0ll;
@@ -1681,91 +1707,91 @@ int64 CSYMBOLTYPE( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1, int64* LGT$1, 
 	int64 PTR_CNT$1;
 	PTR_CNT$1 = 0ll;
 	int64 vr$5 = LEXGETTOKEN( 0ll );
-	if( vr$5 != 377ll ) goto label$192;
+	if( vr$5 != 377ll ) goto label$197;
 	{
-		struct $8FBSYMBOL* TMP$128$2;
+		struct $8FBSYMBOL* TMP$132$2;
 		LEXSKIPTOKEN( 2048ll );
 		int64 vr$6 = HMATCH( 40ll, 0ll );
-		if( vr$6 != 0ll ) goto label$194;
+		if( vr$6 != 0ll ) goto label$199;
 		{
 			ERRREPORT( 6ll, 0ll, (char*)0ull );
 			HSKIPUNTIL( 41ll, -1ll, 0ll, 0ll );
 		}
-		label$194:;
-		label$193:;
-		TMP$128$2 = (struct $8FBSYMBOL*)0ull;
-		CTYPEOF( DTYPE$1, SUBTYPE$1, LGT$1, IS_FIXLENSTR$1, &TMP$128$2 );
+		label$199:;
+		label$198:;
+		TMP$132$2 = (struct $8FBSYMBOL*)0ull;
+		CTYPEOF( DTYPE$1, SUBTYPE$1, LGT$1, IS_FIXLENSTR$1, &TMP$132$2 );
 		int64 vr$8 = HMATCH( 41ll, 0ll );
-		if( vr$8 != 0ll ) goto label$196;
+		if( vr$8 != 0ll ) goto label$201;
 		{
 			ERRREPORT( 7ll, 0ll, (char*)0ull );
 			HSKIPUNTIL( 41ll, -1ll, 0ll, 0ll );
 		}
-		label$196:;
-		label$195:;
+		label$201:;
+		label$200:;
 	}
-	goto label$191;
-	label$192:;
+	goto label$196;
+	label$197:;
 	{
 		int64 vr$9 = LEXGETTOKEN( 0ll );
-		if( vr$9 != 335ll ) goto label$198;
+		if( vr$9 != 335ll ) goto label$203;
 		{
 			LEXSKIPTOKEN( 2048ll );
 			IS_CONST$1 = -1ll;
 		}
-		label$198:;
-		label$197:;
+		label$203:;
+		label$202:;
 		int64 vr$10 = HMATCH( 375ll, 2048ll );
 		ISUNSIGNED$1 = vr$10;
 		{
-			uint64 TMP$129$3;
+			uint64 TMP$133$3;
 			int64 vr$11 = LEXGETTOKEN( 0ll );
-			TMP$129$3 = (uint64)vr$11;
-			goto label$200;
-			label$201:;
+			TMP$133$3 = (uint64)vr$11;
+			goto label$205;
+			label$206:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 0ll;
 				CMANGLEMODIFIER( DTYPE$1, SUBTYPE$1 );
 			}
-			goto label$199;
-			label$202:;
+			goto label$204;
+			label$207:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 1ll;
 			}
-			goto label$199;
-			label$203:;
+			goto label$204;
+			label$208:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 2ll;
 				CMANGLEMODIFIER( DTYPE$1, SUBTYPE$1 );
 			}
-			goto label$199;
-			label$204:;
+			goto label$204;
+			label$209:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 3ll;
 				CMANGLEMODIFIER( DTYPE$1, SUBTYPE$1 );
 			}
-			goto label$199;
-			label$205:;
+			goto label$204;
+			label$210:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 5ll;
 			}
-			goto label$199;
-			label$206:;
+			goto label$204;
+			label$211:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 6ll;
 			}
-			goto label$199;
-			label$207:;
+			goto label$204;
+			label$212:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				int64 vr$18 = HMATCH( 301ll, 0ll );
-				if( vr$18 == 0ll ) goto label$209;
+				if( vr$18 == 0ll ) goto label$214;
 				{
 					struct $7ASTNODE* vr$19 = CGTINPARENSONLYEXPR(  );
 					int64 vr$20 = CCONSTINTEXPR( vr$19, 8ll );
@@ -1773,34 +1799,7 @@ int64 CSYMBOLTYPE( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1, int64* LGT$1, 
 					$11FB_DATATYPE vr$23 = HINTEGERTYPEFROMBITSIZE( *LGT$1, 0ll );
 					*DTYPE$1 = vr$23;
 					int64 vr$25 = HMATCH( 300ll, 0ll );
-					if( vr$25 != 0ll ) goto label$211;
-					{
-						ERRREPORT( 309ll, -1ll, (char*)0ull );
-					}
-					label$211:;
-					label$210:;
-				}
-				goto label$208;
-				label$209:;
-				{
-					*DTYPE$1 = *(int64*)((uint8*)&ENV$ + 1432ll);
-				}
-				label$208:;
-			}
-			goto label$199;
-			label$212:;
-			{
-				LEXSKIPTOKEN( 2048ll );
-				int64 vr$27 = HMATCH( 301ll, 0ll );
-				if( vr$27 == 0ll ) goto label$214;
-				{
-					struct $7ASTNODE* vr$28 = CGTINPARENSONLYEXPR(  );
-					int64 vr$29 = CCONSTINTEXPR( vr$28, 8ll );
-					*LGT$1 = vr$29;
-					$11FB_DATATYPE vr$32 = HINTEGERTYPEFROMBITSIZE( *LGT$1, -1ll );
-					*DTYPE$1 = vr$32;
-					int64 vr$34 = HMATCH( 300ll, 0ll );
-					if( vr$34 != 0ll ) goto label$216;
+					if( vr$25 != 0ll ) goto label$216;
 					{
 						ERRREPORT( 309ll, -1ll, (char*)0ull );
 					}
@@ -1810,68 +1809,95 @@ int64 CSYMBOLTYPE( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1, int64* LGT$1, 
 				goto label$213;
 				label$214:;
 				{
-					*DTYPE$1 = 9ll;
+					*DTYPE$1 = *(int64*)((uint8*)&ENV$ + 1456ll);
 				}
 				label$213:;
 			}
-			goto label$199;
+			goto label$204;
 			label$217:;
+			{
+				LEXSKIPTOKEN( 2048ll );
+				int64 vr$27 = HMATCH( 301ll, 0ll );
+				if( vr$27 == 0ll ) goto label$219;
+				{
+					struct $7ASTNODE* vr$28 = CGTINPARENSONLYEXPR(  );
+					int64 vr$29 = CCONSTINTEXPR( vr$28, 8ll );
+					*LGT$1 = vr$29;
+					$11FB_DATATYPE vr$32 = HINTEGERTYPEFROMBITSIZE( *LGT$1, -1ll );
+					*DTYPE$1 = vr$32;
+					int64 vr$34 = HMATCH( 300ll, 0ll );
+					if( vr$34 != 0ll ) goto label$221;
+					{
+						ERRREPORT( 309ll, -1ll, (char*)0ull );
+					}
+					label$221:;
+					label$220:;
+				}
+				goto label$218;
+				label$219:;
+				{
+					*DTYPE$1 = 9ll;
+				}
+				label$218:;
+			}
+			goto label$204;
+			label$222:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 11ll;
 				CMANGLEMODIFIER( DTYPE$1, SUBTYPE$1 );
 			}
-			goto label$199;
-			label$218:;
+			goto label$204;
+			label$223:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 12ll;
 				CMANGLEMODIFIER( DTYPE$1, SUBTYPE$1 );
 			}
-			goto label$199;
-			label$219:;
+			goto label$204;
+			label$224:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 13ll;
 			}
-			goto label$199;
-			label$220:;
+			goto label$204;
+			label$225:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 14ll;
 			}
-			goto label$199;
-			label$221:;
+			goto label$204;
+			label$226:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 15ll;
 			}
-			goto label$199;
-			label$222:;
+			goto label$204;
+			label$227:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 16ll;
 			}
-			goto label$199;
-			label$223:;
+			goto label$204;
+			label$228:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 17ll;
 			}
-			goto label$199;
-			label$224:;
+			goto label$204;
+			label$229:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 4ll;
 			}
-			goto label$199;
-			label$225:;
+			goto label$204;
+			label$230:;
 			{
 				LEXSKIPTOKEN( 2048ll );
 				*DTYPE$1 = 7ll;
 			}
-			goto label$199;
-			label$226:;
+			goto label$204;
+			label$231:;
 			{
 				int64 vr$45 = LEXGETTOKEN( 0ll );
 				ISFUNCTION$1 = (int64)-(vr$45 == 346ll);
@@ -1880,319 +1906,319 @@ int64 CSYMBOLTYPE( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1, int64* LGT$1, 
 				PTR_CNT$1 = PTR_CNT$1 + 1ll;
 				struct $8FBSYMBOL* vr$49 = CSYMBOLTYPEFUNCPTR( ISFUNCTION$1 );
 				*SUBTYPE$1 = vr$49;
-				if( *SUBTYPE$1 != (struct $8FBSYMBOL*)0ull ) goto label$228;
+				if( *SUBTYPE$1 != (struct $8FBSYMBOL*)0ull ) goto label$233;
 				{
-					goto label$190;
+					goto label$195;
 				}
-				label$228:;
-				label$227:;
+				label$233:;
+				label$232:;
 			}
-			goto label$199;
-			label$200:;
-			static const void* tmp$146[28ll] = {
-				&&label$226,
-				&&label$226,
-				&&label$199,
-				&&label$199,
-				&&label$199,
-				&&label$199,
-				&&label$199,
-				&&label$199,
-				&&label$199,
-				&&label$199,
-				&&label$199,
-				&&label$202,
-				&&label$203,
+			goto label$204;
+			label$205:;
+			static const void* tmp$150[28ll] = {
+				&&label$231,
+				&&label$231,
 				&&label$204,
-				&&label$205,
-				&&label$206,
+				&&label$204,
+				&&label$204,
+				&&label$204,
+				&&label$204,
+				&&label$204,
+				&&label$204,
+				&&label$204,
+				&&label$204,
 				&&label$207,
+				&&label$208,
+				&&label$209,
+				&&label$210,
+				&&label$211,
 				&&label$212,
 				&&label$217,
-				&&label$218,
-				&&label$219,
-				&&label$220,
-				&&label$221,
 				&&label$222,
 				&&label$223,
 				&&label$224,
 				&&label$225,
-				&&label$201,
+				&&label$226,
+				&&label$227,
+				&&label$228,
+				&&label$229,
+				&&label$230,
+				&&label$206,
 			};
-			if( (TMP$129$3 - 345ull) > 27ull ) goto label$199;
-			goto *tmp$146[TMP$129$3 - 345ull];
-			label$199:;
+			if( (TMP$133$3 - 345ull) > 27ull ) goto label$204;
+			goto *tmp$150[TMP$133$3 - 345ull];
+			label$204:;
 		}
-		if( *DTYPE$1 == 2147483648ll ) goto label$230;
+		if( *DTYPE$1 == 2147483648ll ) goto label$235;
 		{
 			{
-				int64 TMP$130$4;
-				TMP$130$4 = *DTYPE$1 & 511ll;
-				if( TMP$130$4 == 4ll ) goto label$233;
-				label$234:;
-				if( TMP$130$4 != 7ll ) goto label$232;
-				label$233:;
+				int64 TMP$134$4;
+				TMP$134$4 = *DTYPE$1 & 511ll;
+				if( TMP$134$4 == 4ll ) goto label$238;
+				label$239:;
+				if( TMP$134$4 != 7ll ) goto label$237;
+				label$238:;
 				{
 					*LGT$1 = 0ll;
 				}
-				goto label$231;
-				label$232:;
+				goto label$236;
+				label$237:;
 				{
-					int64 TMP$131$5;
-					if( (*DTYPE$1 & 480ll) == 0ll ) goto label$236;
-					TMP$131$5 = 24ll;
-					goto label$347;
-					label$236:;
-					TMP$131$5 = *DTYPE$1 & 31ll;
-					label$347:;
-					*LGT$1 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$131$5 * 56ll)) + 8ll);
+					int64 TMP$135$5;
+					if( (*DTYPE$1 & 480ll) == 0ll ) goto label$241;
+					TMP$135$5 = 24ll;
+					goto label$348;
+					label$241:;
+					TMP$135$5 = *DTYPE$1 & 31ll;
+					label$348:;
+					*LGT$1 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$135$5 * 56ll)) + 8ll);
 				}
-				label$235:;
-				label$231:;
+				label$240:;
+				label$236:;
 			}
 		}
-		goto label$229;
-		label$230:;
+		goto label$234;
+		label$235:;
 		{
 			struct $10FBSYMCHAIN* CHAIN_$3;
 			CHAIN_$3 = (struct $10FBSYMCHAIN*)0ull;
 			struct $8FBSYMBOL* BASE_PARENT$3;
 			int64 CHECK_ID$3;
 			CHECK_ID$3 = -1ll;
-			if( *(struct $13FB_CMPSTMTSTK**)((uint8*)&PARSER$ + 104ll) == (struct $13FB_CMPSTMTSTK*)0ull ) goto label$238;
+			if( *(struct $13FB_CMPSTMTSTK**)((uint8*)&PARSER$ + 104ll) == (struct $13FB_CMPSTMTSTK*)0ull ) goto label$243;
 			{
 				int64 vr$62 = LEXGETTOKEN( 0ll );
-				if( vr$62 != 46ll ) goto label$240;
+				if( vr$62 != 46ll ) goto label$245;
 				{
 					int64 vr$63 = LEXGETLOOKAHEAD( 1ll, 64ll );
 					CHECK_ID$3 = (int64)-(vr$63 == 46ll);
 				}
-				label$240:;
-				label$239:;
+				label$245:;
+				label$244:;
 			}
-			label$238:;
-			label$237:;
-			if( CHECK_ID$3 == 0ll ) goto label$242;
+			label$243:;
+			label$242:;
+			if( CHECK_ID$3 == 0ll ) goto label$247;
 			{
-				int64 TMP$132$4;
-				if( (OPTIONS$1 & 8ll) == 0ll ) goto label$243;
-				TMP$132$4 = 0ll;
-				goto label$348;
-				label$243:;
-				TMP$132$4 = 50ll;
-				label$348:;
-				struct $10FBSYMCHAIN* vr$67 = CIDENTIFIER( &BASE_PARENT$3, TMP$132$4 );
+				int64 TMP$136$4;
+				if( (OPTIONS$1 & 8ll) == 0ll ) goto label$248;
+				TMP$136$4 = 0ll;
+				goto label$349;
+				label$248:;
+				TMP$136$4 = 50ll;
+				label$349:;
+				struct $10FBSYMCHAIN* vr$67 = CIDENTIFIER( &BASE_PARENT$3, TMP$136$4 );
 				CHAIN_$3 = vr$67;
 			}
-			label$242:;
-			label$241:;
-			if( CHAIN_$3 == (struct $10FBSYMCHAIN*)0ull ) goto label$245;
+			label$247:;
+			label$246:;
+			if( CHAIN_$3 == (struct $10FBSYMCHAIN*)0ull ) goto label$250;
 			{
-				if( (OPTIONS$1 & 8ll) == 0ll ) goto label$247;
+				if( (OPTIONS$1 & 8ll) == 0ll ) goto label$252;
 				{
 					{
-						$12FB_SYMBCLASS TMP$133$6;
-						TMP$133$6 = *($12FB_SYMBCLASS*)*(struct $8FBSYMBOL**)CHAIN_$3;
-						if( TMP$133$6 == 2ll ) goto label$250;
-						label$251:;
-						if( TMP$133$6 == 1ll ) goto label$250;
-						label$252:;
-						if( TMP$133$6 != 12ll ) goto label$249;
-						label$250:;
+						$12FB_SYMBCLASS TMP$137$6;
+						TMP$137$6 = *($12FB_SYMBCLASS*)*(struct $8FBSYMBOL**)CHAIN_$3;
+						if( TMP$137$6 == 2ll ) goto label$255;
+						label$256:;
+						if( TMP$137$6 == 1ll ) goto label$255;
+						label$257:;
+						if( TMP$137$6 != 12ll ) goto label$254;
+						label$255:;
 						{
 							*(struct $10FBSYMCHAIN**)((uint8*)&PARSER$ + 184ll) = CHAIN_$3;
 						}
-						label$249:;
-						label$248:;
+						label$254:;
+						label$253:;
 					}
 				}
-				label$247:;
-				label$246:;
-				label$253:;
+				label$252:;
+				label$251:;
+				label$258:;
 				{
 					struct $8FBSYMBOL* SYM$5;
 					SYM$5 = *(struct $8FBSYMBOL**)CHAIN_$3;
-					label$256:;
+					label$261:;
 					{
 						{
-							$12FB_SYMBCLASS TMP$134$7;
-							TMP$134$7 = *($12FB_SYMBCLASS*)SYM$5;
-							if( TMP$134$7 != 10ll ) goto label$260;
-							label$261:;
+							$12FB_SYMBCLASS TMP$138$7;
+							TMP$138$7 = *($12FB_SYMBCLASS*)SYM$5;
+							if( TMP$138$7 != 10ll ) goto label$265;
+							label$266:;
 							{
 								LEXSKIPTOKEN( 2048ll );
 								*DTYPE$1 = 20ll;
 								*SUBTYPE$1 = SYM$5;
 								*LGT$1 = *(int64*)((uint8*)SYM$5 + 80ll);
 								CMANGLEMODIFIER( DTYPE$1, SUBTYPE$1 );
-								goto label$254;
+								goto label$259;
 							}
-							goto label$259;
-							label$260:;
-							if( TMP$134$7 != 9ll ) goto label$262;
-							label$263:;
+							goto label$264;
+							label$265:;
+							if( TMP$138$7 != 9ll ) goto label$267;
+							label$268:;
 							{
 								LEXSKIPTOKEN( 2048ll );
 								*DTYPE$1 = 10ll;
 								*SUBTYPE$1 = SYM$5;
 								*LGT$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 568ll);
-								goto label$254;
+								goto label$259;
 							}
-							goto label$259;
-							label$262:;
-							if( TMP$134$7 != 13ll ) goto label$264;
-							label$265:;
+							goto label$264;
+							label$267:;
+							if( TMP$138$7 != 13ll ) goto label$269;
+							label$270:;
 							{
 								int64 vr$80 = SYMBCHECKACCESS( SYM$5 );
-								if( vr$80 != 0ll ) goto label$267;
+								if( vr$80 != 0ll ) goto label$272;
 								{
 									ERRREPORT( 202ll, 0ll, (char*)0ull );
 								}
-								label$267:;
-								label$266:;
+								label$272:;
+								label$271:;
 								LEXSKIPTOKEN( 2048ll );
 								*DTYPE$1 = *(int64*)((uint8*)SYM$5 + 56ll);
 								*SUBTYPE$1 = *(struct $8FBSYMBOL**)((uint8*)SYM$5 + 64ll);
 								*LGT$1 = *(int64*)((uint8*)SYM$5 + 80ll);
 								*IS_FIXLENSTR$1 = (int64)-((*(int64*)((uint8*)SYM$5 + 24ll) & 2097152ll) != 0ll);
 								PTR_CNT$1 = PTR_CNT$1 + ((*DTYPE$1 & 480ll) >> (5ll & 63ll));
-								goto label$254;
+								goto label$259;
 							}
+							label$269:;
 							label$264:;
-							label$259:;
 						}
 						SYM$5 = *(struct $8FBSYMBOL**)((uint8*)SYM$5 + 280ll);
 					}
-					label$258:;
-					if( SYM$5 != (struct $8FBSYMBOL*)0ull ) goto label$256;
-					label$257:;
+					label$263:;
+					if( SYM$5 != (struct $8FBSYMBOL*)0ull ) goto label$261;
+					label$262:;
 					CHAIN_$3 = *(struct $10FBSYMCHAIN**)((uint8*)CHAIN_$3 + 8ll);
 				}
-				label$255:;
-				if( CHAIN_$3 != (struct $10FBSYMCHAIN*)0ull ) goto label$253;
-				label$254:;
-				if( (OPTIONS$1 & 8ll) == 0ll ) goto label$269;
+				label$260:;
+				if( CHAIN_$3 != (struct $10FBSYMCHAIN*)0ull ) goto label$258;
+				label$259:;
+				if( (OPTIONS$1 & 8ll) == 0ll ) goto label$274;
 				{
-					if( *DTYPE$1 == 2147483648ll ) goto label$271;
+					if( *DTYPE$1 == 2147483648ll ) goto label$276;
 					{
 						*(struct $10FBSYMCHAIN**)((uint8*)&PARSER$ + 184ll) = (struct $10FBSYMCHAIN*)0ull;
 					}
-					label$271:;
-					label$270:;
+					label$276:;
+					label$275:;
 				}
-				label$269:;
-				label$268:;
+				label$274:;
+				label$273:;
 			}
-			label$245:;
-			label$244:;
+			label$250:;
+			label$249:;
 		}
-		label$229:;
-		if( *DTYPE$1 != 2147483648ll ) goto label$273;
+		label$234:;
+		if( *DTYPE$1 != 2147483648ll ) goto label$278;
 		{
-			if( ISUNSIGNED$1 == 0ll ) goto label$275;
+			if( ISUNSIGNED$1 == 0ll ) goto label$280;
 			{
 				ERRREPORT( 17ll, 0ll, (char*)0ull );
 			}
-			label$275:;
-			label$274:;
-			if( IS_CONST$1 == 0ll ) goto label$277;
+			label$280:;
+			label$279:;
+			if( IS_CONST$1 == 0ll ) goto label$282;
 			{
 				*DTYPE$1 = 512ll;
 			}
-			label$277:;
-			label$276:;
+			label$282:;
+			label$281:;
 			fb$result$1 = 0ll;
-			goto label$190;
+			goto label$195;
 		}
-		label$273:;
-		label$272:;
-		if( ISUNSIGNED$1 == 0ll ) goto label$279;
+		label$278:;
+		label$277:;
+		if( ISUNSIGNED$1 == 0ll ) goto label$284;
 		{
 			{
-				int64 TMP$135$4;
-				uint64 TMP$136$4;
-				if( (*DTYPE$1 & 480ll) == 0ll ) goto label$280;
-				TMP$135$4 = 24ll;
-				goto label$349;
-				label$280:;
-				TMP$135$4 = *DTYPE$1 & 31ll;
-				label$349:;
-				TMP$136$4 = (uint64)TMP$135$4;
-				goto label$282;
-				label$283:;
-				{
-					if( (*DTYPE$1 & 32505856ll) == 0ll ) goto label$285;
-					{
-						*DTYPE$1 = 4194307ll;
-					}
-					goto label$284;
-					label$285:;
-					{
-						*DTYPE$1 = 3ll;
-					}
-					label$284:;
-				}
-				goto label$281;
-				label$286:;
-				{
-					*DTYPE$1 = 6ll;
-				}
-				goto label$281;
-				label$287:;
-				{
-					*DTYPE$1 = 9ll;
-				}
-				goto label$281;
+				int64 TMP$139$4;
+				uint64 TMP$140$4;
+				if( (*DTYPE$1 & 480ll) == 0ll ) goto label$285;
+				TMP$139$4 = 24ll;
+				goto label$350;
+				label$285:;
+				TMP$139$4 = *DTYPE$1 & 31ll;
+				label$350:;
+				TMP$140$4 = (uint64)TMP$139$4;
+				goto label$287;
 				label$288:;
 				{
 					if( (*DTYPE$1 & 32505856ll) == 0ll ) goto label$290;
 					{
-						*DTYPE$1 = 9437196ll;
+						*DTYPE$1 = 4194307ll;
 					}
 					goto label$289;
 					label$290:;
 					{
-						*DTYPE$1 = 12ll;
+						*DTYPE$1 = 3ll;
 					}
 					label$289:;
 				}
-				goto label$281;
+				goto label$286;
 				label$291:;
+				{
+					*DTYPE$1 = 6ll;
+				}
+				goto label$286;
+				label$292:;
+				{
+					*DTYPE$1 = 9ll;
+				}
+				goto label$286;
+				label$293:;
+				{
+					if( (*DTYPE$1 & 32505856ll) == 0ll ) goto label$295;
+					{
+						*DTYPE$1 = 9437196ll;
+					}
+					goto label$294;
+					label$295:;
+					{
+						*DTYPE$1 = 12ll;
+					}
+					label$294:;
+				}
+				goto label$286;
+				label$296:;
 				{
 					*DTYPE$1 = 14ll;
 				}
-				goto label$281;
-				label$292:;
+				goto label$286;
+				label$297:;
 				{
 					ERRREPORT( 17ll, -1ll, (char*)0ull );
 				}
-				goto label$281;
-				label$282:;
-				static const void* tmp$147[12ll] = {
-					&&label$283,
-					&&label$292,
-					&&label$292,
-					&&label$286,
-					&&label$292,
-					&&label$292,
-					&&label$287,
-					&&label$292,
-					&&label$292,
+				goto label$286;
+				label$287:;
+				static const void* tmp$151[12ll] = {
 					&&label$288,
-					&&label$292,
+					&&label$297,
+					&&label$297,
 					&&label$291,
+					&&label$297,
+					&&label$297,
+					&&label$292,
+					&&label$297,
+					&&label$297,
+					&&label$293,
+					&&label$297,
+					&&label$296,
 				};
-				if( (TMP$136$4 - 2ull) > 11ull ) goto label$292;
-				goto *tmp$147[TMP$136$4 - 2ull];
-				label$281:;
+				if( (TMP$140$4 - 2ull) > 11ull ) goto label$297;
+				goto *tmp$151[TMP$140$4 - 2ull];
+				label$286:;
 			}
 		}
-		label$279:;
-		label$278:;
+		label$284:;
+		label$283:;
 	}
-	label$191:;
+	label$196:;
 	int64 vr$116 = LEXGETTOKEN( 0ll );
-	if( vr$116 != 42ll ) goto label$294;
+	if( vr$116 != 42ll ) goto label$299;
 	{
 		LEXSKIPTOKEN( 0ll );
 		struct $7ASTNODE* vr$117 = CEQINPARENSONLYEXPR(  );
@@ -2200,288 +2226,275 @@ int64 CSYMBOLTYPE( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1, int64* LGT$1, 
 		*LGT$1 = vr$118;
 		*IS_FIXLENSTR$1 = -1ll;
 		{
-			int64 TMP$137$3;
-			uint64 TMP$138$3;
-			if( (*DTYPE$1 & 480ll) == 0ll ) goto label$295;
-			TMP$137$3 = 24ll;
-			goto label$350;
-			label$295:;
-			TMP$137$3 = *DTYPE$1 & 31ll;
-			label$350:;
-			TMP$138$3 = (uint64)TMP$137$3;
-			goto label$297;
-			label$298:;
+			int64 TMP$141$3;
+			uint64 TMP$142$3;
+			if( (*DTYPE$1 & 480ll) == 0ll ) goto label$300;
+			TMP$141$3 = 24ll;
+			goto label$351;
+			label$300:;
+			TMP$141$3 = *DTYPE$1 & 31ll;
+			label$351:;
+			TMP$142$3 = (uint64)TMP$141$3;
+			goto label$302;
+			label$303:;
 			{
-				*LGT$1 = *(int64*)LGT$1 + 1ll;
-				if( *(int64*)LGT$1 > 1ll ) goto label$300;
-				{
-					ERRREPORT( 17ll, -1ll, (char*)0ull );
-					*LGT$1 = 2ll;
-				}
-				label$300:;
-				label$299:;
+				HCHECKFIXEDSTRINGSIZE( LGT$1 );
 				*DTYPE$1 = 18ll;
 			}
-			goto label$296;
-			label$301:;
+			goto label$301;
+			label$304:;
 			{
-				int64 TMP$139$4;
-				if( *(int64*)LGT$1 >= 1ll ) goto label$303;
-				{
-					ERRREPORT( 17ll, -1ll, (char*)0ull );
-					*LGT$1 = 1ll;
-				}
-				label$303:;
-				label$302:;
-				if( (*DTYPE$1 & 480ll) == 0ll ) goto label$304;
-				TMP$139$4 = 24ll;
-				goto label$351;
-				label$304:;
-				TMP$139$4 = *DTYPE$1 & 31ll;
-				label$351:;
-				if( TMP$139$4 != 7ll ) goto label$306;
+				int64 TMP$143$4;
+				HCHECKFIXEDSTRINGSIZE( LGT$1 );
+				if( (*DTYPE$1 & 480ll) == 0ll ) goto label$305;
+				TMP$143$4 = 24ll;
+				goto label$352;
+				label$305:;
+				TMP$143$4 = *DTYPE$1 & 31ll;
+				label$352:;
+				if( TMP$143$4 != 7ll ) goto label$307;
 				{
 					*LGT$1 = *(int64*)LGT$1 * *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 400ll);
 				}
+				label$307:;
 				label$306:;
-				label$305:;
 			}
-			goto label$296;
-			label$307:;
+			goto label$301;
+			label$308:;
 			{
 				ERRREPORT( 17ll, -1ll, (char*)0ull );
 			}
-			goto label$296;
-			label$297:;
-			static const void* tmp$148[14ll] = {
-				&&label$301,
-				&&label$307,
-				&&label$307,
-				&&label$301,
-				&&label$307,
-				&&label$307,
-				&&label$307,
-				&&label$307,
-				&&label$307,
-				&&label$307,
-				&&label$307,
-				&&label$307,
-				&&label$307,
-				&&label$298,
+			goto label$301;
+			label$302:;
+			static const void* tmp$152[14ll] = {
+				&&label$304,
+				&&label$308,
+				&&label$308,
+				&&label$304,
+				&&label$308,
+				&&label$308,
+				&&label$308,
+				&&label$308,
+				&&label$308,
+				&&label$308,
+				&&label$308,
+				&&label$308,
+				&&label$308,
+				&&label$303,
 			};
-			if( (TMP$138$3 - 4ull) > 13ull ) goto label$307;
-			goto *tmp$148[TMP$138$3 - 4ull];
-			label$296:;
+			if( (TMP$142$3 - 4ull) > 13ull ) goto label$308;
+			goto *tmp$152[TMP$142$3 - 4ull];
+			label$301:;
 		}
-		if( (OPTIONS$1 & 4ll) == 0ll ) goto label$309;
+		if( (OPTIONS$1 & 4ll) == 0ll ) goto label$310;
 		{
 			ERRREPORT( 324ll, -1ll, (char*)0ull );
 		}
-		label$309:;
-		label$308:;
-		if( IS_CONST$1 == 0ll ) goto label$311;
-		{
-			*DTYPE$1 = *DTYPE$1 | 512ll;
-		}
-		label$311:;
 		label$310:;
-	}
-	goto label$293;
-	label$294:;
-	{
-		if( IS_CONST$1 == 0ll ) goto label$313;
+		label$309:;
+		if( IS_CONST$1 == 0ll ) goto label$312;
 		{
 			*DTYPE$1 = *DTYPE$1 | 512ll;
 		}
-		label$313:;
 		label$312:;
+		label$311:;
+	}
+	goto label$298;
+	label$299:;
+	{
+		if( IS_CONST$1 == 0ll ) goto label$314;
+		{
+			*DTYPE$1 = *DTYPE$1 | 512ll;
+		}
 		label$314:;
+		label$313:;
+		label$315:;
 		{
 			{
-				uint64 TMP$140$4;
-				int64 vr$147 = LEXGETTOKEN( 0ll );
-				TMP$140$4 = (uint64)vr$147;
-				goto label$318;
-				label$319:;
+				uint64 TMP$144$4;
+				int64 vr$140 = LEXGETTOKEN( 0ll );
+				TMP$144$4 = (uint64)vr$140;
+				goto label$319;
+				label$320:;
 				{
 					LEXSKIPTOKEN( 2048ll );
 					{
-						int64 TMP$141$6;
-						int64 vr$148 = LEXGETTOKEN( 0ll );
-						TMP$141$6 = vr$148;
-						if( TMP$141$6 == 373ll ) goto label$322;
+						int64 TMP$145$6;
+						int64 vr$141 = LEXGETTOKEN( 0ll );
+						TMP$145$6 = vr$141;
+						if( TMP$145$6 == 373ll ) goto label$323;
+						label$324:;
+						if( TMP$145$6 != 374ll ) goto label$322;
 						label$323:;
-						if( TMP$141$6 != 374ll ) goto label$321;
-						label$322:;
 						{
-							if( PTR_CNT$1 < 8ll ) goto label$325;
+							if( PTR_CNT$1 < 8ll ) goto label$326;
 							{
 								ERRREPORT( 274ll, 0ll, (char*)0ull );
 							}
-							goto label$324;
-							label$325:;
+							goto label$325;
+							label$326:;
 							{
 								*DTYPE$1 = ((((*DTYPE$1 & 31ll) | ((*DTYPE$1 & 480ll) + 32ll)) | ((*DTYPE$1 & 261632ll) << (1ll & 63ll))) | (*DTYPE$1 & 32505856ll)) | 512ll;
 								PTR_CNT$1 = PTR_CNT$1 + 1ll;
 							}
-							label$324:;
+							label$325:;
 							LEXSKIPTOKEN( 2048ll );
 						}
-						goto label$320;
-						label$321:;
+						goto label$321;
+						label$322:;
 						{
 							ERRREPORT( 273ll, 0ll, (char*)0ull );
-							goto label$315;
+							goto label$316;
 						}
-						label$326:;
-						label$320:;
+						label$327:;
+						label$321:;
 					}
 				}
-				goto label$317;
-				label$327:;
+				goto label$318;
+				label$328:;
 				{
-					if( PTR_CNT$1 < 8ll ) goto label$329;
+					if( PTR_CNT$1 < 8ll ) goto label$330;
 					{
 						ERRREPORT( 274ll, 0ll, (char*)0ull );
 					}
-					goto label$328;
-					label$329:;
+					goto label$329;
+					label$330:;
 					{
 						*DTYPE$1 = (((*DTYPE$1 & 31ll) | ((*DTYPE$1 & 480ll) + 32ll)) | ((*DTYPE$1 & 261632ll) << (1ll & 63ll))) | (*DTYPE$1 & 32505856ll);
 						PTR_CNT$1 = PTR_CNT$1 + 1ll;
 					}
-					label$328:;
+					label$329:;
 					LEXSKIPTOKEN( 2048ll );
 				}
-				goto label$317;
-				label$330:;
+				goto label$318;
+				label$331:;
 				{
-					goto label$315;
+					goto label$316;
 				}
-				goto label$317;
-				label$318:;
-				static const void* tmp$149[40ll] = {
-					&&label$319,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$330,
-					&&label$327,
-					&&label$327,
+				goto label$318;
+				label$319:;
+				static const void* tmp$153[40ll] = {
+					&&label$320,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$331,
+					&&label$328,
+					&&label$328,
 				};
-				if( (TMP$140$4 - 335ull) > 39ull ) goto label$330;
-				goto *tmp$149[TMP$140$4 - 335ull];
-				label$317:;
+				if( (TMP$144$4 - 335ull) > 39ull ) goto label$331;
+				goto *tmp$153[TMP$144$4 - 335ull];
+				label$318:;
 			}
 		}
+		label$317:;
+		goto label$315;
 		label$316:;
-		goto label$314;
-		label$315:;
 	}
-	label$293:;
-	if( PTR_CNT$1 <= 0ll ) goto label$332;
+	label$298:;
+	if( PTR_CNT$1 <= 0ll ) goto label$333;
 	{
-		int64 TMP$142$2;
-		if( (*DTYPE$1 & 480ll) == 0ll ) goto label$333;
-		TMP$142$2 = 24ll;
-		goto label$352;
-		label$333:;
-		TMP$142$2 = *DTYPE$1 & 31ll;
-		label$352:;
-		*LGT$1 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$142$2 * 56ll)) + 8ll);
-	}
-	goto label$331;
-	label$332:;
-	{
-		int64 TMP$143$2;
+		int64 TMP$146$2;
 		if( (*DTYPE$1 & 480ll) == 0ll ) goto label$334;
-		TMP$143$2 = 24ll;
+		TMP$146$2 = 24ll;
 		goto label$353;
 		label$334:;
-		TMP$143$2 = *DTYPE$1 & 31ll;
+		TMP$146$2 = *DTYPE$1 & 31ll;
 		label$353:;
-		if( TMP$143$2 != 23ll ) goto label$336;
+		*LGT$1 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$146$2 * 56ll)) + 8ll);
+	}
+	goto label$332;
+	label$333:;
+	{
+		int64 TMP$147$2;
+		if( (*DTYPE$1 & 480ll) == 0ll ) goto label$335;
+		TMP$147$2 = 24ll;
+		goto label$354;
+		label$335:;
+		TMP$147$2 = *DTYPE$1 & 31ll;
+		label$354:;
+		if( TMP$147$2 != 23ll ) goto label$337;
 		{
-			if( (OPTIONS$1 & 2ll) != 0ll ) goto label$338;
+			if( (OPTIONS$1 & 2ll) != 0ll ) goto label$339;
 			{
 				ERRREPORT( 71ll, -1ll, (char*)0ull );
 				*DTYPE$1 = 32ll;
 				*SUBTYPE$1 = (struct $8FBSYMBOL*)0ull;
 			}
+			label$339:;
 			label$338:;
-			label$337:;
 		}
-		goto label$335;
-		label$336:;
-		if( *(int64*)LGT$1 > 0ll ) goto label$339;
+		goto label$336;
+		label$337:;
+		if( *(int64*)LGT$1 > 0ll ) goto label$340;
 		{
 			{
-				int64 TMP$144$4;
-				TMP$144$4 = *DTYPE$1 & 511ll;
-				if( TMP$144$4 == 4ll ) goto label$342;
+				int64 TMP$148$4;
+				TMP$148$4 = *DTYPE$1 & 511ll;
+				if( TMP$148$4 == 4ll ) goto label$343;
+				label$344:;
+				if( TMP$148$4 != 7ll ) goto label$342;
 				label$343:;
-				if( TMP$144$4 != 7ll ) goto label$341;
-				label$342:;
 				{
-					int64 TMP$145$5;
-					if( (OPTIONS$1 & 1ll) == 0ll ) goto label$345;
+					int64 TMP$149$5;
+					if( (OPTIONS$1 & 1ll) == 0ll ) goto label$346;
 					{
 						ERRREPORT( 28ll, 0ll, (char*)0ull );
 						*DTYPE$1 = (((*DTYPE$1 & 31ll) | ((*DTYPE$1 & 480ll) + 32ll)) | ((*DTYPE$1 & 261632ll) << (1ll & 63ll))) | (*DTYPE$1 & 32505856ll);
 					}
-					label$345:;
-					label$344:;
-					if( (*DTYPE$1 & 480ll) == 0ll ) goto label$346;
-					TMP$145$5 = 24ll;
-					goto label$354;
 					label$346:;
-					TMP$145$5 = *DTYPE$1 & 31ll;
-					label$354:;
-					*LGT$1 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$145$5 * 56ll)) + 8ll);
+					label$345:;
+					if( (*DTYPE$1 & 480ll) == 0ll ) goto label$347;
+					TMP$149$5 = 24ll;
+					goto label$355;
+					label$347:;
+					TMP$149$5 = *DTYPE$1 & 31ll;
+					label$355:;
+					*LGT$1 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$149$5 * 56ll)) + 8ll);
 				}
+				label$342:;
 				label$341:;
-				label$340:;
 			}
 		}
-		label$339:;
-		label$335:;
+		label$340:;
+		label$336:;
 	}
-	label$331:;
+	label$332:;
 	fb$result$1 = -1ll;
-	label$190:;
+	label$195:;
 	return fb$result$1;
 }
 
@@ -2496,7 +2509,7 @@ static void _ZN11TSTRSETITEMaSERKS_( struct $11TSTRSETITEM* THIS$1, struct $11TS
 
 static struct $8FBSYMBOL* CSYMBOLTYPEFUNCPTR( int64 IS_FUNC$1 )
 {
-	int64 TMP$103$1;
+	int64 TMP$106$1;
 	struct $8FBSYMBOL* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$52:;
@@ -2510,8 +2523,8 @@ static struct $8FBSYMBOL* CSYMBOLTYPEFUNCPTR( int64 IS_FUNC$1 )
 	ATTRIB$1 = 0ll;
 	PATTRIB$1 = 0ll;
 	SUBTYPE$1 = (struct $8FBSYMBOL*)0ull;
-	TMP$103$1 = 0ll;
-	$11FB_FUNCMODE vr$2 = CPROCCALLINGCONV( -1ll, &TMP$103$1 );
+	TMP$106$1 = 0ll;
+	$11FB_FUNCMODE vr$2 = CPROCCALLINGCONV( -1ll, &TMP$106$1 );
 	MODE$1 = vr$2;
 	struct $8FBSYMBOL* vr$3 = SYMBPREADDPROC( (char*)0ull );
 	PROC$1 = vr$3;
@@ -2599,22 +2612,22 @@ static int64 CMANGLEMODIFIER( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1 )
 		if( vr$2 != 4ll ) goto label$150;
 		{
 			{
-				FBSTRING TMP$119$4;
+				FBSTRING TMP$122$4;
 				char* vr$3 = LEXGETTEXT(  );
 				FBSTRING* vr$4 = fb_StrAllocTempDescZ( (char*)vr$3 );
 				FBSTRING* vr$5 = fb_StrLcase2( (FBSTRING*)vr$4, 0 );
-				fb_StrInit( (void*)&TMP$119$4, -1ll, (void*)vr$5, -1ll, 0 );
-				int32 vr$8 = fb_StrCompare( (void*)&TMP$119$4, -1ll, (void*)"long", 5ll );
+				fb_StrInit( (void*)&TMP$122$4, -1ll, (void*)vr$5, -1ll, 0 );
+				int32 vr$8 = fb_StrCompare( (void*)&TMP$122$4, -1ll, (void*)"long", 5ll );
 				if( (int64)vr$8 != 0ll ) goto label$152;
 				label$153:;
 				{
 					int64 vr$10 = FBIS64BIT(  );
-					if( (vr$10 & (int64)-((*(int64*)((uint8*)&ENV$ + 568ll) & 1ll) == 0ll)) == 0ll ) goto label$155;
+					if( (vr$10 & (int64)-((*(int64*)((uint8*)&ENV$ + 592ll) & 1ll) == 0ll)) == 0ll ) goto label$155;
 					{
 						{
-							int64 TMP$121$7;
-							TMP$121$7 = *DTYPE$1;
-							if( TMP$121$7 != 11ll ) goto label$157;
+							int64 TMP$124$7;
+							TMP$124$7 = *DTYPE$1;
+							if( TMP$124$7 != 11ll ) goto label$157;
 							label$158:;
 							{
 								*DTYPE$1 = (*DTYPE$1 & -32505857ll) | 8388608ll;
@@ -2622,7 +2635,7 @@ static int64 CMANGLEMODIFIER( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1 )
 							}
 							goto label$156;
 							label$157:;
-							if( TMP$121$7 != 12ll ) goto label$159;
+							if( TMP$124$7 != 12ll ) goto label$159;
 							label$160:;
 							{
 								*DTYPE$1 = (*DTYPE$1 & -32505857ll) | 9437184ll;
@@ -2641,15 +2654,15 @@ static int64 CMANGLEMODIFIER( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1 )
 					label$155:;
 					{
 						{
-							int64 TMP$122$7;
-							TMP$122$7 = *DTYPE$1;
-							if( TMP$122$7 != 11ll ) goto label$163;
+							int64 TMP$125$7;
+							TMP$125$7 = *DTYPE$1;
+							if( TMP$125$7 != 11ll ) goto label$163;
 							label$164:;
 							{
 							}
 							goto label$162;
 							label$163:;
-							if( TMP$122$7 != 12ll ) goto label$165;
+							if( TMP$125$7 != 12ll ) goto label$165;
 							label$166:;
 							{
 							}
@@ -2666,23 +2679,23 @@ static int64 CMANGLEMODIFIER( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1 )
 				}
 				goto label$151;
 				label$152:;
-				int32 vr$25 = fb_StrCompare( (void*)&TMP$119$4, -1ll, (void*)"char", 5ll );
+				int32 vr$25 = fb_StrCompare( (void*)&TMP$122$4, -1ll, (void*)"char", 5ll );
 				if( (int64)vr$25 != 0ll ) goto label$168;
 				label$169:;
 				{
 					{
-						int64 TMP$124$6;
-						TMP$124$6 = *DTYPE$1;
-						if( TMP$124$6 != 0ll ) goto label$171;
+						int64 TMP$127$6;
+						TMP$127$6 = *DTYPE$1;
+						if( TMP$127$6 != 0ll ) goto label$171;
 						label$172:;
 						{
 							*DTYPE$1 = (*DTYPE$1 & -32505857ll) | 4194304ll;
 						}
 						goto label$170;
 						label$171:;
-						if( TMP$124$6 == 2ll ) goto label$174;
+						if( TMP$127$6 == 2ll ) goto label$174;
 						label$175:;
-						if( TMP$124$6 != 3ll ) goto label$173;
+						if( TMP$127$6 != 3ll ) goto label$173;
 						label$174:;
 						{
 							*DTYPE$1 = (*DTYPE$1 & -32505857ll) | 4194304ll;
@@ -2698,29 +2711,29 @@ static int64 CMANGLEMODIFIER( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1 )
 				}
 				goto label$151;
 				label$168:;
-				int32 vr$37 = fb_StrCompare( (void*)&TMP$119$4, -1ll, (void*)"__builtin_va_list", 18ll );
+				int32 vr$37 = fb_StrCompare( (void*)&TMP$122$4, -1ll, (void*)"__builtin_va_list", 18ll );
 				if( (int64)vr$37 == 0ll ) goto label$178;
 				label$179:;
-				int32 vr$40 = fb_StrCompare( (void*)&TMP$119$4, -1ll, (void*)"__builtin_va_list[]", 20ll );
+				int32 vr$40 = fb_StrCompare( (void*)&TMP$122$4, -1ll, (void*)"__builtin_va_list[]", 20ll );
 				if( (int64)vr$40 != 0ll ) goto label$177;
 				label$178:;
 				{
 					{
-						int64 TMP$127$6;
-						TMP$127$6 = *DTYPE$1;
-						if( TMP$127$6 != 0ll ) goto label$181;
+						int64 TMP$130$6;
+						TMP$130$6 = *DTYPE$1;
+						if( TMP$130$6 != 0ll ) goto label$181;
 						label$182:;
 						{
 							*DTYPE$1 = (*DTYPE$1 & -32505857ll) | 19922944ll;
 						}
 						goto label$180;
 						label$181:;
-						if( TMP$127$6 != 20ll ) goto label$183;
+						if( TMP$130$6 != 20ll ) goto label$183;
 						label$184:;
 						{
 							*DTYPE$1 = (*DTYPE$1 & -32505857ll) | 19922944ll;
 							$19FB_CVA_LIST_TYPEDEF vr$54 = FBGETBACKENDVALISTTYPE(  );
-							*(int32*)((uint8*)*SUBTYPE$1 + 208ll) = (int32)((int64)*(int32*)((uint8*)*SUBTYPE$1 + 208ll) | ((vr$54 << (20ll & 63ll)) & 15728640ll));
+							*(int32*)((uint8*)*SUBTYPE$1 + 208ll) = (int32)((int64)*(int32*)((uint8*)*SUBTYPE$1 + 208ll) | ((vr$54 << (24ll & 63ll)) & 251658240ll));
 						}
 						goto label$180;
 						label$183:;
@@ -2733,7 +2746,7 @@ static int64 CMANGLEMODIFIER( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1 )
 				}
 				goto label$151;
 				label$177:;
-				int32 vr$62 = fb_StrCompare( (void*)&TMP$119$4, -1ll, (void*)"", 1ll );
+				int32 vr$62 = fb_StrCompare( (void*)&TMP$122$4, -1ll, (void*)"", 1ll );
 				if( (int64)vr$62 != 0ll ) goto label$186;
 				label$187:;
 				{
@@ -2746,7 +2759,7 @@ static int64 CMANGLEMODIFIER( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1 )
 				}
 				label$188:;
 				label$151:;
-				fb_StrDelete( (FBSTRING*)&TMP$119$4 );
+				fb_StrDelete( (FBSTRING*)&TMP$122$4 );
 			}
 			LEXSKIPTOKEN( 0ll );
 		}
@@ -2761,4 +2774,24 @@ static int64 CMANGLEMODIFIER( int64* DTYPE$1, struct $8FBSYMBOL** SUBTYPE$1 )
 	label$147:;
 	label$146:;
 	return fb$result$1;
+}
+
+static void HCHECKFIXEDSTRINGSIZE( int64* LGT$1 )
+{
+	int64 TMP$131$1;
+	label$189:;
+	if( *(int64*)LGT$1 < 1ll ) goto label$191;
+	TMP$131$1 = (int64)-(*(int64*)LGT$1 > 2147483647ll);
+	goto label$356;
+	label$191:;
+	TMP$131$1 = -1ll;
+	label$356:;
+	if( TMP$131$1 == 0ll ) goto label$193;
+	{
+		ERRREPORT( 310ll, -1ll, (char*)0ull );
+		*LGT$1 = 1ll;
+	}
+	label$193:;
+	label$192:;
+	label$190:;
 }

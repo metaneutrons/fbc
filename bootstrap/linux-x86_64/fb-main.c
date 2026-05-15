@@ -28,6 +28,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -56,8 +66,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -121,10 +133,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -194,7 +207,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -262,6 +275,16 @@ struct $7FBS_VAR {
 	int64 BITS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7FBS_VAR ) == 104 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -368,9 +391,9 @@ struct $8FBS_ENUM {
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $11FB_FUNCMODE;
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -500,9 +523,9 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
-typedef FBSTRING* (*tmp$29)( void*, int64* );
-typedef uint32* (*tmp$30)( void*, int64* );
+typedef FBSTRING* (*tmp$29)( void );
+typedef FBSTRING* (*tmp$30)( void*, int64* );
+typedef uint32* (*tmp$31)( void*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -514,11 +537,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -593,7 +616,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -619,6 +642,7 @@ struct $11TSTRSETITEM {
 	struct $8HASHITEM* HASHITEM;
 };
 __FB_STATIC_ASSERT( sizeof( struct $11TSTRSETITEM ) == 40 );
+typedef int64 $10FB_BACKEND;
 FBSTRING* fb_StrInit( void*, int64, void*, int64, int32 );
 FBSTRING* fb_StrAssign( void*, int64, void*, int64, int32 );
 void fb_StrDelete( FBSTRING* );
@@ -633,7 +657,7 @@ struct $7ASTNODE* ASTNEWASSIGN( struct $7ASTNODE*, struct $7ASTNODE*, $9AST_OPOP
 struct $7ASTNODE* ASTNEWBOP( int64, struct $7ASTNODE*, struct $7ASTNODE*, struct $8FBSYMBOL*, $9AST_OPOPT );
 struct $7ASTNODE* ASTNEWCONSTI( int64, int64, struct $8FBSYMBOL* );
 struct $7ASTNODE* ASTNEWVAR( struct $8FBSYMBOL*, int64, int64, struct $8FBSYMBOL* );
-struct $7ASTNODE* ASTNEWCALL( struct $8FBSYMBOL*, struct $7ASTNODE* );
+struct $7ASTNODE* ASTNEWCALL( struct $8FBSYMBOL*, struct $7ASTNODE*, int64 );
 struct $7ASTNODE* ASTNEWARG( struct $7ASTNODE*, struct $7ASTNODE*, int64, int64 );
 struct $7ASTNODE* ASTNEWLABEL( struct $8FBSYMBOL*, int64 );
 void ASTSETTYPE( struct $7ASTNODE*, int64, struct $8FBSYMBOL* );
@@ -651,7 +675,7 @@ struct $20FB_GLOBCTORLIST_ITEM {
 };
 __FB_STATIC_ASSERT( sizeof( struct $20FB_GLOBCTORLIST_ITEM ) == 16 );
 struct $20FB_GLOBCTORLIST_ITEM* SYMBADDGLOBALCTOR( struct $8FBSYMBOL* );
-int64 RTLDATARESTORE( struct $8FBSYMBOL*, struct $7ASTNODE* );
+int64 RTLDATARESTORE( struct $8FBSYMBOL*, struct $7ASTNODE*, int64 );
 static void HCALLMAIN( void );
 static void HBUILDDLLMAINWIN32( void );
 static void HBUILDDLLMAINCTOR( void );
@@ -729,7 +753,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 typedef int64 $12FB_DATACLASS;
 struct $13SYMB_DATATYPE {
 	$12FB_DATACLASS CLASS;
@@ -751,7 +775,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -762,9 +786,8 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
-typedef int64 $10FB_BACKEND;
 typedef int64 $13FB_COMPTARGET;
 typedef int64 $10FB_CPUTYPE;
 typedef int64 $10FB_FPUTYPE;
@@ -795,6 +818,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -818,8 +842,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -862,11 +888,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 typedef int64 $16FB_RESTART_FLAGS;
 struct $7TSTRSET {
 	struct $5TLIST LIST;
@@ -904,59 +931,59 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
 
 void FBMAINBEGIN( void )
 {
-	label$24:;
-	if( *(int64*)((uint8*)&ENV$ + 1176ll) == 0ll ) goto label$27;
+	label$26:;
+	if( *(int64*)((uint8*)&ENV$ + 1200ll) == 0ll ) goto label$29;
 	{
 		HMAINBEGIN(  );
 	}
-	goto label$26;
-	label$27:;
+	goto label$28;
+	label$29:;
 	{
 		HMODLEVELBEGIN(  );
 	}
-	label$26:;
-	if( (*(int64*)((uint8*)&ENV$ + 1176ll) & (int64)-(*(int64*)((uint8*)&ENV$ + 192ll) == 2ll)) == 0ll ) goto label$29;
+	label$28:;
+	if( (*(int64*)((uint8*)&ENV$ + 1200ll) & (int64)-(*(int64*)((uint8*)&ENV$ + 192ll) == 2ll)) == 0ll ) goto label$31;
 	{
-		if( *(int64*)((uint8*)&ENV$ + 216ll) != 0ll ) goto label$31;
+		if( *(int64*)((uint8*)&ENV$ + 216ll) != 0ll ) goto label$33;
 		{
 			HBUILDDLLMAINWIN32(  );
 		}
-		goto label$30;
-		label$31:;
+		goto label$32;
+		label$33:;
 		{
 			HBUILDDLLMAINCTOR(  );
 		}
-		label$30:;
+		label$32:;
 	}
-	label$29:;
-	label$28:;
-	label$25:;
+	label$31:;
+	label$30:;
+	label$27:;
 }
 
 void FBMAINEND( void )
 {
-	label$32:;
+	label$34:;
 	int64 CALLRTEXIT$1;
 	CALLRTEXIT$1 = 0ll;
-	if( *(int64*)((uint8*)&ENV$ + 1176ll) == 0ll ) goto label$35;
+	if( *(int64*)((uint8*)&ENV$ + 1200ll) == 0ll ) goto label$37;
 	{
-		if( *(struct $8FBSYMBOL**)((uint8*)&AST$ + 248ll) == (struct $8FBSYMBOL*)0ull ) goto label$37;
+		if( *(struct $8FBSYMBOL**)((uint8*)&AST$ + 248ll) == (struct $8FBSYMBOL*)0ull ) goto label$39;
 		{
-			RTLDATARESTORE( (struct $8FBSYMBOL*)0ull, *(struct $7ASTNODE**)((uint8*)&ENV$ + 1416ll) );
+			RTLDATARESTORE( (struct $8FBSYMBOL*)0ull, *(struct $7ASTNODE**)((uint8*)&ENV$ + 1440ll), 0ll );
 		}
-		label$37:;
-		label$36:;
+		label$39:;
+		label$38:;
 		CALLRTEXIT$1 = (int64)-(*(int64*)((uint8*)&ENV$ + 192ll) != 2ll);
 	}
-	label$35:;
-	label$34:;
+	label$37:;
+	label$36:;
 	ASTPROCEND( CALLRTEXIT$1 );
-	label$33:;
+	label$35:;
 }
 
 static void _ZN11TSTRSETITEMaSERKS_( struct $11TSTRSETITEM* THIS$1, struct $11TSTRSETITEM* __FB_RHS__$1 )
@@ -972,7 +999,7 @@ static void HCALLMAIN( void )
 {
 	label$10:;
 	struct $7ASTNODE* MAIN$1;
-	struct $7ASTNODE* vr$0 = ASTNEWCALL( *(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll), (struct $7ASTNODE*)0ull );
+	struct $7ASTNODE* vr$0 = ASTNEWCALL( *(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll), (struct $7ASTNODE*)0ull, -1ll );
 	MAIN$1 = vr$0;
 	struct $7ASTNODE* vr$1 = ASTNEWCONSTI( 0ll, 8ll, (struct $8FBSYMBOL*)0ull );
 	ASTNEWARG( MAIN$1, vr$1, 2147483648ll, -1ll );
@@ -995,7 +1022,7 @@ static void HBUILDDLLMAINWIN32( void )
 	struct $8FBSYMBOL* vr$1 = SYMBADDPROCPARAM( PROC$1, (char*)"__FB_DLLREASON__", 9ll, (struct $8FBSYMBOL*)0ull, 0ll, 1ll, 0ll, 0ll );
 	PARAM$1 = vr$1;
 	SYMBADDPROCPARAM( PROC$1, (char*)"__FB_DLLRESERVED__", 32ll, (struct $8FBSYMBOL*)0ull, 0ll, 1ll, 0ll, 0ll );
-	struct $8FBSYMBOL* vr$2 = SYMBADDPROC( PROC$1, (char*)0ull, (char*)"DllMain", 8ll, (struct $8FBSYMBOL*)0ull, 32ll, 0ll, *(int64*)((uint8*)&ENV$ + 560ll), 4ll );
+	struct $8FBSYMBOL* vr$2 = SYMBADDPROC( PROC$1, (char*)0ull, (char*)"DllMain", 8ll, (struct $8FBSYMBOL*)0ull, 32ll, 0ll, *(int64*)((uint8*)&ENV$ + 584ll), 4ll );
 	PROC$1 = vr$2;
 	ASTPROCBEGIN( PROC$1, 0ll );
 	struct $7ASTNODE* vr$5 = ASTNEWCONSTI( 1ll, *(int64*)((uint8*)PROC$1 + 56ll) & 511ll, (struct $8FBSYMBOL*)0ull );
@@ -1049,13 +1076,20 @@ static void HMAINBEGIN( void )
 	if( *(int64*)((uint8*)&ENV$ + 192ll) != 2ll ) goto label$19;
 	{
 		ATTRIB$1 = 64ll;
-		if( *(int64*)((uint8*)&ENV$ + 208ll) != 1ll ) goto label$21;
 		{
-			char* vr$4 = SYMBUNIQUEID( (boolean)0ll );
-			fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$4, 0ll, 0 );
+			$10FB_BACKEND TMP$94$3;
+			TMP$94$3 = *($10FB_BACKEND*)((uint8*)&ENV$ + 208ll);
+			if( TMP$94$3 == 1ll ) goto label$22;
+			label$23:;
+			if( TMP$94$3 != 2ll ) goto label$21;
+			label$22:;
+			{
+				char* vr$4 = SYMBUNIQUEID( (boolean)0ll );
+				fb_StrAssign( (void*)&ID$1, -1ll, (void*)vr$4, 0ll, 0 );
+			}
+			label$21:;
+			label$20:;
 		}
-		label$21:;
-		label$20:;
 	}
 	goto label$18;
 	label$19:;
@@ -1064,27 +1098,27 @@ static void HMAINBEGIN( void )
 	}
 	label$18:;
 	struct $8FBSYMBOL* vr$9 = SYMBADDPROC( PROC$1, (char*)0ull, (char*)*(char**)&ID$1, 11ll, (struct $8FBSYMBOL*)0ull, ATTRIB$1, 0ll, 3ll, 4ll );
-	*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll) = vr$9;
-	*($12FB_SYMBSTATS*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll) + 24ll) = *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll) + 24ll) | 4096ll;
-	ASTPROCBEGIN( *(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll), -1ll );
+	*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll) = vr$9;
+	*($12FB_SYMBSTATS*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll) + 24ll) = *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll) + 24ll) | 4096ll;
+	ASTPROCBEGIN( *(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll), -1ll );
 	fb_StrDelete( (FBSTRING*)&ID$1 );
 	label$17:;
 }
 
 static void HMODLEVELBEGIN( void )
 {
-	FBSTRING TMP$92$1;
-	label$22:;
-	__builtin_memset( &TMP$92$1, 0, 24ll );
+	FBSTRING TMP$96$1;
+	label$24:;
+	__builtin_memset( &TMP$96$1, 0, 24ll );
 	FBSTRING* vr$1 = FBGETMODULEENTRY(  );
-	fb_StrAssign( (void*)&TMP$92$1, -1ll, (void*)vr$1, -1ll, 0 );
+	fb_StrAssign( (void*)&TMP$96$1, -1ll, (void*)vr$1, -1ll, 0 );
 	struct $8FBSYMBOL* vr$3 = SYMBPREADDPROC( (char*)0ull );
-	struct $8FBSYMBOL* vr$4 = SYMBADDPROC( vr$3, (char*)"{modlevel}", (char*)*(char**)&TMP$92$1, 0ll, (struct $8FBSYMBOL*)0ull, 64ll, 0ll, 3ll, 4ll );
-	*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll) = vr$4;
-	fb_StrDelete( (FBSTRING*)&TMP$92$1 );
-	SYMBADDGLOBALCTOR( *(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll) );
-	*($12FB_SYMBSTATS*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll) + 24ll) = *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll) + 24ll) | 2ll;
-	*($12FB_SYMBSTATS*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll) + 24ll) = *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll) + 24ll) | 8192ll;
-	ASTPROCBEGIN( *(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1408ll), -1ll );
-	label$23:;
+	struct $8FBSYMBOL* vr$4 = SYMBADDPROC( vr$3, (char*)"{modlevel}", (char*)*(char**)&TMP$96$1, 0ll, (struct $8FBSYMBOL*)0ull, 64ll, 0ll, 3ll, 4ll );
+	*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll) = vr$4;
+	fb_StrDelete( (FBSTRING*)&TMP$96$1 );
+	SYMBADDGLOBALCTOR( *(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll) );
+	*($12FB_SYMBSTATS*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll) + 24ll) = *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll) + 24ll) | 2ll;
+	*($12FB_SYMBSTATS*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll) + 24ll) = *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll) + 24ll) | 8192ll;
+	ASTPROCBEGIN( *(struct $8FBSYMBOL**)((uint8*)&ENV$ + 1432ll), -1ll );
+	label$25:;
 }

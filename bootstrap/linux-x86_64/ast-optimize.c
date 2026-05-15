@@ -66,6 +66,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -172,9 +182,9 @@ struct $8FBS_ENUM {
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $11FB_FUNCMODE;
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -304,9 +314,9 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
-typedef FBSTRING* (*tmp$29)( void*, int64* );
-typedef uint32* (*tmp$30)( void*, int64* );
+typedef FBSTRING* (*tmp$29)( void );
+typedef FBSTRING* (*tmp$30)( void*, int64* );
+typedef uint32* (*tmp$31)( void*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -318,11 +328,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -397,7 +407,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -417,6 +427,16 @@ struct $8FBSYMBOL {
 	struct $8FBSYMBOL* NEXT;
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBSYMBOL ) == 320 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -444,8 +464,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -509,10 +531,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -582,7 +605,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -642,6 +665,7 @@ FBSTRING* fb_StrAssign( void*, int64, void*, int64, int32 );
 void fb_StrDelete( FBSTRING* );
 static void fb_ctor__astzoptimize( void ) __attribute__(( constructor ));
 static void _ZN11TSTRSETITEMaSERKS_( struct $11TSTRSETITEM*, struct $11TSTRSETITEM* );
+int64 FBGETCPUFAMILY( void );
 void ASTDELNODE( struct $7ASTNODE* );
 struct $7ASTNODE* ASTCLONETREE( struct $7ASTNODE* );
 void ASTDELTREE( struct $7ASTNODE* );
@@ -683,6 +707,9 @@ static struct $7ASTNODE* HOPTASSOCMUL( struct $7ASTNODE* );
 static void HDIVTOSHIFT_SIGNED( struct $7ASTNODE*, int64 );
 static int64 HTOPOW2( uint64 );
 static void HOPTTOSHIFT( struct $7ASTNODE* );
+static struct $7ASTNODE* HTRYREMOVECAST( struct $7ASTNODE*, $11FB_DATATYPE );
+static $11FB_DATATYPE HGETOPERANDAS32BIT( struct $7ASTNODE* );
+static struct $7ASTNODE* HOPTBOP32( struct $7ASTNODE* );
 static struct $7ASTNODE* HOPTCONSTCONV( struct $7ASTNODE* );
 static struct $7ASTNODE* HOPTNULLOP( struct $7ASTNODE* );
 static struct $7ASTNODE* HOPTLOGIC( struct $7ASTNODE* );
@@ -693,14 +720,14 @@ static struct $7ASTNODE* HOPTSTRASSIGNMENT( struct $7ASTNODE*, struct $7ASTNODE*
 struct $7ASTNODE* HOPTSELFASSIGN( struct $7ASTNODE* );
 struct $7ASTNODE* HOPTSELFCOMPARE( struct $7ASTNODE* );
 static struct $7ASTNODE* HOPTRECIPROCAL( struct $7ASTNODE* );
-typedef void (*tmp$38)( void );
-typedef int64 (*tmp$39)( void );
+typedef void (*tmp$40)( void );
+typedef int64 (*tmp$41)( void );
 typedef int64 $14IR_OPTIONVALUE;
-typedef int64 (*tmp$40)( $14IR_OPTIONVALUE );
-typedef int64 (*tmp$41)( int64, int64 );
-typedef void (*tmp$42)( struct $8FBSYMBOL* );
-typedef void (*tmp$43)( struct $8FBSYMBOL*, struct $8FBSYMBOL* );
-typedef char* (*tmp$44)( void );
+typedef int64 (*tmp$42)( $14IR_OPTIONVALUE );
+typedef int64 (*tmp$43)( int64, int64 );
+typedef void (*tmp$44)( struct $8FBSYMBOL* );
+typedef void (*tmp$45)( struct $8FBSYMBOL*, struct $8FBSYMBOL* );
+typedef char* (*tmp$46)( void );
 typedef int64 $15IRVREGTYPE_ENUM;
 typedef int64 $12IR_REGFAMILY;
 struct $6IRVREG;
@@ -746,107 +773,108 @@ struct $6IRVREG {
 	struct $5IRTAC* TACLAST;
 };
 __FB_STATIC_ASSERT( sizeof( struct $6IRVREG ) == 120 );
-typedef void (*tmp$45)( struct $6IRVREG*, struct $6IRVREG* );
-typedef void (*tmp$46)( int64 );
-typedef void (*tmp$47)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, struct $8FBSYMBOL* );
-typedef void (*tmp$48)( struct $8FBSYMBOL*, struct $6IRVREG*, int64, int64, struct $6IRVREG* );
-typedef void (*tmp$49)( struct $9ASTASMTOK* );
-typedef void (*tmp$50)( char* );
-typedef void (*tmp$51)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG*, struct $8FBSYMBOL* );
-typedef void (*tmp$52)( int64, struct $6IRVREG*, struct $6IRVREG* );
-typedef void (*tmp$53)( struct $6IRVREG* );
-typedef void (*tmp$54)( struct $8FBSYMBOL*, int64, struct $6IRVREG*, int64 );
-typedef void (*tmp$55)( struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
-typedef void (*tmp$56)( int64, struct $8FBSYMBOL* );
-typedef void (*tmp$57)( struct $6IRVREG*, struct $8FBSYMBOL*, uint64*, struct $8FBSYMBOL**, int64, struct $8FBSYMBOL*, uint64, uint64 );
-typedef void (*tmp$58)( int64, struct $6IRVREG*, struct $6IRVREG*, int64 );
-typedef void (*tmp$59)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG* );
-typedef void (*tmp$60)( int64, struct $8FBSYMBOL*, int64, char* );
-typedef void (*tmp$61)( struct $8FBSYMBOL*, int64 );
-typedef void (*tmp$62)( struct $8FBSYMBOL*, double );
-typedef void (*tmp$63)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
-typedef void (*tmp$64)( int64, char*, int64 );
-typedef void (*tmp$65)( int64, uint32*, int64 );
-typedef void (*tmp$66)( int64 );
-typedef void (*tmp$67)( struct $8FBSYMBOL*, int64 );
-typedef void (*tmp$68)( char* );
-typedef struct $6IRVREG* (*tmp$69)( int64, struct $8FBSYMBOL* );
-typedef struct $6IRVREG* (*tmp$70)( int64, struct $8FBSYMBOL*, int64 );
-typedef struct $6IRVREG* (*tmp$71)( int64, struct $8FBSYMBOL*, double );
-typedef struct $6IRVREG* (*tmp$72)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
-typedef struct $6IRVREG* (*tmp$73)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64, int64, struct $6IRVREG* );
-typedef struct $6IRVREG* (*tmp$74)( int64, struct $8FBSYMBOL*, int64, struct $6IRVREG* );
-typedef void (*tmp$75)( struct $6IRVREG*, int64, struct $8FBSYMBOL* );
-typedef uint64 (*tmp$76)( struct $6IRVREG* );
+typedef void (*tmp$47)( struct $6IRVREG*, struct $6IRVREG* );
+typedef void (*tmp$48)( int64 );
+typedef void (*tmp$49)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, struct $8FBSYMBOL* );
+typedef void (*tmp$50)( struct $8FBSYMBOL*, struct $6IRVREG*, int64, int64, struct $6IRVREG* );
+typedef void (*tmp$51)( struct $9ASTASMTOK* );
+typedef void (*tmp$52)( char* );
+typedef int64 $10IR_EMITOPT;
+typedef void (*tmp$53)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG*, struct $8FBSYMBOL*, $10IR_EMITOPT );
+typedef void (*tmp$54)( int64, struct $6IRVREG*, struct $6IRVREG* );
+typedef void (*tmp$55)( struct $6IRVREG* );
+typedef void (*tmp$56)( struct $8FBSYMBOL*, int64, struct $6IRVREG*, int64 );
+typedef void (*tmp$57)( struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
+typedef void (*tmp$58)( int64, struct $8FBSYMBOL* );
+typedef void (*tmp$59)( struct $6IRVREG*, struct $8FBSYMBOL*, uint64*, struct $8FBSYMBOL**, int64, struct $8FBSYMBOL*, uint64, uint64 );
+typedef void (*tmp$60)( int64, struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
+typedef void (*tmp$61)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG* );
+typedef void (*tmp$62)( int64, struct $8FBSYMBOL*, int64, char* );
+typedef void (*tmp$63)( struct $8FBSYMBOL*, int64 );
+typedef void (*tmp$64)( struct $8FBSYMBOL*, double );
+typedef void (*tmp$65)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
+typedef void (*tmp$66)( int64, char*, int64, int64 );
+typedef void (*tmp$67)( int64, uint32*, int64 );
+typedef void (*tmp$68)( int64, int64 );
+typedef void (*tmp$69)( struct $8FBSYMBOL*, int64 );
+typedef void (*tmp$70)( char* );
+typedef struct $6IRVREG* (*tmp$71)( int64, struct $8FBSYMBOL* );
+typedef struct $6IRVREG* (*tmp$72)( int64, struct $8FBSYMBOL*, int64 );
+typedef struct $6IRVREG* (*tmp$73)( int64, struct $8FBSYMBOL*, double );
+typedef struct $6IRVREG* (*tmp$74)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
+typedef struct $6IRVREG* (*tmp$75)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64, int64, struct $6IRVREG* );
+typedef struct $6IRVREG* (*tmp$76)( int64, struct $8FBSYMBOL*, int64, struct $6IRVREG* );
+typedef void (*tmp$77)( struct $6IRVREG*, int64, struct $8FBSYMBOL* );
+typedef uint64 (*tmp$78)( struct $6IRVREG* );
 struct $7IR_VTBL {
-	tmp$38 INIT;
-	tmp$38 END;
-	tmp$39 EMITBEGIN;
-	tmp$38 EMITEND;
-	tmp$40 GETOPTIONVALUE;
-	tmp$41 SUPPORTSOP;
-	tmp$42 PROCBEGIN;
-	tmp$42 PROCEND;
-	tmp$43 PROCALLOCARG;
-	tmp$43 PROCALLOCLOCAL;
-	tmp$44 PROCGETFRAMEREGNAME;
-	tmp$42 SCOPEBEGIN;
-	tmp$42 SCOPEEND;
-	tmp$42 PROCALLOCSTATICVARS;
-	tmp$45 EMITCONVERT;
-	tmp$42 EMITLABEL;
-	tmp$42 EMITLABELNF;
-	tmp$46 EMITRETURN;
-	tmp$43 EMITPROCBEGIN;
-	tmp$47 EMITPROCEND;
-	tmp$48 EMITPUSHARG;
-	tmp$49 EMITASMLINE;
-	tmp$50 EMITCOMMENT;
-	tmp$51 EMITBOP;
-	tmp$52 EMITUOP;
-	tmp$45 EMITSTORE;
-	tmp$38 EMITSPILLREGS;
-	tmp$53 EMITLOAD;
-	tmp$45 EMITLOADRES;
-	tmp$52 EMITSTACK;
-	tmp$52 EMITADDR;
-	tmp$54 EMITCALL;
-	tmp$55 EMITCALLPTR;
-	tmp$46 EMITSTACKALIGN;
-	tmp$53 EMITJUMPPTR;
-	tmp$56 EMITBRANCH;
-	tmp$57 EMITJMPTB;
-	tmp$58 EMITMEM;
-	tmp$59 EMITMACRO;
-	tmp$42 EMITSCOPEBEGIN;
-	tmp$42 EMITSCOPEEND;
-	tmp$42 EMITDECL;
-	tmp$60 EMITDBG;
-	tmp$42 EMITVARINIBEGIN;
-	tmp$42 EMITVARINIEND;
-	tmp$61 EMITVARINII;
-	tmp$62 EMITVARINIF;
-	tmp$63 EMITVARINIOFS;
-	tmp$64 EMITVARINISTR;
-	tmp$65 EMITVARINIWSTR;
-	tmp$66 EMITVARINIPAD;
-	tmp$67 EMITVARINISCOPEBEGIN;
-	tmp$38 EMITVARINISCOPEEND;
-	tmp$38 EMITFBCTINFBEGIN;
-	tmp$68 EMITFBCTINFSTRING;
-	tmp$38 EMITFBCTINFEND;
-	tmp$69 ALLOCVREG;
-	tmp$70 ALLOCVRIMM;
-	tmp$71 ALLOCVRIMMF;
-	tmp$72 ALLOCVRVAR;
-	tmp$73 ALLOCVRIDX;
-	tmp$74 ALLOCVRPTR;
-	tmp$72 ALLOCVROFS;
-	tmp$75 SETVREGDATATYPE;
-	tmp$76 GETDISTANCE;
-	tmp$52 LOADVR;
-	tmp$45 STOREVR;
-	tmp$46 XCHGTOS;
+	tmp$40 INIT;
+	tmp$40 END;
+	tmp$41 EMITBEGIN;
+	tmp$40 EMITEND;
+	tmp$42 GETOPTIONVALUE;
+	tmp$43 SUPPORTSOP;
+	tmp$44 PROCBEGIN;
+	tmp$44 PROCEND;
+	tmp$45 PROCALLOCARG;
+	tmp$45 PROCALLOCLOCAL;
+	tmp$46 PROCGETFRAMEREGNAME;
+	tmp$44 SCOPEBEGIN;
+	tmp$44 SCOPEEND;
+	tmp$44 PROCALLOCSTATICVARS;
+	tmp$47 EMITCONVERT;
+	tmp$44 EMITLABEL;
+	tmp$44 EMITLABELNF;
+	tmp$48 EMITRETURN;
+	tmp$45 EMITPROCBEGIN;
+	tmp$49 EMITPROCEND;
+	tmp$50 EMITPUSHARG;
+	tmp$51 EMITASMLINE;
+	tmp$52 EMITCOMMENT;
+	tmp$53 EMITBOP;
+	tmp$54 EMITUOP;
+	tmp$47 EMITSTORE;
+	tmp$40 EMITSPILLREGS;
+	tmp$55 EMITLOAD;
+	tmp$47 EMITLOADRES;
+	tmp$54 EMITSTACK;
+	tmp$54 EMITADDR;
+	tmp$56 EMITCALL;
+	tmp$57 EMITCALLPTR;
+	tmp$48 EMITSTACKALIGN;
+	tmp$55 EMITJUMPPTR;
+	tmp$58 EMITBRANCH;
+	tmp$59 EMITJMPTB;
+	tmp$60 EMITMEM;
+	tmp$61 EMITMACRO;
+	tmp$44 EMITSCOPEBEGIN;
+	tmp$44 EMITSCOPEEND;
+	tmp$44 EMITDECL;
+	tmp$62 EMITDBG;
+	tmp$44 EMITVARINIBEGIN;
+	tmp$44 EMITVARINIEND;
+	tmp$63 EMITVARINII;
+	tmp$64 EMITVARINIF;
+	tmp$65 EMITVARINIOFS;
+	tmp$66 EMITVARINISTR;
+	tmp$67 EMITVARINIWSTR;
+	tmp$68 EMITVARINIPAD;
+	tmp$69 EMITVARINISCOPEBEGIN;
+	tmp$40 EMITVARINISCOPEEND;
+	tmp$40 EMITFBCTINFBEGIN;
+	tmp$70 EMITFBCTINFSTRING;
+	tmp$40 EMITFBCTINFEND;
+	tmp$71 ALLOCVREG;
+	tmp$72 ALLOCVRIMM;
+	tmp$73 ALLOCVRIMMF;
+	tmp$74 ALLOCVRVAR;
+	tmp$75 ALLOCVRIDX;
+	tmp$76 ALLOCVRPTR;
+	tmp$74 ALLOCVROFS;
+	tmp$77 SETVREGDATATYPE;
+	tmp$78 GETDISTANCE;
+	tmp$54 LOADVR;
+	tmp$47 STOREVR;
+	tmp$48 XCHGTOS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7IR_VTBL ) == 544 );
 typedef int64 $6IR_OPT;
@@ -904,7 +932,7 @@ struct $6ASTCTX {
 };
 __FB_STATIC_ASSERT( sizeof( struct $6ASTCTX ) == 472 );
 extern struct $6ASTCTX AST$;
-extern struct $10AST_OPINFO AST_OPTB$[121];
+extern struct $10AST_OPINFO AST_OPTB$[122];
 struct $16__FB_ARRAYDIMTB$ {
 	int64 ELEMENTS;
 	int64 LBOUND;
@@ -921,7 +949,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 extern struct $13SYMB_DATATYPE SYMB_DTYPETB$[26];
 struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $13SYMB_DATATYPE* DATA;
@@ -933,7 +961,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -944,7 +972,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
 typedef int64 $10FB_BACKEND;
 typedef int64 $13FB_COMPTARGET;
@@ -977,6 +1005,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -1000,8 +1029,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -1044,11 +1075,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 typedef int64 $16FB_RESTART_FLAGS;
 struct $7TSTRSET {
 	struct $5TLIST LIST;
@@ -1086,7 +1118,7 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
 
 int64 ASTINCOFFSET( struct $7ASTNODE* N$1, int64 OFS$1 )
@@ -1095,8 +1127,8 @@ int64 ASTINCOFFSET( struct $7ASTNODE* N$1, int64 OFS$1 )
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$152:;
 	{
-		uint64 TMP$94$2;
-		TMP$94$2 = *(uint64*)N$1;
+		uint64 TMP$97$2;
+		TMP$97$2 = *(uint64*)N$1;
 		goto label$155;
 		label$156:;
 		{
@@ -1119,9 +1151,9 @@ int64 ASTINCOFFSET( struct $7ASTNODE* N$1, int64 OFS$1 )
 		label$159:;
 		{
 			{
-				int64 TMP$95$4;
-				TMP$95$4 = *(int64*)((uint8*)N$1 + 40ll);
-				if( TMP$95$4 != 1ll ) goto label$161;
+				int64 TMP$98$4;
+				TMP$98$4 = *(int64*)((uint8*)N$1 + 40ll);
+				if( TMP$98$4 != 1ll ) goto label$161;
 				label$162:;
 				{
 					int64 vr$13 = ASTINCOFFSET( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll), OFS$1 );
@@ -1129,7 +1161,7 @@ int64 ASTINCOFFSET( struct $7ASTNODE* N$1, int64 OFS$1 )
 				}
 				goto label$160;
 				label$161:;
-				if( TMP$95$4 != 2ll ) goto label$163;
+				if( TMP$98$4 != 2ll ) goto label$163;
 				label$164:;
 				{
 					int64 vr$15 = ASTINCOFFSET( *(struct $7ASTNODE**)((uint8*)N$1 + 120ll), OFS$1 );
@@ -1167,7 +1199,7 @@ int64 ASTINCOFFSET( struct $7ASTNODE* N$1, int64 OFS$1 )
 		}
 		goto label$154;
 		label$155:;
-		static const void* tmp$96[22ll] = {
+		static const void* tmp$99[22ll] = {
 			&&label$166,
 			&&label$169,
 			&&label$169,
@@ -1191,8 +1223,8 @@ int64 ASTINCOFFSET( struct $7ASTNODE* N$1, int64 OFS$1 )
 			&&label$169,
 			&&label$165,
 		};
-		if( (TMP$94$2 - 5ull) > 21ull ) goto label$169;
-		goto *tmp$96[TMP$94$2 - 5ull];
+		if( (TMP$97$2 - 5ull) > 21ull ) goto label$169;
+		goto *tmp$99[TMP$97$2 - 5ull];
 		label$154:;
 	}
 	label$153:;
@@ -1201,141 +1233,141 @@ int64 ASTINCOFFSET( struct $7ASTNODE* N$1, int64 OFS$1 )
 
 struct $7ASTNODE* ASTOPTASSIGNMENT( struct $7ASTNODE* N$1 )
 {
-	int64 TMP$140$1;
-	int64 TMP$142$1;
-	int64 TMP$145$1;
+	int64 TMP$166$1;
+	int64 TMP$168$1;
+	int64 TMP$171$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$563:;
+	label$662:;
 	struct $7ASTNODE* L$1;
 	struct $7ASTNODE* R$1;
 	int64 DTYPE$1;
 	int64 DCLASS$1;
 	fb$result$1 = N$1;
-	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$566;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$665;
 	{
-		goto label$564;
+		goto label$663;
 	}
-	label$566:;
-	label$565:;
+	label$665:;
+	label$664:;
 	{
-		$13AST_NODECLASS TMP$137$2;
-		TMP$137$2 = *($13AST_NODECLASS*)N$1;
-		if( TMP$137$2 != 2ll ) goto label$568;
-		label$569:;
+		$13AST_NODECLASS TMP$163$2;
+		TMP$163$2 = *($13AST_NODECLASS*)N$1;
+		if( TMP$163$2 != 2ll ) goto label$667;
+		label$668:;
 		{
 		}
-		goto label$567;
-		label$568:;
-		if( TMP$137$2 == 15ll ) goto label$571;
-		label$572:;
-		if( TMP$137$2 != 13ll ) goto label$570;
-		label$571:;
+		goto label$666;
+		label$667:;
+		if( TMP$163$2 == 15ll ) goto label$670;
+		label$671:;
+		if( TMP$163$2 != 13ll ) goto label$669;
+		label$670:;
 		{
 			struct $7ASTNODE* vr$3 = ASTOPTASSIGNMENT( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) );
 			*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) = vr$3;
 			struct $7ASTNODE* vr$6 = ASTOPTASSIGNMENT( *(struct $7ASTNODE**)((uint8*)N$1 + 120ll) );
 			*(struct $7ASTNODE**)((uint8*)N$1 + 120ll) = vr$6;
-			goto label$564;
+			goto label$663;
 		}
-		goto label$567;
-		label$570:;
+		goto label$666;
+		label$669:;
 		{
-			goto label$564;
+			goto label$663;
 		}
-		label$573:;
-		label$567:;
+		label$672:;
+		label$666:;
 	}
 	L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
 	R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
 	DTYPE$1 = *(int64*)((uint8*)N$1 + 8ll);
 	{
-		int64 TMP$138$2;
-		int64 TMP$139$2;
-		if( (DTYPE$1 & 480ll) == 0ll ) goto label$574;
-		TMP$138$2 = 24ll;
-		goto label$619;
-		label$574:;
-		TMP$138$2 = DTYPE$1 & 31ll;
-		label$619:;
-		TMP$139$2 = TMP$138$2;
-		if( TMP$139$2 == 17ll ) goto label$577;
-		label$578:;
-		if( TMP$139$2 == 18ll ) goto label$577;
-		label$579:;
-		if( TMP$139$2 != 7ll ) goto label$576;
-		label$577:;
+		int64 TMP$164$2;
+		int64 TMP$165$2;
+		if( (DTYPE$1 & 480ll) == 0ll ) goto label$673;
+		TMP$164$2 = 24ll;
+		goto label$718;
+		label$673:;
+		TMP$164$2 = DTYPE$1 & 31ll;
+		label$718:;
+		TMP$165$2 = TMP$164$2;
+		if( TMP$165$2 == 17ll ) goto label$676;
+		label$677:;
+		if( TMP$165$2 == 18ll ) goto label$676;
+		label$678:;
+		if( TMP$165$2 != 7ll ) goto label$675;
+		label$676:;
 		{
 			struct $7ASTNODE* vr$13 = HOPTSTRASSIGNMENT( N$1, L$1, R$1 );
 			fb$result$1 = vr$13;
-			goto label$564;
+			goto label$663;
 		}
-		label$576:;
-		label$575:;
+		label$675:;
+		label$674:;
 	}
-	if( (DTYPE$1 & 480ll) == 0ll ) goto label$580;
-	TMP$140$1 = 24ll;
-	goto label$620;
-	label$580:;
-	TMP$140$1 = DTYPE$1 & 31ll;
-	label$620:;
-	DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$140$1 * 56ll));
-	if( DCLASS$1 != 0ll ) goto label$582;
+	if( (DTYPE$1 & 480ll) == 0ll ) goto label$679;
+	TMP$166$1 = 24ll;
+	goto label$719;
+	label$679:;
+	TMP$166$1 = DTYPE$1 & 31ll;
+	label$719:;
+	DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$166$1 * 56ll));
+	if( DCLASS$1 != 0ll ) goto label$681;
 	{
-		if( (*(int64*)((uint8*)&IR$ + 544ll) & 512ll) != 0ll ) goto label$584;
+		if( (*(int64*)((uint8*)&IR$ + 544ll) & 512ll) != 0ll ) goto label$683;
 		{
-			goto label$564;
+			goto label$663;
 		}
-		label$584:;
-		label$583:;
+		label$683:;
+		label$682:;
 	}
-	goto label$581;
-	label$582:;
+	goto label$680;
+	label$681:;
 	{
-		if( (*(int64*)((uint8*)&IR$ + 544ll) & 8ll) != 0ll ) goto label$586;
+		if( (*(int64*)((uint8*)&IR$ + 544ll) & 8ll) != 0ll ) goto label$685;
 		{
-			if( *(int64*)R$1 != 16ll ) goto label$588;
+			if( *(int64*)R$1 != 16ll ) goto label$687;
 			{
-				if( DCLASS$1 != 1ll ) goto label$590;
+				if( DCLASS$1 != 1ll ) goto label$689;
 				{
-					int64 TMP$141$5;
-					if( ((*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$591;
-					TMP$141$5 = 24ll;
-					goto label$621;
-					label$591:;
-					TMP$141$5 = (*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 31ll;
-					label$621:;
-					if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$141$5 * 56ll)) == 1ll ) goto label$593;
+					int64 TMP$167$5;
+					if( ((*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$690;
+					TMP$167$5 = 24ll;
+					goto label$720;
+					label$690:;
+					TMP$167$5 = (*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 31ll;
+					label$720:;
+					if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$167$5 * 56ll)) == 1ll ) goto label$692;
 					{
 						struct $7ASTNODE* vr$27 = ASTNEWCONV( DTYPE$1, (struct $8FBSYMBOL*)0ull, R$1, 0ll, (int64*)0ull );
 						*(struct $7ASTNODE**)((uint8*)N$1 + 120ll) = vr$27;
 					}
-					label$593:;
-					label$592:;
+					label$692:;
+					label$691:;
 				}
-				label$590:;
-				label$589:;
+				label$689:;
+				label$688:;
 			}
-			label$588:;
-			label$587:;
-			goto label$564;
+			label$687:;
+			label$686:;
+			goto label$663;
 		}
-		label$586:;
-		label$585:;
+		label$685:;
+		label$684:;
 	}
-	label$581:;
-	if( (DTYPE$1 & 480ll) == 0ll ) goto label$594;
-	TMP$142$1 = 24ll;
-	goto label$622;
-	label$594:;
-	TMP$142$1 = DTYPE$1 & 31ll;
-	label$622:;
-	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$142$1 * 56ll)) + 8ll) != 1ll ) goto label$596;
+	label$680:;
+	if( (DTYPE$1 & 480ll) == 0ll ) goto label$693;
+	TMP$168$1 = 24ll;
+	goto label$721;
+	label$693:;
+	TMP$168$1 = DTYPE$1 & 31ll;
+	label$721:;
+	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$168$1 * 56ll)) + 8ll) != 1ll ) goto label$695;
 	{
-		goto label$564;
+		goto label$663;
 	}
-	label$596:;
-	label$595:;
+	label$695:;
+	label$694:;
 	struct $7ASTNODE* LNOCAST$1;
 	struct $7ASTNODE* vr$32 = ASTSKIPNOCONVCAST( L$1 );
 	LNOCAST$1 = vr$32;
@@ -1343,104 +1375,104 @@ struct $7ASTNODE* ASTOPTASSIGNMENT( struct $7ASTNODE* N$1 )
 	struct $7ASTNODE* vr$33 = ASTSKIPNOCONVCAST( R$1 );
 	RNOCAST$1 = vr$33;
 	{
-		uint64 TMP$143$2;
-		TMP$143$2 = *(uint64*)LNOCAST$1;
-		goto label$598;
-		label$599:;
+		uint64 TMP$169$2;
+		TMP$169$2 = *(uint64*)LNOCAST$1;
+		goto label$697;
+		label$698:;
 		{
 		}
-		goto label$597;
-		label$600:;
+		goto label$696;
+		label$699:;
 		{
-			if( *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)LNOCAST$1 + 24ll) + 192ll) <= 0ll ) goto label$602;
+			if( *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)LNOCAST$1 + 24ll) + 192ll) <= 0ll ) goto label$701;
 			{
-				goto label$564;
+				goto label$663;
 			}
-			label$602:;
-			label$601:;
+			label$701:;
+			label$700:;
 		}
-		goto label$597;
-		label$603:;
+		goto label$696;
+		label$702:;
 		{
-			goto label$564;
+			goto label$663;
 		}
-		goto label$597;
-		label$598:;
-		static const void* tmp$146[10ll] = {
-			&&label$599,
-			&&label$599,
-			&&label$600,
-			&&label$599,
-			&&label$603,
-			&&label$603,
-			&&label$603,
-			&&label$603,
-			&&label$603,
-			&&label$599,
+		goto label$696;
+		label$697:;
+		static const void* tmp$172[10ll] = {
+			&&label$698,
+			&&label$698,
+			&&label$699,
+			&&label$698,
+			&&label$702,
+			&&label$702,
+			&&label$702,
+			&&label$702,
+			&&label$702,
+			&&label$698,
 		};
-		if( (TMP$143$2 - 17ull) > 9ull ) goto label$603;
-		goto *tmp$146[TMP$143$2 - 17ull];
-		label$597:;
+		if( (TMP$169$2 - 17ull) > 9ull ) goto label$702;
+		goto *tmp$172[TMP$169$2 - 17ull];
+		label$696:;
 	}
 	{
-		$13AST_NODECLASS TMP$144$2;
-		TMP$144$2 = *($13AST_NODECLASS*)RNOCAST$1;
-		if( TMP$144$2 != 4ll ) goto label$605;
-		label$606:;
+		$13AST_NODECLASS TMP$170$2;
+		TMP$170$2 = *($13AST_NODECLASS*)RNOCAST$1;
+		if( TMP$170$2 != 4ll ) goto label$704;
+		label$705:;
 		{
 		}
-		goto label$604;
-		label$605:;
-		if( TMP$144$2 != 3ll ) goto label$607;
-		label$608:;
+		goto label$703;
+		label$704:;
+		if( TMP$170$2 != 3ll ) goto label$706;
+		label$707:;
 		{
-			if( (*(int64*)(((int64)(struct $10AST_OPINFO*)AST_OPTB$ + (*(int64*)((uint8*)RNOCAST$1 + 40ll) << (5ll & 63ll))) + 8ll) & 8ll) == 0ll ) goto label$610;
+			if( (*(int64*)(((int64)(struct $10AST_OPINFO*)AST_OPTB$ + (*(int64*)((uint8*)RNOCAST$1 + 40ll) << (5ll & 63ll))) + 8ll) & 8ll) == 0ll ) goto label$709;
 			{
-				goto label$564;
+				goto label$663;
 			}
-			label$610:;
-			label$609:;
+			label$709:;
+			label$708:;
 		}
-		goto label$604;
-		label$607:;
+		goto label$703;
+		label$706:;
 		{
-			goto label$564;
+			goto label$663;
 		}
-		label$611:;
-		label$604:;
+		label$710:;
+		label$703:;
 	}
-	if( ((*(int64*)((uint8*)RNOCAST$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$612;
-	TMP$145$1 = 24ll;
-	goto label$623;
-	label$612:;
-	TMP$145$1 = (*(int64*)((uint8*)RNOCAST$1 + 8ll) & 511ll) & 31ll;
-	label$623:;
-	if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$145$1 * 56ll)) == 0ll ) goto label$614;
+	if( ((*(int64*)((uint8*)RNOCAST$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$711;
+	TMP$171$1 = 24ll;
+	goto label$722;
+	label$711:;
+	TMP$171$1 = (*(int64*)((uint8*)RNOCAST$1 + 8ll) & 511ll) & 31ll;
+	label$722:;
+	if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$171$1 * 56ll)) == 0ll ) goto label$713;
 	{
-		goto label$564;
+		goto label$663;
 	}
-	label$614:;
-	label$613:;
+	label$713:;
+	label$712:;
 	struct $7ASTNODE* vr$49 = ASTSKIPNOCONVCAST( *(struct $7ASTNODE**)((uint8*)RNOCAST$1 + 112ll) );
 	int64 vr$50 = ASTISTREEEQUAL( LNOCAST$1, vr$49 );
-	if( vr$50 != 0ll ) goto label$616;
+	if( vr$50 != 0ll ) goto label$715;
 	{
-		goto label$564;
+		goto label$663;
 	}
-	label$616:;
-	label$615:;
+	label$715:;
+	label$714:;
 	*($9AST_OPOPT*)((uint8*)RNOCAST$1 + 48ll) = *(int64*)((uint8*)RNOCAST$1 + 48ll) & -2ll;
 	ASTDELNODE( N$1 );
 	ASTDELTREE( L$1 );
-	if( R$1 == RNOCAST$1 ) goto label$618;
+	if( R$1 == RNOCAST$1 ) goto label$717;
 	{
 		ASTDELNODE( R$1 );
 		R$1 = RNOCAST$1;
 	}
-	label$618:;
-	label$617:;
+	label$717:;
+	label$716:;
 	fb$result$1 = R$1;
-	label$564:;
+	label$663:;
 	return fb$result$1;
 }
 
@@ -1448,39 +1480,39 @@ struct $7ASTNODE* HOPTSELFASSIGN( struct $7ASTNODE* N$1 )
 {
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$624:;
+	label$723:;
 	struct $7ASTNODE* L$1;
 	struct $7ASTNODE* R$1;
 	int64 DTYPE$1;
 	int64 DCLASS$1;
 	fb$result$1 = N$1;
-	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$627;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$726;
 	{
-		goto label$625;
+		goto label$724;
 	}
-	label$627:;
-	label$626:;
-	if( *(int64*)N$1 == 2ll ) goto label$629;
+	label$726:;
+	label$725:;
+	if( *(int64*)N$1 == 2ll ) goto label$728;
 	{
-		goto label$625;
+		goto label$724;
 	}
-	label$629:;
-	label$628:;
+	label$728:;
+	label$727:;
 	L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
 	R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
 	int64 vr$4 = ASTISTREEEQUAL( L$1, R$1 );
-	if( vr$4 != 0ll ) goto label$631;
+	if( vr$4 != 0ll ) goto label$730;
 	{
-		goto label$625;
+		goto label$724;
 	}
-	label$631:;
-	label$630:;
+	label$730:;
+	label$729:;
 	ASTDELNODE( N$1 );
 	ASTDELTREE( L$1 );
 	ASTDELTREE( R$1 );
 	struct $7ASTNODE* vr$5 = ASTNEWNOP(  );
 	fb$result$1 = vr$5;
-	label$625:;
+	label$724:;
 	return fb$result$1;
 }
 
@@ -1488,73 +1520,116 @@ struct $7ASTNODE* HOPTSELFCOMPARE( struct $7ASTNODE* N$1 )
 {
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$632:;
+	label$731:;
 	struct $7ASTNODE* L$1;
 	struct $7ASTNODE* R$1;
 	int64 DTYPE$1;
 	int64 DCLASS$1;
 	fb$result$1 = N$1;
-	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$635;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$734;
 	{
-		goto label$633;
+		goto label$732;
 	}
-	label$635:;
-	label$634:;
-	if( *(int64*)N$1 == 3ll ) goto label$637;
+	label$734:;
+	label$733:;
+	if( *(int64*)N$1 == 3ll ) goto label$736;
 	{
-		goto label$633;
+		goto label$732;
 	}
-	label$637:;
-	label$636:;
+	label$736:;
+	label$735:;
 	L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
 	R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
 	int64 vr$4 = ASTISTREEEQUAL( L$1, R$1 );
-	if( vr$4 != 0ll ) goto label$639;
+	if( vr$4 != 0ll ) goto label$738;
 	{
-		goto label$633;
+		goto label$732;
 	}
-	label$639:;
-	label$638:;
+	label$738:;
+	label$737:;
+	if( *(int64*)((uint8*)&ENV$ + 240ll) != 0ll ) goto label$740;
+	{
+		int64 TMP$173$2;
+		int64 TMP$174$2;
+		if( ((*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$741;
+		TMP$173$2 = 24ll;
+		goto label$754;
+		label$741:;
+		TMP$173$2 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
+		label$754:;
+		if( ((*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$742;
+		TMP$174$2 = 24ll;
+		goto label$755;
+		label$742:;
+		TMP$174$2 = (*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 31ll;
+		label$755:;
+		if( ((int64)-(*(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$173$2 * 56ll)) == 1ll) | (int64)-(*(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$174$2 * 56ll)) == 1ll)) == 0ll ) goto label$744;
+		{
+			goto label$732;
+		}
+		label$744:;
+		label$743:;
+	}
+	label$740:;
+	label$739:;
 	int64 C$1;
 	__builtin_memset( &C$1, 0, 8ll );
 	{
-		uint64 TMP$147$2;
-		TMP$147$2 = *(uint64*)((uint8*)N$1 + 40ll);
-		goto label$641;
-		label$642:;
+		uint64 TMP$175$2;
+		TMP$175$2 = *(uint64*)((uint8*)N$1 + 40ll);
+		goto label$746;
+		label$747:;
 		{
-			C$1 = -1ll;
+			if( (*(int64*)((uint8*)N$1 + 48ll) & 128ll) == 0ll ) goto label$749;
+			{
+				C$1 = 0ll;
+			}
+			goto label$748;
+			label$749:;
+			{
+				C$1 = -1ll;
+			}
+			label$748:;
 		}
-		goto label$640;
-		label$643:;
+		goto label$745;
+		label$750:;
 		{
-			C$1 = 0ll;
+			if( (*(int64*)((uint8*)N$1 + 48ll) & 128ll) == 0ll ) goto label$752;
+			{
+				C$1 = -1ll;
+			}
+			goto label$751;
+			label$752:;
+			{
+				C$1 = 0ll;
+			}
+			label$751:;
 		}
-		goto label$640;
-		label$644:;
+		goto label$745;
+		label$753:;
 		{
-			goto label$633;
+			goto label$732;
 		}
-		goto label$640;
-		label$641:;
-		static const void* tmp$148[6ll] = {
-			&&label$642,
-			&&label$643,
-			&&label$643,
-			&&label$643,
-			&&label$642,
-			&&label$642,
+		goto label$745;
+		label$746:;
+		static const void* tmp$176[6ll] = {
+			&&label$747,
+			&&label$750,
+			&&label$750,
+			&&label$750,
+			&&label$747,
+			&&label$747,
 		};
-		if( (TMP$147$2 - 45ull) > 5ull ) goto label$644;
-		goto *tmp$148[TMP$147$2 - 45ull];
-		label$640:;
+		if( (TMP$175$2 - 45ull) > 5ull ) goto label$753;
+		goto *tmp$176[TMP$175$2 - 45ull];
+		label$745:;
 	}
 	ASTDELNODE( N$1 );
 	ASTDELTREE( L$1 );
 	ASTDELTREE( R$1 );
-	struct $7ASTNODE* vr$7 = ASTNEWCONSTI( C$1, 8ll, (struct $8FBSYMBOL*)0ull );
-	fb$result$1 = vr$7;
-	label$633:;
+	struct $7ASTNODE* vr$28 = ASTNEWCONSTI( C$1, 8ll, (struct $8FBSYMBOL*)0ull );
+	fb$result$1 = vr$28;
+	label$732:;
 	return fb$result$1;
 }
 
@@ -1562,7 +1637,7 @@ struct $7ASTNODE* ASTOPTIMIZETREE( struct $7ASTNODE* N$1 )
 {
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$669:;
+	label$780:;
 	*(int64*)((uint8*)&AST$ + 464ll) = *(int64*)((uint8*)&AST$ + 464ll) + 1ll;
 	struct $7ASTNODE* vr$2 = HOPTASSOCADD( N$1 );
 	N$1 = vr$2;
@@ -1578,36 +1653,38 @@ struct $7ASTNODE* ASTOPTIMIZETREE( struct $7ASTNODE* N$1 )
 	struct $7ASTNODE* vr$7 = HOPTCONSTIDX( N$1 );
 	N$1 = vr$7;
 	HOPTTOSHIFT( N$1 );
-	struct $7ASTNODE* vr$8 = HOPTLOGIC( N$1 );
+	struct $7ASTNODE* vr$8 = HOPTBOP32( N$1 );
 	N$1 = vr$8;
-	struct $7ASTNODE* vr$9 = HOPTNULLOP( N$1 );
+	struct $7ASTNODE* vr$9 = HOPTLOGIC( N$1 );
 	N$1 = vr$9;
-	struct $7ASTNODE* vr$10 = HOPTSELFASSIGN( N$1 );
+	struct $7ASTNODE* vr$10 = HOPTNULLOP( N$1 );
 	N$1 = vr$10;
-	struct $7ASTNODE* vr$11 = HOPTSELFCOMPARE( N$1 );
+	struct $7ASTNODE* vr$11 = HOPTSELFASSIGN( N$1 );
 	N$1 = vr$11;
-	if( ((int64)-((*(int64*)((uint8*)&IR$ + 544ll) & 1ll) == 0ll) & (int64)-(*(int64*)((uint8*)&ENV$ + 208ll) == 0ll)) == 0ll ) goto label$672;
+	struct $7ASTNODE* vr$12 = HOPTSELFCOMPARE( N$1 );
+	N$1 = vr$12;
+	if( ((int64)-((*(int64*)((uint8*)&IR$ + 544ll) & 1ll) == 0ll) & (int64)-(*(int64*)((uint8*)&ENV$ + 208ll) == 0ll)) == 0ll ) goto label$783;
 	{
-		struct $7ASTNODE* vr$16 = HDOOPTREMCONV( N$1 );
-		N$1 = vr$16;
+		struct $7ASTNODE* vr$17 = HDOOPTREMCONV( N$1 );
+		N$1 = vr$17;
 	}
-	label$672:;
-	label$671:;
-	if( (*(int64*)((uint8*)&IR$ + 544ll) & 131072ll) != 0ll ) goto label$674;
+	label$783:;
+	label$782:;
+	if( (*(int64*)((uint8*)&IR$ + 544ll) & 131072ll) != 0ll ) goto label$785;
 	{
-		if( *(int64*)((uint8*)&ENV$ + 240ll) != 1ll ) goto label$676;
+		if( *(int64*)((uint8*)&ENV$ + 240ll) != 1ll ) goto label$787;
 		{
-			struct $7ASTNODE* vr$18 = HOPTRECIPROCAL( N$1 );
-			N$1 = vr$18;
+			struct $7ASTNODE* vr$19 = HOPTRECIPROCAL( N$1 );
+			N$1 = vr$19;
 		}
-		label$676:;
-		label$675:;
+		label$787:;
+		label$786:;
 	}
-	label$674:;
-	label$673:;
+	label$785:;
+	label$784:;
 	*(int64*)((uint8*)&AST$ + 464ll) = *(int64*)((uint8*)&AST$ + 464ll) + -1ll;
 	fb$result$1 = N$1;
-	label$670:;
+	label$781:;
 	return fb$result$1;
 }
 
@@ -1622,7 +1699,7 @@ static void _ZN11TSTRSETITEMaSERKS_( struct $11TSTRSETITEM* THIS$1, struct $11TS
 
 static void HOPTCONSTREMNEG( struct $7ASTNODE* N$1 )
 {
-	int64 TMP$84$1;
+	int64 TMP$87$1;
 	label$10:;
 	struct $7ASTNODE* L$1;
 	struct $7ASTNODE* R$1;
@@ -1642,23 +1719,23 @@ static void HOPTCONSTREMNEG( struct $7ASTNODE* N$1 )
 	label$15:;
 	label$14:;
 	if( *(int64*)N$1 != 3ll ) goto label$16;
-	TMP$84$1 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 28ll);
-	goto label$677;
+	TMP$87$1 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 28ll);
+	goto label$788;
 	label$16:;
-	TMP$84$1 = 0ll;
-	label$677:;
-	if( TMP$84$1 == 0ll ) goto label$18;
+	TMP$87$1 = 0ll;
+	label$788:;
+	if( TMP$87$1 == 0ll ) goto label$18;
 	{
-		int64 TMP$85$2;
+		int64 TMP$88$2;
 		L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
 		R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
 		if( *(int64*)L$1 != 4ll ) goto label$19;
-		TMP$85$2 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 54ll);
-		goto label$678;
+		TMP$88$2 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 55ll);
+		goto label$789;
 		label$19:;
-		TMP$85$2 = 0ll;
-		label$678:;
-		if( (TMP$85$2 & (int64)-(*(int64*)R$1 == 16ll)) == 0ll ) goto label$21;
+		TMP$88$2 = 0ll;
+		label$789:;
+		if( (TMP$88$2 & (int64)-(*(int64*)R$1 == 16ll)) == 0ll ) goto label$21;
 		{
 			LL$1 = *(struct $7ASTNODE**)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 112ll);
 			if( *(int64*)LL$1 != 17ll ) goto label$23;
@@ -1750,7 +1827,7 @@ static struct $7ASTNODE* HCONSTACCUMADDSUB( struct $7ASTNODE* N$1, struct $7ASTN
 					*ACCUMVAL$1 = R$1;
 					if( RSIGN$1 >= 0ll ) goto label$45;
 					{
-						struct $7ASTNODE* vr$13 = ASTNEWUOP( 54ll, *ACCUMVAL$1 );
+						struct $7ASTNODE* vr$13 = ASTNEWUOP( 55ll, *ACCUMVAL$1 );
 						*ACCUMVAL$1 = vr$13;
 					}
 					label$45:;
@@ -1781,7 +1858,7 @@ static struct $7ASTNODE* HCONSTACCUMADDSUB( struct $7ASTNODE* N$1, struct $7ASTN
 
 static struct $7ASTNODE* HCONSTACCUMMUL( struct $7ASTNODE* N$1, struct $7ASTNODE** ACCUMVAL$1 )
 {
-	int64 TMP$86$1;
+	int64 TMP$89$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$46:;
@@ -1796,12 +1873,12 @@ static struct $7ASTNODE* HCONSTACCUMMUL( struct $7ASTNODE* N$1, struct $7ASTNODE
 	label$49:;
 	label$48:;
 	if( *(int64*)N$1 != 3ll ) goto label$50;
-	TMP$86$1 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 30ll);
-	goto label$679;
+	TMP$89$1 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 30ll);
+	goto label$790;
 	label$50:;
-	TMP$86$1 = 0ll;
-	label$679:;
-	if( TMP$86$1 == 0ll ) goto label$52;
+	TMP$89$1 = 0ll;
+	label$790:;
+	if( TMP$89$1 == 0ll ) goto label$52;
 	{
 		L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
 		R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
@@ -1940,14 +2017,14 @@ static struct $7ASTNODE* HOPTCONSTACCUM2( struct $7ASTNODE* N$1 )
 	{
 		ACCUMVAL$1 = (struct $7ASTNODE*)0ull;
 		{
-			int64 TMP$87$3;
-			TMP$87$3 = *(int64*)((uint8*)N$1 + 40ll);
-			if( TMP$87$3 != 28ll ) goto label$86;
+			int64 TMP$90$3;
+			TMP$90$3 = *(int64*)((uint8*)N$1 + 40ll);
+			if( TMP$90$3 != 28ll ) goto label$86;
 			label$87:;
 			{
 				{
-					uint64 TMP$88$5;
-					TMP$88$5 = (uint64)(*(int64*)((uint8*)N$1 + 8ll) & 511ll);
+					uint64 TMP$91$5;
+					TMP$91$5 = (uint64)(*(int64*)((uint8*)N$1 + 8ll) & 511ll);
 					goto label$89;
 					label$90:;
 					{
@@ -1967,7 +2044,7 @@ static struct $7ASTNODE* HOPTCONSTACCUM2( struct $7ASTNODE* N$1 )
 					}
 					goto label$88;
 					label$89:;
-					static const void* tmp$154[12ll] = {
+					static const void* tmp$182[12ll] = {
 						&&label$90,
 						&&label$91,
 						&&label$91,
@@ -1981,14 +2058,14 @@ static struct $7ASTNODE* HOPTCONSTACCUM2( struct $7ASTNODE* N$1 )
 						&&label$90,
 						&&label$90,
 					};
-					if( (TMP$88$5 - 7ull) > 11ull ) goto label$91;
-					goto *tmp$154[TMP$88$5 - 7ull];
+					if( (TMP$91$5 - 7ull) > 11ull ) goto label$91;
+					goto *tmp$182[TMP$91$5 - 7ull];
 					label$88:;
 				}
 			}
 			goto label$85;
 			label$86:;
-			if( TMP$87$3 != 30ll ) goto label$94;
+			if( TMP$90$3 != 30ll ) goto label$94;
 			label$95:;
 			{
 				struct $7ASTNODE* vr$17 = HCONSTACCUMMUL( N$1, &ACCUMVAL$1 );
@@ -2014,7 +2091,7 @@ static struct $7ASTNODE* HOPTCONSTACCUM2( struct $7ASTNODE* N$1 )
 
 static struct $7ASTNODE* HCONSTDISTMUL( struct $7ASTNODE* N$1, struct $7ASTNODE** ACCUMVAL$1 )
 {
-	int64 TMP$89$1;
+	int64 TMP$92$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$98:;
@@ -2029,12 +2106,12 @@ static struct $7ASTNODE* HCONSTDISTMUL( struct $7ASTNODE* N$1, struct $7ASTNODE*
 	label$101:;
 	label$100:;
 	if( *(int64*)N$1 != 3ll ) goto label$102;
-	TMP$89$1 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 28ll);
-	goto label$680;
+	TMP$92$1 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 28ll);
+	goto label$791;
 	label$102:;
-	TMP$89$1 = 0ll;
-	label$680:;
-	if( TMP$89$1 == 0ll ) goto label$104;
+	TMP$92$1 = 0ll;
+	label$791:;
+	if( TMP$92$1 == 0ll ) goto label$104;
 	{
 		L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
 		R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
@@ -2134,21 +2211,21 @@ static struct $7ASTNODE* HOPTCONSTDISTMUL( struct $7ASTNODE* N$1 )
 
 static void HOPTCONSTIDXMULT( struct $7ASTNODE* N$1 )
 {
-	int64 TMP$90$1;
-	int64 TMP$92$1;
 	int64 TMP$93$1;
+	int64 TMP$95$1;
+	int64 TMP$96$1;
 	label$125:;
 	int64 OPTIMIZE$1;
 	int64 C$1;
 	struct $7ASTNODE* L$1;
 	L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
 	if( *(int64*)L$1 != 3ll ) goto label$127;
-	TMP$90$1 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 30ll);
-	goto label$681;
+	TMP$93$1 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 30ll);
+	goto label$792;
 	label$127:;
-	TMP$90$1 = 0ll;
-	label$681:;
-	if( TMP$90$1 == 0ll ) goto label$129;
+	TMP$93$1 = 0ll;
+	label$792:;
+	if( TMP$93$1 == 0ll ) goto label$129;
 	{
 		struct $7ASTNODE* LR$2;
 		LR$2 = *(struct $7ASTNODE**)((uint8*)L$1 + 120ll);
@@ -2160,8 +2237,8 @@ static void HOPTCONSTIDXMULT( struct $7ASTNODE* N$1 )
 				if( ((int64)-(C$1 >= 1ll) & (int64)-(C$1 <= 9ll)) == 0ll ) goto label$135;
 				{
 					{
-						uint64 TMP$91$6;
-						TMP$91$6 = (uint64)C$1;
+						uint64 TMP$94$6;
+						TMP$94$6 = (uint64)C$1;
 						goto label$137;
 						label$138:;
 						{
@@ -2198,7 +2275,7 @@ static void HOPTCONSTIDXMULT( struct $7ASTNODE* N$1 )
 						}
 						goto label$136;
 						label$137:;
-						static const void* tmp$155[9ll] = {
+						static const void* tmp$183[9ll] = {
 							&&label$138,
 							&&label$138,
 							&&label$139,
@@ -2209,8 +2286,8 @@ static void HOPTCONSTIDXMULT( struct $7ASTNODE* N$1 )
 							&&label$138,
 							&&label$139,
 						};
-						if( (TMP$91$6 - 1ull) > 8ull ) goto label$145;
-						goto *tmp$155[TMP$91$6 - 1ull];
+						if( (TMP$94$6 - 1ull) > 8ull ) goto label$145;
+						goto *tmp$183[TMP$94$6 - 1ull];
 						label$136:;
 					}
 					if( OPTIMIZE$1 == 0ll ) goto label$147;
@@ -2236,18 +2313,18 @@ static void HOPTCONSTIDXMULT( struct $7ASTNODE* N$1 )
 	label$129:;
 	label$128:;
 	if( ((*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$148;
-	TMP$92$1 = 24ll;
-	goto label$682;
+	TMP$95$1 = 24ll;
+	goto label$793;
 	label$148:;
-	TMP$92$1 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
-	label$682:;
+	TMP$95$1 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
+	label$793:;
 	if( ((*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$149;
-	TMP$93$1 = 24ll;
-	goto label$683;
+	TMP$96$1 = 24ll;
+	goto label$794;
 	label$149:;
-	TMP$93$1 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
-	label$683:;
-	if( ((int64)-(*(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$92$1 * 56ll)) != 0ll) | (int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$93$1 * 56ll)) + 8ll) != *(int64*)((uint8*)&ENV$ + 592ll))) == 0ll ) goto label$151;
+	TMP$96$1 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
+	label$794:;
+	if( ((int64)-(*(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$95$1 * 56ll)) != 0ll) | (int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$96$1 * 56ll)) + 8ll) != *(int64*)((uint8*)&ENV$ + 616ll))) == 0ll ) goto label$151;
 	{
 		struct $7ASTNODE* vr$40 = ASTNEWCONV( 8ll, (struct $8FBSYMBOL*)0ull, L$1, 0ll, (int64*)0ull );
 		*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) = vr$40;
@@ -2267,9 +2344,9 @@ static struct $7ASTNODE* HOPTDEREFADDR( struct $7ASTNODE* N$1 )
 	int64 OFS$1;
 	OFS$1 = 0ll;
 	{
-		$13AST_NODECLASS TMP$97$2;
-		TMP$97$2 = *($13AST_NODECLASS*)L$1;
-		if( TMP$97$2 != 23ll ) goto label$173;
+		$13AST_NODECLASS TMP$100$2;
+		TMP$100$2 = *($13AST_NODECLASS*)L$1;
+		if( TMP$100$2 != 23ll ) goto label$173;
 		label$174:;
 		{
 			int64 vr$5 = ASTGETOFFSETCHILDOFS( *(struct $7ASTNODE**)((uint8*)L$1 + 112ll) );
@@ -2277,7 +2354,7 @@ static struct $7ASTNODE* HOPTDEREFADDR( struct $7ASTNODE* N$1 )
 		}
 		goto label$172;
 		label$173:;
-		if( TMP$97$2 != 6ll ) goto label$175;
+		if( TMP$100$2 != 6ll ) goto label$175;
 		label$176:;
 		{
 		}
@@ -2345,11 +2422,11 @@ static struct $7ASTNODE* HOPTCONSTIDX( struct $7ASTNODE* N$1 )
 	label$187:;
 	label$186:;
 	{
-		$13AST_NODECLASS TMP$98$2;
-		TMP$98$2 = *($13AST_NODECLASS*)N$1;
-		if( TMP$98$2 == 18ll ) goto label$190;
+		$13AST_NODECLASS TMP$101$2;
+		TMP$101$2 = *($13AST_NODECLASS*)N$1;
+		if( TMP$101$2 == 18ll ) goto label$190;
 		label$191:;
-		if( TMP$98$2 != 20ll ) goto label$189;
+		if( TMP$101$2 != 20ll ) goto label$189;
 		label$190:;
 		{
 			if( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) == (struct $7ASTNODE*)0ull ) goto label$193;
@@ -2445,13 +2522,13 @@ static struct $7ASTNODE* HOPTASSOCADD( struct $7ASTNODE* N$1 )
 			label$212:;
 			{
 				{
-					int64 TMP$99$5;
-					TMP$99$5 = *(int64*)((uint8*)N$1 + 8ll) & 511ll;
-					if( TMP$99$5 == 17ll ) goto label$216;
+					int64 TMP$102$5;
+					TMP$102$5 = *(int64*)((uint8*)N$1 + 8ll) & 511ll;
+					if( TMP$102$5 == 17ll ) goto label$216;
 					label$217:;
-					if( TMP$99$5 == 18ll ) goto label$216;
+					if( TMP$102$5 == 18ll ) goto label$216;
 					label$218:;
-					if( TMP$99$5 != 7ll ) goto label$215;
+					if( TMP$102$5 != 7ll ) goto label$215;
 					label$216:;
 					{
 					}
@@ -2540,7 +2617,7 @@ static struct $7ASTNODE* HOPTASSOCADD( struct $7ASTNODE* N$1 )
 
 static struct $7ASTNODE* HOPTASSOCMUL( struct $7ASTNODE* N$1 )
 {
-	int64 TMP$100$1;
+	int64 TMP$103$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$236:;
@@ -2555,22 +2632,22 @@ static struct $7ASTNODE* HOPTASSOCMUL( struct $7ASTNODE* N$1 )
 	label$239:;
 	label$238:;
 	if( *(int64*)N$1 != 3ll ) goto label$240;
-	TMP$100$1 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 30ll);
-	goto label$684;
+	TMP$103$1 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 30ll);
+	goto label$795;
 	label$240:;
-	TMP$100$1 = 0ll;
-	label$684:;
-	if( TMP$100$1 == 0ll ) goto label$242;
+	TMP$103$1 = 0ll;
+	label$795:;
+	if( TMP$103$1 == 0ll ) goto label$242;
 	{
-		int64 TMP$101$2;
+		int64 TMP$104$2;
 		R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
 		if( *(int64*)R$1 != 3ll ) goto label$243;
-		TMP$101$2 = (int64)-(*(int64*)((uint8*)R$1 + 40ll) == 30ll);
-		goto label$685;
+		TMP$104$2 = (int64)-(*(int64*)((uint8*)R$1 + 40ll) == 30ll);
+		goto label$796;
 		label$243:;
-		TMP$101$2 = 0ll;
-		label$685:;
-		if( TMP$101$2 == 0ll ) goto label$245;
+		TMP$104$2 = 0ll;
+		label$796:;
+		if( TMP$104$2 == 0ll ) goto label$245;
 		{
 			N_OLD$1 = N$1;
 			struct $7ASTNODE* vr$11 = ASTNEWBOP( 30ll, *(struct $7ASTNODE**)((uint8*)N$1 + 112ll), *(struct $7ASTNODE**)((uint8*)R$1 + 112ll), (struct $8FBSYMBOL*)0ull, 1ll );
@@ -2607,7 +2684,7 @@ static struct $7ASTNODE* HOPTASSOCMUL( struct $7ASTNODE* N$1 )
 
 static void HDIVTOSHIFT_SIGNED( struct $7ASTNODE* N$1, int64 CONST_VAL$1 )
 {
-	int64 TMP$102$1;
+	int64 TMP$105$1;
 	label$250:;
 	struct $7ASTNODE* L$1;
 	struct $7ASTNODE* L_CPY$1;
@@ -2622,12 +2699,12 @@ static void HDIVTOSHIFT_SIGNED( struct $7ASTNODE* N$1, int64 CONST_VAL$1 )
 	label$252:;
 	DTYPE$1 = *(int64*)((uint8*)L$1 + 8ll);
 	if( (DTYPE$1 & 480ll) == 0ll ) goto label$254;
-	TMP$102$1 = 24ll;
-	goto label$686;
+	TMP$105$1 = 24ll;
+	goto label$797;
 	label$254:;
-	TMP$102$1 = DTYPE$1 & 31ll;
-	label$686:;
-	BITS$1 = (*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$102$1 * 56ll)) + 8ll) << (3ll & 63ll)) + -1ll;
+	TMP$105$1 = DTYPE$1 & 31ll;
+	label$797:;
+	BITS$1 = (*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$105$1 * 56ll)) + 8ll) << (3ll & 63ll)) + -1ll;
 	if( BITS$1 != 7ll ) goto label$256;
 	{
 		BITS$1 = (*(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) << (3ll & 63ll)) + -1ll;
@@ -2717,16 +2794,16 @@ static void HOPTTOSHIFT( struct $7ASTNODE* N$1 )
 			if( OP$1 != 33ll ) goto label$274;
 			label$275:;
 			{
-				int64 TMP$103$4;
-				int64 TMP$104$4;
+				int64 TMP$106$4;
+				int64 TMP$107$4;
 				R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
 				if( (*(int64*)((uint8*)N$1 + 8ll) & 480ll) == 0ll ) goto label$278;
-				TMP$103$4 = 24ll;
-				goto label$687;
+				TMP$106$4 = 24ll;
+				goto label$798;
 				label$278:;
-				TMP$103$4 = *(int64*)((uint8*)N$1 + 8ll) & 31ll;
-				label$687:;
-				if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$103$4 * 56ll)) == 0ll ) goto label$280;
+				TMP$106$4 = *(int64*)((uint8*)N$1 + 8ll) & 31ll;
+				label$798:;
+				if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$106$4 * 56ll)) == 0ll ) goto label$280;
 				{
 					goto label$273;
 				}
@@ -2740,12 +2817,12 @@ static void HOPTTOSHIFT( struct $7ASTNODE* N$1 )
 				label$281:;
 				VALUE$1 = *(int64*)((uint8*)R$1 + 40ll);
 				if( (*(int64*)((uint8*)R$1 + 8ll) & 480ll) == 0ll ) goto label$283;
-				TMP$104$4 = 24ll;
-				goto label$688;
+				TMP$107$4 = 24ll;
+				goto label$799;
 				label$283:;
-				TMP$104$4 = *(int64*)((uint8*)R$1 + 8ll) & 31ll;
-				label$688:;
-				if( ((int64)-(VALUE$1 == 0ll) | ((int64)-(VALUE$1 < 0ll) & *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$104$4 * 56ll)) + 16ll))) == 0ll ) goto label$285;
+				TMP$107$4 = *(int64*)((uint8*)R$1 + 8ll) & 31ll;
+				label$799:;
+				if( ((int64)-(VALUE$1 == 0ll) | ((int64)-(VALUE$1 < 0ll) & *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$107$4 * 56ll)) + 16ll))) == 0ll ) goto label$285;
 				{
 					goto label$273;
 				}
@@ -2763,14 +2840,14 @@ static void HOPTTOSHIFT( struct $7ASTNODE* N$1 )
 					if( OP$1 != 30ll ) goto label$289;
 					label$290:;
 					{
-						int64 TMP$105$6;
+						int64 TMP$108$6;
 						if( (*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 480ll) == 0ll ) goto label$291;
-						TMP$105$6 = 24ll;
-						goto label$689;
+						TMP$108$6 = 24ll;
+						goto label$800;
 						label$291:;
-						TMP$105$6 = *(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 31ll;
-						label$689:;
-						if( EXPONENT$1 <= (*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$105$6 * 56ll)) + 8ll) << (3ll & 63ll)) ) goto label$293;
+						TMP$108$6 = *(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 31ll;
+						label$800:;
+						if( EXPONENT$1 <= (*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$108$6 * 56ll)) + 8ll) << (3ll & 63ll)) ) goto label$293;
 						{
 							goto label$273;
 						}
@@ -2784,27 +2861,27 @@ static void HOPTTOSHIFT( struct $7ASTNODE* N$1 )
 					if( OP$1 != 32ll ) goto label$294;
 					label$295:;
 					{
-						int64 TMP$106$6;
-						int64 TMP$107$6;
+						int64 TMP$109$6;
+						int64 TMP$110$6;
 						if( (*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 480ll) == 0ll ) goto label$296;
-						TMP$106$6 = 24ll;
-						goto label$690;
+						TMP$109$6 = 24ll;
+						goto label$801;
 						label$296:;
-						TMP$106$6 = *(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 31ll;
-						label$690:;
-						if( EXPONENT$1 <= (*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$106$6 * 56ll)) + 8ll) << (3ll & 63ll)) ) goto label$298;
+						TMP$109$6 = *(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 31ll;
+						label$801:;
+						if( EXPONENT$1 <= (*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$109$6 * 56ll)) + 8ll) << (3ll & 63ll)) ) goto label$298;
 						{
 							goto label$273;
 						}
 						label$298:;
 						label$297:;
 						if( (*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 480ll) == 0ll ) goto label$299;
-						TMP$107$6 = 24ll;
-						goto label$691;
+						TMP$110$6 = 24ll;
+						goto label$802;
 						label$299:;
-						TMP$107$6 = *(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 31ll;
-						label$691:;
-						if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$107$6 * 56ll)) + 16ll) != 0ll ) goto label$301;
+						TMP$110$6 = *(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 31ll;
+						label$802:;
+						if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$110$6 * 56ll)) + 16ll) != 0ll ) goto label$301;
 						{
 							*(int64*)((uint8*)N$1 + 40ll) = 42ll;
 							*(int64*)((uint8*)R$1 + 40ll) = EXPONENT$1;
@@ -2821,14 +2898,14 @@ static void HOPTTOSHIFT( struct $7ASTNODE* N$1 )
 					if( OP$1 != 33ll ) goto label$302;
 					label$303:;
 					{
-						int64 TMP$108$6;
+						int64 TMP$111$6;
 						if( ((*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 511ll) & 480ll) == 0ll ) goto label$304;
-						TMP$108$6 = 24ll;
-						goto label$692;
+						TMP$111$6 = 24ll;
+						goto label$803;
 						label$304:;
-						TMP$108$6 = (*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 511ll) & 31ll;
-						label$692:;
-						if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$108$6 * 56ll)) + 16ll) == 0ll ) goto label$306;
+						TMP$111$6 = (*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 511ll) & 31ll;
+						label$803:;
+						if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$111$6 * 56ll)) + 16ll) == 0ll ) goto label$306;
 						{
 							goto label$273;
 						}
@@ -2864,48 +2941,472 @@ static void HOPTTOSHIFT( struct $7ASTNODE* N$1 )
 	label$268:;
 }
 
-static struct $7ASTNODE* HOPTCONSTCONV( struct $7ASTNODE* N$1 )
+static struct $7ASTNODE* HTRYREMOVECAST( struct $7ASTNODE* N$1, $11FB_DATATYPE DTYPE$1 )
 {
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$311:;
 	struct $7ASTNODE* L$1;
-	struct $7ASTNODE* N_OLD$1;
-	int64 V$1;
-	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$314;
+	int64 OP$1;
+	if( *(int64*)N$1 == 5ll ) goto label$314;
 	{
-		fb$result$1 = (struct $7ASTNODE*)0ull;
+		fb$result$1 = N$1;
 		goto label$312;
 	}
 	label$314:;
 	label$313:;
-	if( *(int64*)N$1 != 5ll ) goto label$316;
+	{
+		int64 TMP$112$2;
+		TMP$112$2 = *(int64*)((uint8*)N$1 + 8ll) & 511ll;
+		if( TMP$112$2 == 8ll ) goto label$317;
+		label$318:;
+		if( TMP$112$2 != 9ll ) goto label$316;
+		label$317:;
+		{
+		}
+		goto label$315;
+		label$316:;
+		if( TMP$112$2 == 11ll ) goto label$320;
+		label$321:;
+		if( TMP$112$2 != 12ll ) goto label$319;
+		label$320:;
+		{
+		}
+		goto label$315;
+		label$319:;
+		{
+			fb$result$1 = N$1;
+			goto label$312;
+		}
+		label$322:;
+		label$315:;
+	}
+	L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
+	{
+		int64 TMP$113$2;
+		TMP$113$2 = *(int64*)((uint8*)L$1 + 8ll) & 511ll;
+		if( TMP$113$2 == 11ll ) goto label$325;
+		label$326:;
+		if( TMP$113$2 != 12ll ) goto label$324;
+		label$325:;
+		{
+			ASTDELNODE( N$1 );
+			fb$result$1 = L$1;
+			goto label$312;
+		}
+		label$324:;
+		label$323:;
+	}
+	*(int64*)((uint8*)N$1 + 8ll) = (*(int64*)((uint8*)N$1 + 8ll) & -512ll) | (DTYPE$1 & 511ll);
+	fb$result$1 = N$1;
+	goto label$312;
+	label$312:;
+	return fb$result$1;
+}
+
+static $11FB_DATATYPE HGETOPERANDAS32BIT( struct $7ASTNODE* N$1 )
+{
+	int64 TMP$114$1;
+	int64 TMP$115$1;
+	int64 TMP$118$1;
+	int64 TMP$119$1;
+	int64 TMP$120$1;
+	$11FB_DATATYPE TMP$121$1;
+	$11FB_DATATYPE fb$result$1;
+	__builtin_memset( &fb$result$1, 0, 8ll );
+	label$327:;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$330;
+	{
+		fb$result$1 = 0ll;
+		goto label$328;
+	}
+	label$330:;
+	label$329:;
+	if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$331;
+	TMP$114$1 = 24ll;
+	goto label$804;
+	label$331:;
+	TMP$114$1 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+	label$804:;
+	if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$114$1 * 56ll)) == 0ll ) goto label$333;
+	{
+		fb$result$1 = 0ll;
+		goto label$328;
+	}
+	label$333:;
+	label$332:;
+	if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$334;
+	TMP$115$1 = 24ll;
+	goto label$805;
+	label$334:;
+	TMP$115$1 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+	label$805:;
+	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$115$1 * 56ll)) + 8ll) != 4ll ) goto label$336;
+	{
+		int64 TMP$116$2;
+		$11FB_DATATYPE TMP$117$2;
+		if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$337;
+		TMP$116$2 = 24ll;
+		goto label$806;
+		label$337:;
+		TMP$116$2 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+		label$806:;
+		if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$116$2 * 56ll)) + 16ll) == 0ll ) goto label$338;
+		TMP$117$2 = 11ll;
+		goto label$807;
+		label$338:;
+		TMP$117$2 = 12ll;
+		label$807:;
+		fb$result$1 = TMP$117$2;
+		goto label$328;
+	}
+	label$336:;
+	label$335:;
+	if( *(int64*)N$1 == 5ll ) goto label$340;
+	{
+		fb$result$1 = 0ll;
+		goto label$328;
+	}
+	label$340:;
+	label$339:;
+	if( ((*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 511ll) & 480ll) == 0ll ) goto label$341;
+	TMP$118$1 = 24ll;
+	goto label$808;
+	label$341:;
+	TMP$118$1 = (*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 511ll) & 31ll;
+	label$808:;
+	if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$118$1 * 56ll)) == 0ll ) goto label$343;
+	{
+		fb$result$1 = 0ll;
+		goto label$328;
+	}
+	label$343:;
+	label$342:;
+	if( ((*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 511ll) & 480ll) == 0ll ) goto label$344;
+	TMP$119$1 = 24ll;
+	goto label$809;
+	label$344:;
+	TMP$119$1 = (*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 511ll) & 31ll;
+	label$809:;
+	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$119$1 * 56ll)) + 8ll) <= 4ll ) goto label$346;
+	{
+		fb$result$1 = 0ll;
+		goto label$328;
+	}
+	label$346:;
+	label$345:;
+	if( ((*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 511ll) & 480ll) == 0ll ) goto label$347;
+	TMP$120$1 = 24ll;
+	goto label$810;
+	label$347:;
+	TMP$120$1 = (*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) + 8ll) & 511ll) & 31ll;
+	label$810:;
+	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$120$1 * 56ll)) + 16ll) == 0ll ) goto label$348;
+	TMP$121$1 = 11ll;
+	goto label$811;
+	label$348:;
+	TMP$121$1 = 12ll;
+	label$811:;
+	fb$result$1 = TMP$121$1;
+	goto label$328;
+	label$328:;
+	return fb$result$1;
+}
+
+static struct $7ASTNODE* HOPTBOP32( struct $7ASTNODE* N$1 )
+{
+	int64 TMP$122$1;
+	int64 TMP$126$1;
+	int64 TMP$127$1;
+	int64 TMP$128$1;
+	struct $7ASTNODE* fb$result$1;
+	__builtin_memset( &fb$result$1, 0, 8ll );
+	label$349:;
+	struct $7ASTNODE* L$1;
+	$11FB_DATATYPE LDTYPE$1;
+	$11FB_DATATYPE RDTYPE$1;
+	int64 OP$1;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$352;
+	{
+		fb$result$1 = N$1;
+		goto label$350;
+	}
+	label$352:;
+	label$351:;
+	int64 vr$1 = FBGETCPUFAMILY(  );
+	if( vr$1 == 1ll ) goto label$354;
+	{
+		fb$result$1 = N$1;
+		goto label$350;
+	}
+	label$354:;
+	label$353:;
+	if( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) == (struct $7ASTNODE*)0ull ) goto label$356;
+	{
+		struct $7ASTNODE* vr$4 = HOPTBOP32( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) );
+		*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) = vr$4;
+	}
+	label$356:;
+	label$355:;
+	if( *(struct $7ASTNODE**)((uint8*)N$1 + 120ll) == (struct $7ASTNODE*)0ull ) goto label$358;
+	{
+		struct $7ASTNODE* vr$8 = HOPTBOP32( *(struct $7ASTNODE**)((uint8*)N$1 + 120ll) );
+		*(struct $7ASTNODE**)((uint8*)N$1 + 120ll) = vr$8;
+	}
+	label$358:;
+	label$357:;
+	if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$359;
+	TMP$122$1 = 24ll;
+	goto label$812;
+	label$359:;
+	TMP$122$1 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+	label$812:;
+	if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$122$1 * 56ll)) == 0ll ) goto label$361;
+	{
+		fb$result$1 = N$1;
+		goto label$350;
+	}
+	label$361:;
+	label$360:;
+	{
+		$13AST_NODECLASS TMP$123$2;
+		TMP$123$2 = *($13AST_NODECLASS*)N$1;
+		if( TMP$123$2 != 3ll ) goto label$363;
+		label$364:;
+		{
+			L$1 = N$1;
+		}
+		goto label$362;
+		label$363:;
+		if( TMP$123$2 != 5ll ) goto label$365;
+		label$366:;
+		{
+			L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
+		}
+		goto label$362;
+		label$365:;
+		{
+			fb$result$1 = N$1;
+			goto label$350;
+		}
+		label$367:;
+		label$362:;
+	}
+	OP$1 = *(int64*)((uint8*)L$1 + 40ll);
+	{
+		if( OP$1 != 41ll ) goto label$369;
+		label$370:;
+		{
+			{
+				$13AST_NODECLASS TMP$124$4;
+				TMP$124$4 = *($13AST_NODECLASS*)N$1;
+				if( TMP$124$4 != 5ll ) goto label$372;
+				label$373:;
+				{
+					int64 TMP$125$5;
+					if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$374;
+					TMP$125$5 = 24ll;
+					goto label$813;
+					label$374:;
+					TMP$125$5 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+					label$813:;
+					if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$125$5 * 56ll)) + 8ll) <= 4ll ) goto label$376;
+					{
+						fb$result$1 = N$1;
+						goto label$350;
+					}
+					label$376:;
+					label$375:;
+				}
+				goto label$371;
+				label$372:;
+				{
+					fb$result$1 = N$1;
+					goto label$350;
+				}
+				label$377:;
+				label$371:;
+			}
+		}
+		goto label$368;
+		label$369:;
+		if( OP$1 == 33ll ) goto label$379;
+		label$380:;
+		if( OP$1 != 32ll ) goto label$378;
+		label$379:;
+		{
+		}
+		goto label$368;
+		label$378:;
+		{
+			fb$result$1 = N$1;
+			goto label$350;
+		}
+		label$381:;
+		label$368:;
+	}
+	if( ((*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$382;
+	TMP$126$1 = 24ll;
+	goto label$814;
+	label$382:;
+	TMP$126$1 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
+	label$814:;
+	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$126$1 * 56ll)) + 8ll) > 4ll ) goto label$384;
+	{
+		fb$result$1 = N$1;
+		goto label$350;
+	}
+	label$384:;
+	label$383:;
+	$11FB_DATATYPE vr$36 = HGETOPERANDAS32BIT( *(struct $7ASTNODE**)((uint8*)L$1 + 112ll) );
+	LDTYPE$1 = vr$36;
+	if( LDTYPE$1 != 0ll ) goto label$386;
+	{
+		fb$result$1 = N$1;
+		goto label$350;
+	}
+	label$386:;
+	label$385:;
+	$11FB_DATATYPE vr$38 = HGETOPERANDAS32BIT( *(struct $7ASTNODE**)((uint8*)L$1 + 120ll) );
+	RDTYPE$1 = vr$38;
+	if( RDTYPE$1 != 0ll ) goto label$388;
+	{
+		fb$result$1 = N$1;
+		goto label$350;
+	}
+	label$388:;
+	label$387:;
+	if( (LDTYPE$1 & 480ll) == 0ll ) goto label$389;
+	TMP$127$1 = 24ll;
+	goto label$815;
+	label$389:;
+	TMP$127$1 = LDTYPE$1 & 31ll;
+	label$815:;
+	if( (RDTYPE$1 & 480ll) == 0ll ) goto label$390;
+	TMP$128$1 = 24ll;
+	goto label$816;
+	label$390:;
+	TMP$128$1 = RDTYPE$1 & 31ll;
+	label$816:;
+	if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$127$1 * 56ll)) + 16ll) == *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$128$1 * 56ll)) + 16ll) ) goto label$392;
+	{
+		fb$result$1 = N$1;
+		goto label$350;
+	}
+	label$392:;
+	label$391:;
+	{
+		$13AST_NODECLASS TMP$129$2;
+		TMP$129$2 = *($13AST_NODECLASS*)N$1;
+		if( TMP$129$2 != 5ll ) goto label$394;
+		label$395:;
+		{
+			int64 TMP$130$3;
+			if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$396;
+			TMP$130$3 = 24ll;
+			goto label$817;
+			label$396:;
+			TMP$130$3 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+			label$817:;
+			if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$130$3 * 56ll)) + 8ll) > 4ll ) goto label$398;
+			{
+				*(int64*)((uint8*)L$1 + 8ll) = (*(int64*)((uint8*)L$1 + 8ll) & -512ll) | (LDTYPE$1 & 511ll);
+			}
+			label$398:;
+			label$397:;
+			ASTDELNODE( N$1 );
+			N$1 = L$1;
+		}
+		goto label$393;
+		label$394:;
+		if( TMP$129$2 != 3ll ) goto label$399;
+		label$400:;
+		{
+			int64 TMP$131$3;
+			int64 TMP$132$3;
+			$11FB_DATATYPE TMP$133$3;
+			if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$401;
+			TMP$131$3 = 24ll;
+			goto label$818;
+			label$401:;
+			TMP$131$3 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+			label$818:;
+			if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$131$3 * 56ll)) + 8ll) < 4ll ) goto label$403;
+			{
+				*(int64*)((uint8*)L$1 + 8ll) = (*(int64*)((uint8*)L$1 + 8ll) & -512ll) | (LDTYPE$1 & 511ll);
+			}
+			label$403:;
+			label$402:;
+			if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$404;
+			TMP$132$3 = 24ll;
+			goto label$819;
+			label$404:;
+			TMP$132$3 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+			label$819:;
+			if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$132$3 * 56ll)) + 16ll) == 0ll ) goto label$405;
+			TMP$133$3 = 8ll;
+			goto label$820;
+			label$405:;
+			TMP$133$3 = 9ll;
+			label$820:;
+			struct $7ASTNODE* vr$77 = ASTNEWCONV( TMP$133$3, (struct $8FBSYMBOL*)0ull, N$1, 0ll, (int64*)0ull );
+			N$1 = vr$77;
+		}
+		label$399:;
+		label$393:;
+	}
+	struct $7ASTNODE* vr$79 = HTRYREMOVECAST( *(struct $7ASTNODE**)((uint8*)L$1 + 112ll), LDTYPE$1 );
+	*(struct $7ASTNODE**)((uint8*)L$1 + 112ll) = vr$79;
+	struct $7ASTNODE* vr$82 = HTRYREMOVECAST( *(struct $7ASTNODE**)((uint8*)L$1 + 120ll), RDTYPE$1 );
+	*(struct $7ASTNODE**)((uint8*)L$1 + 120ll) = vr$82;
+	fb$result$1 = N$1;
+	goto label$350;
+	label$350:;
+	return fb$result$1;
+}
+
+static struct $7ASTNODE* HOPTCONSTCONV( struct $7ASTNODE* N$1 )
+{
+	struct $7ASTNODE* fb$result$1;
+	__builtin_memset( &fb$result$1, 0, 8ll );
+	label$406:;
+	struct $7ASTNODE* L$1;
+	struct $7ASTNODE* N_OLD$1;
+	int64 V$1;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$409;
+	{
+		fb$result$1 = (struct $7ASTNODE*)0ull;
+		goto label$407;
+	}
+	label$409:;
+	label$408:;
+	if( *(int64*)N$1 != 5ll ) goto label$411;
 	{
 		L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
-		if( *(int64*)L$1 != 16ll ) goto label$318;
+		if( *(int64*)L$1 != 16ll ) goto label$413;
 		{
-			int64 TMP$109$3;
-			if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$319;
-			TMP$109$3 = 24ll;
-			goto label$693;
-			label$319:;
-			TMP$109$3 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
-			label$693:;
-			if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$109$3 * 56ll)) != 0ll ) goto label$321;
+			int64 TMP$134$3;
+			if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$414;
+			TMP$134$3 = 24ll;
+			goto label$821;
+			label$414:;
+			TMP$134$3 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+			label$821:;
+			if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$134$3 * 56ll)) != 0ll ) goto label$416;
 			{
-				int64 TMP$110$4;
-				if( ((*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$322;
-				TMP$110$4 = 24ll;
-				goto label$694;
-				label$322:;
-				TMP$110$4 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
-				label$694:;
-				if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$110$4 * 56ll)) != 0ll ) goto label$324;
+				int64 TMP$135$4;
+				if( ((*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$417;
+				TMP$135$4 = 24ll;
+				goto label$822;
+				label$417:;
+				TMP$135$4 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
+				label$822:;
+				if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$135$4 * 56ll)) != 0ll ) goto label$419;
 				{
-					if( *(int64*)L$1 != 16ll ) goto label$326;
+					if( *(int64*)L$1 != 16ll ) goto label$421;
 					{
 						V$1 = *(int64*)((uint8*)L$1 + 40ll);
-						if( V$1 != 0ll ) goto label$328;
+						if( V$1 != 0ll ) goto label$423;
 						{
 							N_OLD$1 = N$1;
 							struct $7ASTNODE* vr$22 = ASTNEWCONSTI( V$1, *(int64*)((uint8*)N$1 + 8ll), *(struct $8FBSYMBOL**)((uint8*)N$1 + 16ll) );
@@ -2913,25 +3414,25 @@ static struct $7ASTNODE* HOPTCONSTCONV( struct $7ASTNODE* N$1 )
 							ASTDELNODE( L$1 );
 							ASTDELNODE( N_OLD$1 );
 						}
-						label$328:;
-						label$327:;
+						label$423:;
+						label$422:;
 					}
-					label$326:;
-					label$325:;
+					label$421:;
+					label$420:;
 				}
-				label$324:;
-				label$323:;
+				label$419:;
+				label$418:;
 			}
-			label$321:;
-			label$320:;
+			label$416:;
+			label$415:;
 		}
-		label$318:;
-		label$317:;
+		label$413:;
+		label$412:;
 	}
-	label$316:;
-	label$315:;
+	label$411:;
+	label$410:;
 	fb$result$1 = N$1;
-	label$312:;
+	label$407:;
 	return fb$result$1;
 }
 
@@ -2939,27 +3440,27 @@ static struct $7ASTNODE* HOPTNULLOP( struct $7ASTNODE* N$1 )
 {
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$329:;
+	label$424:;
 	struct $7ASTNODE* L$1;
 	struct $7ASTNODE* R$1;
 	int64 OP$1;
 	int64 V$1;
 	int64 KEEP_L$1;
 	int64 KEEP_R$1;
-	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$332;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$427;
 	{
 		fb$result$1 = (struct $7ASTNODE*)0ull;
-		goto label$330;
+		goto label$425;
 	}
-	label$332:;
-	label$331:;
+	label$427:;
+	label$426:;
 	struct $7ASTNODE* vr$2 = HOPTNULLOP( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) );
 	*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) = vr$2;
 	struct $7ASTNODE* vr$5 = HOPTNULLOP( *(struct $7ASTNODE**)((uint8*)N$1 + 120ll) );
 	*(struct $7ASTNODE**)((uint8*)N$1 + 120ll) = vr$5;
-	if( *(int64*)N$1 != 3ll ) goto label$334;
+	if( *(int64*)N$1 != 3ll ) goto label$429;
 	{
-		int64 TMP$111$2;
+		int64 TMP$136$2;
 		OP$1 = *(int64*)((uint8*)N$1 + 40ll);
 		L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
 		R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
@@ -2967,323 +3468,323 @@ static struct $7ASTNODE* HOPTNULLOP( struct $7ASTNODE* N$1 )
 		KEEP_L$1 = vr$11;
 		int64 vr$12 = ASTHASSIDEFX( R$1 );
 		KEEP_R$1 = vr$12;
-		if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$335;
-		TMP$111$2 = 24ll;
-		goto label$695;
-		label$335:;
-		TMP$111$2 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
-		label$695:;
-		if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$111$2 * 56ll)) != 0ll ) goto label$337;
+		if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$430;
+		TMP$136$2 = 24ll;
+		goto label$823;
+		label$430:;
+		TMP$136$2 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+		label$823:;
+		if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$136$2 * 56ll)) != 0ll ) goto label$432;
 		{
-			if( *(int64*)R$1 != 16ll ) goto label$339;
+			if( *(int64*)R$1 != 16ll ) goto label$434;
 			{
 				V$1 = *(int64*)((uint8*)R$1 + 40ll);
 				{
-					uint64 TMP$112$5;
-					TMP$112$5 = (uint64)OP$1;
-					goto label$341;
-					label$342:;
+					uint64 TMP$137$5;
+					TMP$137$5 = (uint64)OP$1;
+					goto label$436;
+					label$437:;
 					{
-						if( V$1 != 0ll ) goto label$344;
+						if( V$1 != 0ll ) goto label$439;
 						{
-							if( KEEP_L$1 != 0ll ) goto label$346;
+							if( KEEP_L$1 != 0ll ) goto label$441;
 							{
 								ASTDELTREE( L$1 );
 								ASTDELNODE( N$1 );
 								fb$result$1 = R$1;
-								goto label$330;
+								goto label$425;
 							}
-							goto label$345;
-							label$346:;
+							goto label$440;
+							label$441:;
 							{
 								*(int64*)((uint8*)N$1 + 40ll) = 34ll;
 							}
-							label$345:;
+							label$440:;
 						}
-						goto label$343;
-						label$344:;
-						if( V$1 != 1ll ) goto label$347;
+						goto label$438;
+						label$439:;
+						if( V$1 != 1ll ) goto label$442;
 						{
 							ASTDELNODE( R$1 );
 							ASTDELNODE( N$1 );
 							fb$result$1 = L$1;
-							goto label$330;
+							goto label$425;
 						}
-						label$347:;
-						label$343:;
+						label$442:;
+						label$438:;
 					}
-					goto label$340;
-					label$348:;
+					goto label$435;
+					label$443:;
 					{
-						int64 TMP$113$6;
-						if( ((*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$349;
-						TMP$113$6 = 24ll;
-						goto label$696;
-						label$349:;
-						TMP$113$6 = (*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 31ll;
-						label$696:;
-						if( ((int64)-(V$1 == 1ll) | ((int64)-(V$1 == -1ll) & (int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$113$6 * 56ll)) + 16ll) != 0ll))) == 0ll ) goto label$351;
+						int64 TMP$138$6;
+						if( ((*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$444;
+						TMP$138$6 = 24ll;
+						goto label$824;
+						label$444:;
+						TMP$138$6 = (*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 31ll;
+						label$824:;
+						if( ((int64)-(V$1 == 1ll) | ((int64)-(V$1 == -1ll) & (int64)-(*(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$138$6 * 56ll)) + 16ll) != 0ll))) == 0ll ) goto label$446;
 						{
-							if( KEEP_L$1 != 0ll ) goto label$353;
+							if( KEEP_L$1 != 0ll ) goto label$448;
 							{
 								*(int64*)((uint8*)R$1 + 40ll) = 0ll;
 								ASTDELTREE( L$1 );
 								ASTDELNODE( N$1 );
 								fb$result$1 = R$1;
-								goto label$330;
+								goto label$425;
 							}
-							label$353:;
-							label$352:;
+							label$448:;
+							label$447:;
 						}
-						label$351:;
-						label$350:;
+						label$446:;
+						label$445:;
 					}
-					goto label$340;
-					label$354:;
+					goto label$435;
+					label$449:;
 					{
-						if( V$1 != 1ll ) goto label$356;
+						if( V$1 != 1ll ) goto label$451;
 						{
 							ASTDELNODE( R$1 );
 							ASTDELNODE( N$1 );
 							fb$result$1 = L$1;
-							goto label$330;
+							goto label$425;
 						}
-						label$356:;
-						label$355:;
+						label$451:;
+						label$450:;
 					}
-					goto label$340;
-					label$357:;
+					goto label$435;
+					label$452:;
 					{
-						if( V$1 != 0ll ) goto label$359;
+						if( V$1 != 0ll ) goto label$454;
 						{
 							ASTDELNODE( R$1 );
 							ASTDELNODE( N$1 );
 							fb$result$1 = L$1;
-							goto label$330;
+							goto label$425;
 						}
-						label$359:;
-						label$358:;
+						label$454:;
+						label$453:;
 					}
-					goto label$340;
-					label$360:;
+					goto label$435;
+					label$455:;
 					{
-						if( V$1 != -1ll ) goto label$362;
+						if( V$1 != -1ll ) goto label$457;
 						{
-							if( KEEP_L$1 != 0ll ) goto label$364;
+							if( KEEP_L$1 != 0ll ) goto label$459;
 							{
 								ASTDELTREE( L$1 );
 								ASTDELNODE( N$1 );
 								fb$result$1 = R$1;
-								goto label$330;
+								goto label$425;
 							}
-							label$364:;
-							label$363:;
+							label$459:;
+							label$458:;
 						}
-						label$362:;
-						label$361:;
+						label$457:;
+						label$456:;
 					}
-					goto label$340;
-					label$365:;
+					goto label$435;
+					label$460:;
 					{
-						if( V$1 != 0ll ) goto label$367;
+						if( V$1 != 0ll ) goto label$462;
 						{
 							ASTDELNODE( R$1 );
 							ASTDELNODE( N$1 );
 							fb$result$1 = L$1;
-							goto label$330;
+							goto label$425;
 						}
-						goto label$366;
-						label$367:;
-						if( V$1 != -1ll ) goto label$368;
+						goto label$461;
+						label$462:;
+						if( V$1 != -1ll ) goto label$463;
 						{
-							if( KEEP_L$1 != 0ll ) goto label$370;
+							if( KEEP_L$1 != 0ll ) goto label$465;
 							{
 								ASTDELTREE( L$1 );
 								ASTDELNODE( N$1 );
 								fb$result$1 = R$1;
-								goto label$330;
+								goto label$425;
 							}
-							label$370:;
-							label$369:;
+							label$465:;
+							label$464:;
 						}
-						label$368:;
-						label$366:;
+						label$463:;
+						label$461:;
 					}
-					goto label$340;
-					label$371:;
+					goto label$435;
+					label$466:;
 					{
-						if( V$1 != -1ll ) goto label$373;
+						if( V$1 != -1ll ) goto label$468;
 						{
 							ASTDELNODE( R$1 );
 							ASTDELNODE( N$1 );
 							fb$result$1 = L$1;
-							goto label$330;
+							goto label$425;
 						}
-						goto label$372;
-						label$373:;
-						if( V$1 != 0ll ) goto label$374;
+						goto label$467;
+						label$468:;
+						if( V$1 != 0ll ) goto label$469;
 						{
-							if( KEEP_L$1 != 0ll ) goto label$376;
+							if( KEEP_L$1 != 0ll ) goto label$471;
 							{
 								ASTDELTREE( L$1 );
 								ASTDELNODE( N$1 );
 								fb$result$1 = R$1;
-								goto label$330;
+								goto label$425;
 							}
-							label$376:;
-							label$375:;
+							label$471:;
+							label$470:;
 						}
-						label$374:;
-						label$372:;
+						label$469:;
+						label$467:;
 					}
-					goto label$340;
-					label$341:;
-					static const void* tmp$156[15ll] = {
-						&&label$357,
-						&&label$357,
-						&&label$342,
-						&&label$340,
-						&&label$354,
-						&&label$348,
-						&&label$371,
-						&&label$365,
-						&&label$340,
-						&&label$340,
-						&&label$357,
-						&&label$340,
-						&&label$360,
-						&&label$357,
-						&&label$357,
+					goto label$435;
+					label$436:;
+					static const void* tmp$184[15ll] = {
+						&&label$452,
+						&&label$452,
+						&&label$437,
+						&&label$435,
+						&&label$449,
+						&&label$443,
+						&&label$466,
+						&&label$460,
+						&&label$435,
+						&&label$435,
+						&&label$452,
+						&&label$435,
+						&&label$455,
+						&&label$452,
+						&&label$452,
 					};
-					if( (TMP$112$5 - 28ull) > 14ull ) goto label$340;
-					goto *tmp$156[TMP$112$5 - 28ull];
-					label$340:;
+					if( (TMP$137$5 - 28ull) > 14ull ) goto label$435;
+					goto *tmp$184[TMP$137$5 - 28ull];
+					label$435:;
 				}
 			}
-			goto label$338;
-			label$339:;
-			if( *(int64*)L$1 != 16ll ) goto label$377;
+			goto label$433;
+			label$434:;
+			if( *(int64*)L$1 != 16ll ) goto label$472;
 			{
 				V$1 = *(int64*)((uint8*)L$1 + 40ll);
 				{
-					uint64 TMP$114$5;
-					TMP$114$5 = (uint64)OP$1;
-					goto label$379;
-					label$380:;
+					uint64 TMP$139$5;
+					TMP$139$5 = (uint64)OP$1;
+					goto label$474;
+					label$475:;
 					{
-						if( V$1 != 0ll ) goto label$382;
+						if( V$1 != 0ll ) goto label$477;
 						{
-							if( KEEP_R$1 != 0ll ) goto label$384;
+							if( KEEP_R$1 != 0ll ) goto label$479;
 							{
 								ASTDELTREE( R$1 );
 								ASTDELNODE( N$1 );
 								fb$result$1 = L$1;
-								goto label$330;
+								goto label$425;
 							}
-							label$384:;
-							label$383:;
+							label$479:;
+							label$478:;
 						}
-						label$382:;
-						label$381:;
+						label$477:;
+						label$476:;
 					}
-					goto label$378;
-					label$379:;
-					static const void* tmp$157[13ll] = {
-						&&label$380,
-						&&label$378,
-						&&label$380,
-						&&label$380,
-						&&label$378,
-						&&label$378,
-						&&label$378,
-						&&label$378,
-						&&label$378,
-						&&label$378,
-						&&label$378,
-						&&label$380,
-						&&label$380,
+					goto label$473;
+					label$474:;
+					static const void* tmp$185[13ll] = {
+						&&label$475,
+						&&label$473,
+						&&label$475,
+						&&label$475,
+						&&label$473,
+						&&label$473,
+						&&label$473,
+						&&label$473,
+						&&label$473,
+						&&label$473,
+						&&label$473,
+						&&label$475,
+						&&label$475,
 					};
-					if( (TMP$114$5 - 30ull) > 12ull ) goto label$378;
-					goto *tmp$157[TMP$114$5 - 30ull];
-					label$378:;
+					if( (TMP$139$5 - 30ull) > 12ull ) goto label$473;
+					goto *tmp$185[TMP$139$5 - 30ull];
+					label$473:;
 				}
 			}
-			label$377:;
-			label$338:;
+			label$472:;
+			label$433:;
 		}
-		label$337:;
-		label$336:;
+		label$432:;
+		label$431:;
 	}
-	label$334:;
-	label$333:;
+	label$429:;
+	label$428:;
 	struct $7ASTNODE* vr$38 = HOPTCONSTCONV( N$1 );
 	fb$result$1 = vr$38;
-	label$330:;
+	label$425:;
 	return fb$result$1;
 }
 
 static struct $7ASTNODE* HOPTLOGIC( struct $7ASTNODE* N$1 )
 {
-	int64 TMP$115$1;
+	int64 TMP$140$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$385:;
+	label$480:;
 	struct $7ASTNODE* M$1;
 	struct $7ASTNODE* L$1;
 	struct $7ASTNODE* R$1;
 	int64 OP$1;
 	int64 V$1;
-	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$388;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$483;
 	{
 		fb$result$1 = N$1;
-		goto label$386;
+		goto label$481;
 	}
-	label$388:;
-	label$387:;
+	label$483:;
+	label$482:;
 	L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
-	if( L$1 == (struct $7ASTNODE*)0ull ) goto label$390;
+	if( L$1 == (struct $7ASTNODE*)0ull ) goto label$485;
 	{
 		struct $7ASTNODE* vr$2 = HOPTLOGIC( L$1 );
 		*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) = vr$2;
 		L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
 	}
-	label$390:;
-	label$389:;
+	label$485:;
+	label$484:;
 	R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
-	if( R$1 == (struct $7ASTNODE*)0ull ) goto label$392;
+	if( R$1 == (struct $7ASTNODE*)0ull ) goto label$487;
 	{
 		struct $7ASTNODE* vr$6 = HOPTLOGIC( R$1 );
 		*(struct $7ASTNODE**)((uint8*)N$1 + 120ll) = vr$6;
 		R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
 	}
-	label$392:;
-	label$391:;
-	if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$393;
-	TMP$115$1 = 24ll;
-	goto label$697;
-	label$393:;
-	TMP$115$1 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
-	label$697:;
-	if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$115$1 * 56ll)) != 0ll ) goto label$395;
+	label$487:;
+	label$486:;
+	if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$488;
+	TMP$140$1 = 24ll;
+	goto label$825;
+	label$488:;
+	TMP$140$1 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+	label$825:;
+	if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$140$1 * 56ll)) != 0ll ) goto label$490;
 	{
-		int64 TMP$116$2;
-		if( *(int64*)N$1 != 4ll ) goto label$396;
-		TMP$116$2 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 52ll);
-		goto label$698;
-		label$396:;
-		TMP$116$2 = 0ll;
-		label$698:;
-		if( TMP$116$2 == 0ll ) goto label$398;
+		int64 TMP$141$2;
+		if( *(int64*)N$1 != 4ll ) goto label$491;
+		TMP$141$2 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 52ll);
+		goto label$826;
+		label$491:;
+		TMP$141$2 = 0ll;
+		label$826:;
+		if( TMP$141$2 == 0ll ) goto label$493;
 		{
-			int64 TMP$117$3;
-			int64 TMP$118$3;
-			if( *(int64*)L$1 != 4ll ) goto label$399;
-			TMP$117$3 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 52ll);
-			goto label$699;
-			label$399:;
-			TMP$117$3 = 0ll;
-			label$699:;
-			if( TMP$117$3 == 0ll ) goto label$401;
+			int64 TMP$142$3;
+			int64 TMP$143$3;
+			if( *(int64*)L$1 != 4ll ) goto label$494;
+			TMP$142$3 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 52ll);
+			goto label$827;
+			label$494:;
+			TMP$142$3 = 0ll;
+			label$827:;
+			if( TMP$142$3 == 0ll ) goto label$496;
 			{
 				M$1 = *(struct $7ASTNODE**)((uint8*)L$1 + 112ll);
 				ASTDELNODE( L$1 );
@@ -3291,103 +3792,103 @@ static struct $7ASTNODE* HOPTLOGIC( struct $7ASTNODE* N$1 )
 				struct $7ASTNODE* vr$23 = HOPTLOGIC( M$1 );
 				N$1 = vr$23;
 			}
-			goto label$400;
-			label$401:;
-			if( *(int64*)L$1 != 3ll ) goto label$403;
-			TMP$118$3 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 38ll);
-			goto label$700;
-			label$403:;
-			TMP$118$3 = 0ll;
-			label$700:;
-			if( TMP$118$3 == 0ll ) goto label$402;
+			goto label$495;
+			label$496:;
+			if( *(int64*)L$1 != 3ll ) goto label$498;
+			TMP$143$3 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 38ll);
+			goto label$828;
+			label$498:;
+			TMP$143$3 = 0ll;
+			label$828:;
+			if( TMP$143$3 == 0ll ) goto label$497;
 			{
-				int64 TMP$119$4;
-				if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$404;
-				TMP$119$4 = 24ll;
-				goto label$701;
-				label$404:;
-				TMP$119$4 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
-				label$701:;
-				if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$119$4 * 56ll)) != 0ll ) goto label$406;
+				int64 TMP$144$4;
+				if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$499;
+				TMP$144$4 = 24ll;
+				goto label$829;
+				label$499:;
+				TMP$144$4 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+				label$829:;
+				if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$144$4 * 56ll)) != 0ll ) goto label$501;
 				{
-					if( *(int64*)*(struct $7ASTNODE**)((uint8*)L$1 + 112ll) != 16ll ) goto label$408;
+					if( *(int64*)*(struct $7ASTNODE**)((uint8*)L$1 + 112ll) != 16ll ) goto label$503;
 					{
 						*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)L$1 + 112ll) + 40ll) = ~(*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)L$1 + 112ll) + 40ll));
 						ASTDELNODE( N$1 );
 						struct $7ASTNODE* vr$41 = HOPTLOGIC( L$1 );
 						N$1 = vr$41;
 					}
-					goto label$407;
-					label$408:;
-					if( *(int64*)*(struct $7ASTNODE**)((uint8*)L$1 + 120ll) != 16ll ) goto label$409;
+					goto label$502;
+					label$503:;
+					if( *(int64*)*(struct $7ASTNODE**)((uint8*)L$1 + 120ll) != 16ll ) goto label$504;
 					{
 						*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)L$1 + 120ll) + 40ll) = ~(*(int64*)((uint8*)*(struct $7ASTNODE**)((uint8*)L$1 + 120ll) + 40ll));
 						ASTDELNODE( N$1 );
 						struct $7ASTNODE* vr$49 = HOPTLOGIC( L$1 );
 						N$1 = vr$49;
 					}
-					label$409:;
-					label$407:;
+					label$504:;
+					label$502:;
 				}
-				label$406:;
-				label$405:;
+				label$501:;
+				label$500:;
 			}
-			label$402:;
-			label$400:;
+			label$497:;
+			label$495:;
 		}
-		goto label$397;
-		label$398:;
-		if( *(int64*)N$1 != 3ll ) goto label$410;
+		goto label$492;
+		label$493:;
+		if( *(int64*)N$1 != 3ll ) goto label$505;
 		{
-			int64 TMP$120$3;
-			if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$411;
-			TMP$120$3 = 24ll;
-			goto label$702;
-			label$411:;
-			TMP$120$3 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
-			label$702:;
-			if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$120$3 * 56ll)) != 0ll ) goto label$413;
+			int64 TMP$145$3;
+			if( ((*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$506;
+			TMP$145$3 = 24ll;
+			goto label$830;
+			label$506:;
+			TMP$145$3 = (*(int64*)((uint8*)N$1 + 8ll) & 511ll) & 31ll;
+			label$830:;
+			if( *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$145$3 * 56ll)) != 0ll ) goto label$508;
 			{
 				OP$1 = *(int64*)((uint8*)N$1 + 40ll);
 				{
-					if( OP$1 == 35ll ) goto label$416;
-					label$417:;
-					if( OP$1 == 34ll ) goto label$416;
-					label$418:;
-					if( OP$1 != 38ll ) goto label$415;
-					label$416:;
+					if( OP$1 == 35ll ) goto label$511;
+					label$512:;
+					if( OP$1 == 34ll ) goto label$511;
+					label$513:;
+					if( OP$1 != 38ll ) goto label$510;
+					label$511:;
 					{
-						int64 TMP$121$6;
-						int64 TMP$122$6;
-						int64 TMP$123$6;
-						int64 TMP$124$6;
-						int64 TMP$125$6;
-						int64 TMP$126$6;
-						if( OP$1 != 34ll ) goto label$420;
+						int64 TMP$146$6;
+						int64 TMP$147$6;
+						int64 TMP$148$6;
+						int64 TMP$149$6;
+						int64 TMP$150$6;
+						int64 TMP$151$6;
+						if( OP$1 != 34ll ) goto label$515;
 						{
 							OP$1 = 35ll;
 						}
-						goto label$419;
-						label$420:;
-						if( OP$1 != 35ll ) goto label$421;
+						goto label$514;
+						label$515:;
+						if( OP$1 != 35ll ) goto label$516;
 						{
 							OP$1 = 34ll;
 						}
-						label$421:;
-						label$419:;
-						if( *(int64*)L$1 != 4ll ) goto label$422;
-						TMP$121$6 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 52ll);
-						goto label$703;
-						label$422:;
-						TMP$121$6 = 0ll;
-						label$703:;
-						if( *(int64*)R$1 != 4ll ) goto label$423;
-						TMP$122$6 = (int64)-(*(int64*)((uint8*)R$1 + 40ll) == 52ll);
-						goto label$704;
-						label$423:;
-						TMP$122$6 = 0ll;
-						label$704:;
-						if( (TMP$121$6 & TMP$122$6) == 0ll ) goto label$425;
+						label$516:;
+						label$514:;
+						if( *(int64*)L$1 != 4ll ) goto label$517;
+						TMP$146$6 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 52ll);
+						goto label$831;
+						label$517:;
+						TMP$146$6 = 0ll;
+						label$831:;
+						if( *(int64*)R$1 != 4ll ) goto label$518;
+						TMP$147$6 = (int64)-(*(int64*)((uint8*)R$1 + 40ll) == 52ll);
+						goto label$832;
+						label$518:;
+						TMP$147$6 = 0ll;
+						label$832:;
+						if( (TMP$146$6 & TMP$147$6) == 0ll ) goto label$520;
 						{
 							struct $7ASTNODE* vr$67 = HOPTLOGIC( *(struct $7ASTNODE**)((uint8*)L$1 + 112ll) );
 							L$1 = vr$67;
@@ -3395,77 +3896,77 @@ static struct $7ASTNODE* HOPTLOGIC( struct $7ASTNODE* N$1 )
 							R$1 = vr$69;
 							struct $7ASTNODE* vr$70 = ASTNEWBOP( OP$1, L$1, R$1, (struct $8FBSYMBOL*)0ull, 1ll );
 							M$1 = vr$70;
-							if( OP$1 == 38ll ) goto label$427;
+							if( OP$1 == 38ll ) goto label$522;
 							{
 								struct $7ASTNODE* vr$71 = ASTNEWUOP( 52ll, M$1 );
 								M$1 = vr$71;
 							}
-							label$427:;
-							label$426:;
+							label$522:;
+							label$521:;
 							ASTDELNODE( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) );
 							ASTDELNODE( *(struct $7ASTNODE**)((uint8*)N$1 + 120ll) );
 							ASTDELNODE( N$1 );
 							N$1 = M$1;
 						}
-						goto label$424;
-						label$425:;
-						if( *(int64*)R$1 != 4ll ) goto label$429;
-						TMP$123$6 = (int64)-(*(int64*)((uint8*)R$1 + 40ll) == 52ll);
-						goto label$705;
-						label$429:;
-						TMP$123$6 = 0ll;
-						label$705:;
-						if( ((int64)-(*(int64*)L$1 == 16ll) & TMP$123$6) == 0ll ) goto label$428;
+						goto label$519;
+						label$520:;
+						if( *(int64*)R$1 != 4ll ) goto label$524;
+						TMP$148$6 = (int64)-(*(int64*)((uint8*)R$1 + 40ll) == 52ll);
+						goto label$833;
+						label$524:;
+						TMP$148$6 = 0ll;
+						label$833:;
+						if( ((int64)-(*(int64*)L$1 == 16ll) & TMP$148$6) == 0ll ) goto label$523;
 						{
 							V$1 = *(int64*)((uint8*)L$1 + 40ll);
 							struct $7ASTNODE* vr$82 = ASTNEWBOP( OP$1, L$1, *(struct $7ASTNODE**)((uint8*)R$1 + 112ll), (struct $8FBSYMBOL*)0ull, 1ll );
 							M$1 = vr$82;
 							*(int64*)((uint8*)L$1 + 40ll) = ~V$1;
-							if( OP$1 == 38ll ) goto label$431;
+							if( OP$1 == 38ll ) goto label$526;
 							{
 								struct $7ASTNODE* vr$85 = ASTNEWUOP( 52ll, M$1 );
 								M$1 = vr$85;
 							}
-							label$431:;
-							label$430:;
+							label$526:;
+							label$525:;
 							ASTDELNODE( R$1 );
 							ASTDELNODE( N$1 );
 							N$1 = M$1;
 						}
-						goto label$424;
-						label$428:;
-						if( *(int64*)L$1 != 4ll ) goto label$433;
-						TMP$124$6 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 52ll);
-						goto label$706;
-						label$433:;
-						TMP$124$6 = 0ll;
-						label$706:;
-						if( ((int64)-(*(int64*)R$1 == 16ll) & TMP$124$6) == 0ll ) goto label$432;
+						goto label$519;
+						label$523:;
+						if( *(int64*)L$1 != 4ll ) goto label$528;
+						TMP$149$6 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 52ll);
+						goto label$834;
+						label$528:;
+						TMP$149$6 = 0ll;
+						label$834:;
+						if( ((int64)-(*(int64*)R$1 == 16ll) & TMP$149$6) == 0ll ) goto label$527;
 						{
 							V$1 = *(int64*)((uint8*)R$1 + 40ll);
 							struct $7ASTNODE* vr$94 = ASTNEWBOP( OP$1, *(struct $7ASTNODE**)((uint8*)L$1 + 112ll), R$1, (struct $8FBSYMBOL*)0ull, 1ll );
 							M$1 = vr$94;
 							*(int64*)((uint8*)R$1 + 40ll) = ~V$1;
-							if( OP$1 == 38ll ) goto label$435;
+							if( OP$1 == 38ll ) goto label$530;
 							{
 								struct $7ASTNODE* vr$97 = ASTNEWUOP( 52ll, M$1 );
 								M$1 = vr$97;
 							}
-							label$435:;
-							label$434:;
+							label$530:;
+							label$529:;
 							ASTDELNODE( L$1 );
 							ASTDELNODE( N$1 );
 							N$1 = M$1;
 						}
-						goto label$424;
-						label$432:;
-						if( *(int64*)L$1 != 4ll ) goto label$437;
-						TMP$125$6 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 52ll);
-						goto label$707;
-						label$437:;
-						TMP$125$6 = 0ll;
-						label$707:;
-						if( ((int64)-(OP$1 == 38ll) & TMP$125$6) == 0ll ) goto label$436;
+						goto label$519;
+						label$527:;
+						if( *(int64*)L$1 != 4ll ) goto label$532;
+						TMP$150$6 = (int64)-(*(int64*)((uint8*)L$1 + 40ll) == 52ll);
+						goto label$835;
+						label$532:;
+						TMP$150$6 = 0ll;
+						label$835:;
+						if( ((int64)-(OP$1 == 38ll) & TMP$150$6) == 0ll ) goto label$531;
 						{
 							struct $7ASTNODE* vr$103 = ASTNEWUOP( 52ll, N$1 );
 							M$1 = vr$103;
@@ -3473,15 +3974,15 @@ static struct $7ASTNODE* HOPTLOGIC( struct $7ASTNODE* N$1 )
 							ASTDELNODE( L$1 );
 							N$1 = M$1;
 						}
-						goto label$424;
-						label$436:;
-						if( *(int64*)R$1 != 4ll ) goto label$439;
-						TMP$126$6 = (int64)-(*(int64*)((uint8*)R$1 + 40ll) == 52ll);
-						goto label$708;
-						label$439:;
-						TMP$126$6 = 0ll;
-						label$708:;
-						if( ((int64)-(OP$1 == 38ll) & TMP$126$6) == 0ll ) goto label$438;
+						goto label$519;
+						label$531:;
+						if( *(int64*)R$1 != 4ll ) goto label$534;
+						TMP$151$6 = (int64)-(*(int64*)((uint8*)R$1 + 40ll) == 52ll);
+						goto label$836;
+						label$534:;
+						TMP$151$6 = 0ll;
+						label$836:;
+						if( ((int64)-(OP$1 == 38ll) & TMP$151$6) == 0ll ) goto label$533;
 						{
 							struct $7ASTNODE* vr$111 = ASTNEWUOP( 52ll, N$1 );
 							M$1 = vr$111;
@@ -3489,23 +3990,23 @@ static struct $7ASTNODE* HOPTLOGIC( struct $7ASTNODE* N$1 )
 							ASTDELNODE( R$1 );
 							N$1 = M$1;
 						}
-						label$438:;
-						label$424:;
+						label$533:;
+						label$519:;
 					}
-					label$415:;
-					label$414:;
+					label$510:;
+					label$509:;
 				}
 			}
-			label$413:;
-			label$412:;
+			label$508:;
+			label$507:;
 		}
-		label$410:;
-		label$397:;
+		label$505:;
+		label$492:;
 	}
-	label$395:;
-	label$394:;
+	label$490:;
+	label$489:;
 	fb$result$1 = N$1;
-	label$386:;
+	label$481:;
 	return fb$result$1;
 }
 
@@ -3513,120 +4014,120 @@ static struct $7ASTNODE* HDOOPTREMCONV( struct $7ASTNODE* N$1 )
 {
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$440:;
+	label$535:;
 	struct $7ASTNODE* L$1;
 	struct $7ASTNODE* R$1;
 	int64 DOREM$1;
-	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$443;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$538;
 	{
 		fb$result$1 = (struct $7ASTNODE*)0ull;
-		goto label$441;
+		goto label$536;
 	}
-	label$443:;
-	label$442:;
-	if( *(int64*)N$1 != 3ll ) goto label$445;
+	label$538:;
+	label$537:;
+	if( *(int64*)N$1 != 3ll ) goto label$540;
 	{
 		{
-			int64 TMP$127$3;
-			TMP$127$3 = *(int64*)((uint8*)N$1 + 8ll) & 511ll;
-			if( TMP$127$3 == 15ll ) goto label$448;
-			label$449:;
-			if( TMP$127$3 != 16ll ) goto label$447;
-			label$448:;
+			int64 TMP$152$3;
+			TMP$152$3 = *(int64*)((uint8*)N$1 + 8ll) & 511ll;
+			if( TMP$152$3 == 15ll ) goto label$543;
+			label$544:;
+			if( TMP$152$3 != 16ll ) goto label$542;
+			label$543:;
 			{
 				R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
-				if( *(int64*)R$1 != 5ll ) goto label$451;
+				if( *(int64*)R$1 != 5ll ) goto label$546;
 				{
-					if( *(int64*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) == 5ll ) goto label$453;
+					if( *(int64*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) == 5ll ) goto label$548;
 					{
 						{
-							int64 TMP$128$7;
-							TMP$128$7 = *(int64*)((uint8*)R$1 + 8ll) & 511ll;
-							if( TMP$128$7 == 15ll ) goto label$456;
-							label$457:;
-							if( TMP$128$7 != 16ll ) goto label$455;
-							label$456:;
+							int64 TMP$153$7;
+							TMP$153$7 = *(int64*)((uint8*)R$1 + 8ll) & 511ll;
+							if( TMP$153$7 == 15ll ) goto label$551;
+							label$552:;
+							if( TMP$153$7 != 16ll ) goto label$550;
+							label$551:;
 							{
 								L$1 = *(struct $7ASTNODE**)((uint8*)R$1 + 112ll);
 								{
-									int64 TMP$129$9;
-									int64 TMP$130$9;
-									if( ((*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$458;
-									TMP$129$9 = 24ll;
-									goto label$709;
-									label$458:;
-									TMP$129$9 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
-									label$709:;
-									TMP$130$9 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$129$9 * 56ll)) + 8ll);
-									if( TMP$130$9 == 2ll ) goto label$461;
-									label$462:;
-									if( TMP$130$9 != 4ll ) goto label$460;
-									label$461:;
+									int64 TMP$154$9;
+									int64 TMP$155$9;
+									if( ((*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$553;
+									TMP$154$9 = 24ll;
+									goto label$837;
+									label$553:;
+									TMP$154$9 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
+									label$837:;
+									TMP$155$9 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$154$9 * 56ll)) + 8ll);
+									if( TMP$155$9 == 2ll ) goto label$556;
+									label$557:;
+									if( TMP$155$9 != 4ll ) goto label$555;
+									label$556:;
 									{
 										DOREM$1 = 0ll;
 										{
-											$13AST_NODECLASS TMP$131$11;
-											TMP$131$11 = *($13AST_NODECLASS*)L$1;
-											if( TMP$131$11 == 17ll ) goto label$465;
-											label$466:;
-											if( TMP$131$11 == 18ll ) goto label$465;
-											label$467:;
-											if( TMP$131$11 == 19ll ) goto label$465;
-											label$468:;
-											if( TMP$131$11 != 20ll ) goto label$464;
-											label$465:;
+											$13AST_NODECLASS TMP$156$11;
+											TMP$156$11 = *($13AST_NODECLASS*)L$1;
+											if( TMP$156$11 == 17ll ) goto label$560;
+											label$561:;
+											if( TMP$156$11 == 18ll ) goto label$560;
+											label$562:;
+											if( TMP$156$11 == 19ll ) goto label$560;
+											label$563:;
+											if( TMP$156$11 != 20ll ) goto label$559;
+											label$560:;
 											{
-												int64 TMP$132$12;
-												if( ((*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$469;
-												TMP$132$12 = 24ll;
-												goto label$710;
-												label$469:;
-												TMP$132$12 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
-												label$710:;
-												if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$132$12 * 56ll)) + 16ll) == 0ll ) goto label$471;
+												int64 TMP$157$12;
+												if( ((*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$564;
+												TMP$157$12 = 24ll;
+												goto label$838;
+												label$564:;
+												TMP$157$12 = (*(int64*)((uint8*)L$1 + 8ll) & 511ll) & 31ll;
+												label$838:;
+												if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$157$12 * 56ll)) + 16ll) == 0ll ) goto label$566;
 												{
 													DOREM$1 = -1ll;
 												}
-												label$471:;
-												label$470:;
+												label$566:;
+												label$565:;
 											}
-											label$464:;
-											label$463:;
+											label$559:;
+											label$558:;
 										}
-										if( DOREM$1 == 0ll ) goto label$473;
+										if( DOREM$1 == 0ll ) goto label$568;
 										{
 											ASTDELNODE( R$1 );
 											*(struct $7ASTNODE**)((uint8*)N$1 + 120ll) = L$1;
 										}
-										label$473:;
-										label$472:;
+										label$568:;
+										label$567:;
 									}
-									label$460:;
-									label$459:;
+									label$555:;
+									label$554:;
 								}
 							}
-							label$455:;
-							label$454:;
+							label$550:;
+							label$549:;
 						}
 					}
-					label$453:;
-					label$452:;
+					label$548:;
+					label$547:;
 				}
-				label$451:;
-				label$450:;
+				label$546:;
+				label$545:;
 			}
-			label$447:;
-			label$446:;
+			label$542:;
+			label$541:;
 		}
 	}
-	label$445:;
-	label$444:;
+	label$540:;
+	label$539:;
 	struct $7ASTNODE* vr$28 = HDOOPTREMCONV( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) );
 	*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) = vr$28;
 	struct $7ASTNODE* vr$31 = HDOOPTREMCONV( *(struct $7ASTNODE**)((uint8*)N$1 + 120ll) );
 	*(struct $7ASTNODE**)((uint8*)N$1 + 120ll) = vr$31;
 	fb$result$1 = N$1;
-	label$441:;
+	label$536:;
 	return fb$result$1;
 }
 
@@ -3634,140 +4135,140 @@ static struct $7ASTNODE* HOPTSTRMULTCONCAT( struct $7ASTNODE* LNK$1, struct $7AS
 {
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$474:;
-	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$477;
+	label$569:;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$572;
 	{
 		fb$result$1 = (struct $7ASTNODE*)0ull;
-		goto label$475;
+		goto label$570;
 	}
-	label$477:;
-	label$476:;
-	if( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) == (struct $7ASTNODE*)0ull ) goto label$479;
+	label$572:;
+	label$571:;
+	if( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) == (struct $7ASTNODE*)0ull ) goto label$574;
 	{
-		if( *(int64*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) != 3ll ) goto label$481;
+		if( *(int64*)*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) != 3ll ) goto label$576;
 		{
 			struct $7ASTNODE* vr$5 = HOPTSTRMULTCONCAT( LNK$1, DST$1, *(struct $7ASTNODE**)((uint8*)N$1 + 112ll), IS_WSTR$1 );
 			LNK$1 = vr$5;
 			*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) = (struct $7ASTNODE*)0ull;
 		}
-		label$481:;
-		label$480:;
+		label$576:;
+		label$575:;
 	}
-	label$479:;
-	label$478:;
-	if( *(int64*)N$1 != 3ll ) goto label$483;
+	label$574:;
+	label$573:;
+	if( *(int64*)N$1 != 3ll ) goto label$578;
 	{
-		if( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) == (struct $7ASTNODE*)0ull ) goto label$485;
+		if( *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) == (struct $7ASTNODE*)0ull ) goto label$580;
 		{
-			if( LNK$1 != (struct $7ASTNODE*)0ull ) goto label$487;
+			if( LNK$1 != (struct $7ASTNODE*)0ull ) goto label$582;
 			{
-				if( IS_WSTR$1 != 0ll ) goto label$489;
+				if( IS_WSTR$1 != 0ll ) goto label$584;
 				{
 					struct $7ASTNODE* vr$10 = ASTCLONETREE( DST$1 );
 					struct $7ASTNODE* vr$11 = RTLSTRASSIGN( vr$10, *(struct $7ASTNODE**)((uint8*)N$1 + 112ll), 0ll );
 					LNK$1 = vr$11;
 				}
-				goto label$488;
-				label$489:;
+				goto label$583;
+				label$584:;
 				{
 					struct $7ASTNODE* vr$13 = ASTCLONETREE( DST$1 );
 					struct $7ASTNODE* vr$14 = RTLWSTRASSIGN( vr$13, *(struct $7ASTNODE**)((uint8*)N$1 + 112ll), 0ll );
 					LNK$1 = vr$14;
 				}
-				label$488:;
+				label$583:;
 			}
-			goto label$486;
-			label$487:;
+			goto label$581;
+			label$582:;
 			{
-				if( IS_WSTR$1 != 0ll ) goto label$491;
+				if( IS_WSTR$1 != 0ll ) goto label$586;
 				{
 					struct $7ASTNODE* vr$16 = ASTCLONETREE( DST$1 );
 					struct $7ASTNODE* vr$17 = RTLSTRCONCATASSIGN( vr$16, *(struct $7ASTNODE**)((uint8*)N$1 + 112ll), 0ll );
 					struct $7ASTNODE* vr$18 = ASTNEWLINK( LNK$1, vr$17, 0ll );
 					LNK$1 = vr$18;
 				}
-				goto label$490;
-				label$491:;
+				goto label$585;
+				label$586:;
 				{
 					struct $7ASTNODE* vr$20 = ASTCLONETREE( DST$1 );
 					struct $7ASTNODE* vr$21 = RTLWSTRCONCATASSIGN( vr$20, *(struct $7ASTNODE**)((uint8*)N$1 + 112ll) );
 					struct $7ASTNODE* vr$22 = ASTNEWLINK( LNK$1, vr$21, 0ll );
 					LNK$1 = vr$22;
 				}
-				label$490:;
+				label$585:;
 			}
-			label$486:;
+			label$581:;
 		}
-		label$485:;
-		label$484:;
-		if( *(struct $7ASTNODE**)((uint8*)N$1 + 120ll) == (struct $7ASTNODE*)0ull ) goto label$493;
+		label$580:;
+		label$579:;
+		if( *(struct $7ASTNODE**)((uint8*)N$1 + 120ll) == (struct $7ASTNODE*)0ull ) goto label$588;
 		{
-			if( IS_WSTR$1 != 0ll ) goto label$495;
+			if( IS_WSTR$1 != 0ll ) goto label$590;
 			{
 				struct $7ASTNODE* vr$25 = ASTCLONETREE( DST$1 );
 				struct $7ASTNODE* vr$26 = RTLSTRCONCATASSIGN( vr$25, *(struct $7ASTNODE**)((uint8*)N$1 + 120ll), 0ll );
 				struct $7ASTNODE* vr$27 = ASTNEWLINK( LNK$1, vr$26, 0ll );
 				LNK$1 = vr$27;
 			}
-			goto label$494;
-			label$495:;
+			goto label$589;
+			label$590:;
 			{
 				struct $7ASTNODE* vr$29 = ASTCLONETREE( DST$1 );
 				struct $7ASTNODE* vr$30 = RTLWSTRCONCATASSIGN( vr$29, *(struct $7ASTNODE**)((uint8*)N$1 + 120ll) );
 				struct $7ASTNODE* vr$31 = ASTNEWLINK( LNK$1, vr$30, 0ll );
 				LNK$1 = vr$31;
 			}
-			label$494:;
+			label$589:;
 		}
-		label$493:;
-		label$492:;
+		label$588:;
+		label$587:;
 		ASTDELNODE( N$1 );
 	}
-	goto label$482;
-	label$483:;
+	goto label$577;
+	label$578:;
 	{
-		if( LNK$1 != (struct $7ASTNODE*)0ull ) goto label$497;
+		if( LNK$1 != (struct $7ASTNODE*)0ull ) goto label$592;
 		{
-			if( IS_WSTR$1 != 0ll ) goto label$499;
+			if( IS_WSTR$1 != 0ll ) goto label$594;
 			{
 				struct $7ASTNODE* vr$32 = ASTCLONETREE( DST$1 );
 				struct $7ASTNODE* vr$33 = RTLSTRASSIGN( vr$32, N$1, 0ll );
 				LNK$1 = vr$33;
 			}
-			goto label$498;
-			label$499:;
+			goto label$593;
+			label$594:;
 			{
 				struct $7ASTNODE* vr$34 = ASTCLONETREE( DST$1 );
 				struct $7ASTNODE* vr$35 = RTLWSTRASSIGN( vr$34, N$1, 0ll );
 				LNK$1 = vr$35;
 			}
-			label$498:;
+			label$593:;
 		}
-		goto label$496;
-		label$497:;
+		goto label$591;
+		label$592:;
 		{
-			if( IS_WSTR$1 != 0ll ) goto label$501;
+			if( IS_WSTR$1 != 0ll ) goto label$596;
 			{
 				struct $7ASTNODE* vr$36 = ASTCLONETREE( DST$1 );
 				struct $7ASTNODE* vr$37 = RTLSTRCONCATASSIGN( vr$36, N$1, 0ll );
 				struct $7ASTNODE* vr$38 = ASTNEWLINK( LNK$1, vr$37, 0ll );
 				LNK$1 = vr$38;
 			}
-			goto label$500;
-			label$501:;
+			goto label$595;
+			label$596:;
 			{
 				struct $7ASTNODE* vr$39 = ASTCLONETREE( DST$1 );
 				struct $7ASTNODE* vr$40 = RTLWSTRCONCATASSIGN( vr$39, N$1 );
 				struct $7ASTNODE* vr$41 = ASTNEWLINK( LNK$1, vr$40, 0ll );
 				LNK$1 = vr$41;
 			}
-			label$500:;
+			label$595:;
 		}
-		label$496:;
+		label$591:;
 	}
-	label$482:;
+	label$577:;
 	fb$result$1 = LNK$1;
-	label$475:;
+	label$570:;
 	return fb$result$1;
 }
 
@@ -3775,68 +4276,68 @@ static int64 HISMULTSTRCONCAT( struct $7ASTNODE* L$1, struct $7ASTNODE* R$1 )
 {
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$502:;
+	label$597:;
 	struct $8FBSYMBOL* SYM$1;
 	fb$result$1 = 0ll;
-	if( *(int64*)R$1 != 3ll ) goto label$505;
+	if( *(int64*)R$1 != 3ll ) goto label$600;
 	{
 		{
-			$13AST_NODECLASS TMP$133$3;
-			TMP$133$3 = *($13AST_NODECLASS*)L$1;
-			if( TMP$133$3 == 17ll ) goto label$508;
-			label$509:;
-			if( TMP$133$3 != 18ll ) goto label$507;
-			label$508:;
+			$13AST_NODECLASS TMP$158$3;
+			TMP$158$3 = *($13AST_NODECLASS*)L$1;
+			if( TMP$158$3 == 17ll ) goto label$603;
+			label$604:;
+			if( TMP$158$3 != 18ll ) goto label$602;
+			label$603:;
 			{
 				SYM$1 = *(struct $8FBSYMBOL**)((uint8*)L$1 + 24ll);
-				if( SYM$1 == (struct $8FBSYMBOL*)0ull ) goto label$511;
+				if( SYM$1 == (struct $8FBSYMBOL*)0ull ) goto label$606;
 				{
-					if( (*(int64*)((uint8*)SYM$1 + 8ll) & 81920ll) != 0ll ) goto label$513;
+					if( (*(int64*)((uint8*)SYM$1 + 8ll) & 81920ll) != 0ll ) goto label$608;
 					{
 						int64 vr$6 = ASTISSYMBOLONTREE( SYM$1, R$1 );
 						fb$result$1 = (int64)-(vr$6 == 0ll);
 					}
-					label$513:;
-					label$512:;
+					label$608:;
+					label$607:;
 				}
-				label$511:;
-				label$510:;
+				label$606:;
+				label$605:;
 			}
-			goto label$506;
-			label$507:;
-			if( TMP$133$3 == 19ll ) goto label$515;
-			label$516:;
-			if( TMP$133$3 != 26ll ) goto label$514;
-			label$515:;
+			goto label$601;
+			label$602:;
+			if( TMP$158$3 == 19ll ) goto label$610;
+			label$611:;
+			if( TMP$158$3 != 26ll ) goto label$609;
+			label$610:;
 			{
 				{
-					$13AST_NODECLASS TMP$134$5;
-					TMP$134$5 = *($13AST_NODECLASS*)*(struct $7ASTNODE**)((uint8*)L$1 + 112ll);
-					if( TMP$134$5 == 17ll ) goto label$519;
-					label$520:;
-					if( TMP$134$5 != 18ll ) goto label$518;
-					label$519:;
+					$13AST_NODECLASS TMP$159$5;
+					TMP$159$5 = *($13AST_NODECLASS*)*(struct $7ASTNODE**)((uint8*)L$1 + 112ll);
+					if( TMP$159$5 == 17ll ) goto label$614;
+					label$615:;
+					if( TMP$159$5 != 18ll ) goto label$613;
+					label$614:;
 					{
 						SYM$1 = *(struct $8FBSYMBOL**)((uint8*)L$1 + 24ll);
-						if( SYM$1 == (struct $8FBSYMBOL*)0ull ) goto label$522;
+						if( SYM$1 == (struct $8FBSYMBOL*)0ull ) goto label$617;
 						{
 							int64 vr$11 = ASTISSYMBOLONTREE( SYM$1, R$1 );
 							fb$result$1 = (int64)-(vr$11 == 0ll);
 						}
-						label$522:;
-						label$521:;
+						label$617:;
+						label$616:;
 					}
-					label$518:;
-					label$517:;
+					label$613:;
+					label$612:;
 				}
 			}
-			label$514:;
-			label$506:;
+			label$609:;
+			label$601:;
 		}
 	}
-	label$505:;
-	label$504:;
-	label$503:;
+	label$600:;
+	label$599:;
+	label$598:;
 	return fb$result$1;
 }
 
@@ -3844,130 +4345,130 @@ static struct $7ASTNODE* HOPTSTRASSIGNMENT( struct $7ASTNODE* N$1, struct $7ASTN
 {
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$523:;
+	label$618:;
 	int64 OPTIMIZE$1;
 	int64 IS_BYREF$1;
 	int64 IS_WSTR$1;
 	OPTIMIZE$1 = 0ll;
 	IS_BYREF$1 = 0ll;
-	if( *(int64*)R$1 != 3ll ) goto label$526;
+	if( *(int64*)R$1 != 3ll ) goto label$621;
 	{
 		struct $8FBSYMBOL* SYM$2;
 		__builtin_memset( &SYM$2, 0, 8ll );
 		{
-			uint64 TMP$135$3;
-			TMP$135$3 = *(uint64*)L$1;
-			goto label$528;
-			label$529:;
+			uint64 TMP$160$3;
+			TMP$160$3 = *(uint64*)L$1;
+			goto label$623;
+			label$624:;
 			{
 				int64 vr$5 = ASTISTREEEQUAL( L$1, *(struct $7ASTNODE**)((uint8*)R$1 + 112ll) );
-				if( vr$5 == 0ll ) goto label$531;
+				if( vr$5 == 0ll ) goto label$626;
 				{
 					SYM$2 = *(struct $8FBSYMBOL**)((uint8*)L$1 + 24ll);
-					if( SYM$2 == (struct $8FBSYMBOL*)0ull ) goto label$533;
+					if( SYM$2 == (struct $8FBSYMBOL*)0ull ) goto label$628;
 					{
-						if( (*(int64*)((uint8*)SYM$2 + 8ll) & 81920ll) != 0ll ) goto label$535;
+						if( (*(int64*)((uint8*)SYM$2 + 8ll) & 81920ll) != 0ll ) goto label$630;
 						{
 							int64 vr$10 = ASTISSYMBOLONTREE( SYM$2, *(struct $7ASTNODE**)((uint8*)R$1 + 120ll) );
 							OPTIMIZE$1 = (int64)-(vr$10 == 0ll);
 						}
-						label$535:;
-						label$534:;
+						label$630:;
+						label$629:;
 					}
-					label$533:;
-					label$532:;
+					label$628:;
+					label$627:;
 				}
-				label$531:;
-				label$530:;
+				label$626:;
+				label$625:;
 			}
-			goto label$527;
-			label$536:;
+			goto label$622;
+			label$631:;
 			{
 				int64 vr$13 = ASTISTREEEQUAL( L$1, *(struct $7ASTNODE**)((uint8*)R$1 + 112ll) );
-				if( vr$13 == 0ll ) goto label$538;
+				if( vr$13 == 0ll ) goto label$633;
 				{
 					SYM$2 = *(struct $8FBSYMBOL**)((uint8*)*(struct $7ASTNODE**)((uint8*)L$1 + 112ll) + 24ll);
-					if( SYM$2 == (struct $8FBSYMBOL*)0ull ) goto label$540;
+					if( SYM$2 == (struct $8FBSYMBOL*)0ull ) goto label$635;
 					{
-						if( (*(int64*)((uint8*)L$1 + 8ll) & 511ll) != 17ll ) goto label$542;
+						if( (*(int64*)((uint8*)L$1 + 8ll) & 511ll) != 17ll ) goto label$637;
 						{
 							int64 vr$19 = ASTISSYMBOLONTREE( SYM$2, *(struct $7ASTNODE**)((uint8*)R$1 + 120ll) );
 							OPTIMIZE$1 = (int64)-(vr$19 == 0ll);
 							IS_BYREF$1 = -1ll;
 						}
-						label$542:;
-						label$541:;
+						label$637:;
+						label$636:;
 					}
-					label$540:;
-					label$539:;
+					label$635:;
+					label$634:;
 				}
-				label$538:;
-				label$537:;
+				label$633:;
+				label$632:;
 			}
-			goto label$527;
-			label$543:;
+			goto label$622;
+			label$638:;
 			{
 				{
-					uint64 TMP$136$5;
-					TMP$136$5 = *(uint64*)*(struct $7ASTNODE**)((uint8*)L$1 + 112ll);
-					goto label$545;
-					label$546:;
+					uint64 TMP$161$5;
+					TMP$161$5 = *(uint64*)*(struct $7ASTNODE**)((uint8*)L$1 + 112ll);
+					goto label$640;
+					label$641:;
 					{
 						int64 vr$24 = ASTISTREEEQUAL( L$1, *(struct $7ASTNODE**)((uint8*)R$1 + 112ll) );
-						if( vr$24 == 0ll ) goto label$548;
+						if( vr$24 == 0ll ) goto label$643;
 						{
 							SYM$2 = *(struct $8FBSYMBOL**)((uint8*)L$1 + 24ll);
-							if( SYM$2 == (struct $8FBSYMBOL*)0ull ) goto label$550;
+							if( SYM$2 == (struct $8FBSYMBOL*)0ull ) goto label$645;
 							{
-								if( (*(int64*)((uint8*)L$1 + 8ll) & 511ll) != 17ll ) goto label$552;
+								if( (*(int64*)((uint8*)L$1 + 8ll) & 511ll) != 17ll ) goto label$647;
 								{
 									IS_BYREF$1 = -1ll;
 								}
-								label$552:;
-								label$551:;
+								label$647:;
+								label$646:;
 								int64 vr$29 = ASTISSYMBOLONTREE( SYM$2, *(struct $7ASTNODE**)((uint8*)R$1 + 120ll) );
 								OPTIMIZE$1 = (int64)-(vr$29 == 0ll);
 							}
-							label$550:;
-							label$549:;
+							label$645:;
+							label$644:;
 						}
-						label$548:;
-						label$547:;
+						label$643:;
+						label$642:;
 					}
-					goto label$544;
-					label$545:;
-					static const void* tmp$158[2ll] = {
-						&&label$546,
-						&&label$546,
+					goto label$639;
+					label$640:;
+					static const void* tmp$186[2ll] = {
+						&&label$641,
+						&&label$641,
 					};
-					if( (TMP$136$5 - 17ull) > 1ull ) goto label$544;
-					goto *tmp$158[TMP$136$5 - 17ull];
-					label$544:;
+					if( (TMP$161$5 - 17ull) > 1ull ) goto label$639;
+					goto *tmp$186[TMP$161$5 - 17ull];
+					label$639:;
 				}
 			}
-			goto label$527;
-			label$528:;
-			static const void* tmp$159[10ll] = {
-				&&label$529,
-				&&label$529,
-				&&label$543,
-				&&label$536,
-				&&label$527,
-				&&label$527,
-				&&label$527,
-				&&label$527,
-				&&label$527,
-				&&label$543,
+			goto label$622;
+			label$623:;
+			static const void* tmp$187[10ll] = {
+				&&label$624,
+				&&label$624,
+				&&label$638,
+				&&label$631,
+				&&label$622,
+				&&label$622,
+				&&label$622,
+				&&label$622,
+				&&label$622,
+				&&label$638,
 			};
-			if( (TMP$135$3 - 17ull) > 9ull ) goto label$527;
-			goto *tmp$159[TMP$135$3 - 17ull];
-			label$527:;
+			if( (TMP$160$3 - 17ull) > 9ull ) goto label$622;
+			goto *tmp$187[TMP$160$3 - 17ull];
+			label$622:;
 		}
 	}
-	label$526:;
-	label$525:;
+	label$621:;
+	label$620:;
 	IS_WSTR$1 = (int64)-((*(int64*)((uint8*)N$1 + 8ll) & 511ll) == 7ll);
-	if( OPTIMIZE$1 == 0ll ) goto label$554;
+	if( OPTIMIZE$1 == 0ll ) goto label$649;
 	{
 		ASTDELNODE( N$1 );
 		N$1 = R$1;
@@ -3975,179 +4476,194 @@ static struct $7ASTNODE* HOPTSTRASSIGNMENT( struct $7ASTNODE* N$1, struct $7ASTN
 		L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
 		R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
 		int64 vr$36 = HISMULTSTRCONCAT( L$1, R$1 );
-		if( vr$36 == 0ll ) goto label$556;
+		if( vr$36 == 0ll ) goto label$651;
 		{
 			struct $7ASTNODE* vr$37 = HOPTSTRMULTCONCAT( L$1, L$1, R$1, IS_WSTR$1 );
 			fb$result$1 = vr$37;
 		}
-		goto label$555;
-		label$556:;
+		goto label$650;
+		label$651:;
 		{
-			if( IS_WSTR$1 != 0ll ) goto label$558;
+			if( IS_WSTR$1 != 0ll ) goto label$653;
 			{
 				struct $7ASTNODE* vr$38 = ASTUPDSTRCONCAT( R$1 );
 				struct $7ASTNODE* vr$39 = RTLSTRCONCATASSIGN( L$1, vr$38, IS_BYREF$1 );
 				fb$result$1 = vr$39;
 			}
-			goto label$557;
-			label$558:;
+			goto label$652;
+			label$653:;
 			{
 				struct $7ASTNODE* vr$40 = ASTUPDSTRCONCAT( R$1 );
 				struct $7ASTNODE* vr$41 = RTLWSTRCONCATASSIGN( L$1, vr$40 );
 				fb$result$1 = vr$41;
 			}
-			label$557:;
+			label$652:;
 		}
-		label$555:;
+		label$650:;
 	}
-	goto label$553;
-	label$554:;
+	goto label$648;
+	label$649:;
 	{
-		int64 vr$42 = HISMULTSTRCONCAT( L$1, R$1 );
-		if( vr$42 == 0ll ) goto label$560;
 		{
-			struct $7ASTNODE* vr$43 = HOPTSTRMULTCONCAT( (struct $7ASTNODE*)0ull, L$1, R$1, IS_WSTR$1 );
-			fb$result$1 = vr$43;
-		}
-		goto label$559;
-		label$560:;
-		{
-			if( IS_WSTR$1 != 0ll ) goto label$562;
+			int64 TMP$162$3;
+			TMP$162$3 = *(int64*)((uint8*)L$1 + 8ll) & 511ll;
+			if( TMP$162$3 != 18ll ) goto label$655;
+			label$656:;
 			{
-				struct $7ASTNODE* vr$44 = ASTUPDSTRCONCAT( R$1 );
-				struct $7ASTNODE* vr$45 = RTLSTRASSIGN( L$1, vr$44, 0ll );
-				fb$result$1 = vr$45;
 			}
-			goto label$561;
-			label$562:;
+			goto label$654;
+			label$655:;
+			{
+				int64 vr$44 = HISMULTSTRCONCAT( L$1, R$1 );
+				OPTIMIZE$1 = vr$44;
+			}
+			label$657:;
+			label$654:;
+		}
+		if( OPTIMIZE$1 == 0ll ) goto label$659;
+		{
+			struct $7ASTNODE* vr$45 = HOPTSTRMULTCONCAT( (struct $7ASTNODE*)0ull, L$1, R$1, IS_WSTR$1 );
+			fb$result$1 = vr$45;
+		}
+		goto label$658;
+		label$659:;
+		{
+			if( IS_WSTR$1 != 0ll ) goto label$661;
 			{
 				struct $7ASTNODE* vr$46 = ASTUPDSTRCONCAT( R$1 );
-				struct $7ASTNODE* vr$47 = RTLWSTRASSIGN( L$1, vr$46, 0ll );
+				struct $7ASTNODE* vr$47 = RTLSTRASSIGN( L$1, vr$46, 0ll );
 				fb$result$1 = vr$47;
 			}
-			label$561:;
+			goto label$660;
+			label$661:;
+			{
+				struct $7ASTNODE* vr$48 = ASTUPDSTRCONCAT( R$1 );
+				struct $7ASTNODE* vr$49 = RTLWSTRASSIGN( L$1, vr$48, 0ll );
+				fb$result$1 = vr$49;
+			}
+			label$660:;
 		}
-		label$559:;
+		label$658:;
 	}
-	label$553:;
+	label$648:;
 	ASTDELNODE( N$1 );
-	label$524:;
+	label$619:;
 	return fb$result$1;
 }
 
 static struct $7ASTNODE* HOPTRECIPROCAL( struct $7ASTNODE* N$1 )
 {
-	int64 TMP$149$1;
+	int64 TMP$177$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$645:;
+	label$756:;
 	struct $7ASTNODE* L$1;
 	struct $7ASTNODE* R$1;
 	float V$1;
-	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$648;
+	if( N$1 != (struct $7ASTNODE*)0ull ) goto label$759;
 	{
 		fb$result$1 = (struct $7ASTNODE*)0ull;
-		goto label$646;
+		goto label$757;
 	}
-	label$648:;
-	label$647:;
-	if( *(int64*)N$1 != 3ll ) goto label$649;
-	TMP$149$1 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 31ll);
-	goto label$711;
-	label$649:;
-	TMP$149$1 = 0ll;
-	label$711:;
-	if( TMP$149$1 == 0ll ) goto label$651;
+	label$759:;
+	label$758:;
+	if( *(int64*)N$1 != 3ll ) goto label$760;
+	TMP$177$1 = (int64)-(*(int64*)((uint8*)N$1 + 40ll) == 31ll);
+	goto label$839;
+	label$760:;
+	TMP$177$1 = 0ll;
+	label$839:;
+	if( TMP$177$1 == 0ll ) goto label$762;
 	{
 		L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
-		if( *(int64*)L$1 != 16ll ) goto label$653;
+		if( *(int64*)L$1 != 16ll ) goto label$764;
 		{
-			int64 TMP$150$3;
-			if( (*(int64*)((uint8*)L$1 + 8ll) & 511ll) != 15ll ) goto label$654;
-			TMP$150$3 = (int64)-(*(double*)((uint8*)L$1 + 40ll) == 0x1.p+0);
-			goto label$712;
-			label$654:;
-			TMP$150$3 = 0ll;
-			label$712:;
-			if( TMP$150$3 == 0ll ) goto label$656;
+			int64 TMP$178$3;
+			if( (*(int64*)((uint8*)L$1 + 8ll) & 511ll) != 15ll ) goto label$765;
+			TMP$178$3 = (int64)-(*(double*)((uint8*)L$1 + 40ll) == 0x1.p+0);
+			goto label$840;
+			label$765:;
+			TMP$178$3 = 0ll;
+			label$840:;
+			if( TMP$178$3 == 0ll ) goto label$767;
 			{
 				R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
 				{
-					int64 TMP$151$5;
-					uint64 TMP$152$5;
-					if( ((*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$657;
-					TMP$151$5 = 24ll;
-					goto label$713;
-					label$657:;
-					TMP$151$5 = (*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 31ll;
-					label$713:;
-					TMP$152$5 = *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$151$5 * 56ll));
-					goto label$659;
-					label$660:;
+					int64 TMP$179$5;
+					uint64 TMP$180$5;
+					if( ((*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$768;
+					TMP$179$5 = 24ll;
+					goto label$841;
+					label$768:;
+					TMP$179$5 = (*(int64*)((uint8*)R$1 + 8ll) & 511ll) & 31ll;
+					label$841:;
+					TMP$180$5 = *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$179$5 * 56ll));
+					goto label$770;
+					label$771:;
 					{
-						int64 TMP$153$6;
-						if( *(int64*)R$1 != 4ll ) goto label$661;
-						TMP$153$6 = (int64)-(*(int64*)((uint8*)R$1 + 40ll) == 65ll);
-						goto label$714;
-						label$661:;
-						TMP$153$6 = 0ll;
-						label$714:;
-						if( TMP$153$6 == 0ll ) goto label$663;
+						int64 TMP$181$6;
+						if( *(int64*)R$1 != 4ll ) goto label$772;
+						TMP$181$6 = (int64)-(*(int64*)((uint8*)R$1 + 40ll) == 66ll);
+						goto label$842;
+						label$772:;
+						TMP$181$6 = 0ll;
+						label$842:;
+						if( TMP$181$6 == 0ll ) goto label$774;
 						{
 							__builtin_memcpy( N$1, R$1, 144 );
 							*($13AST_NODECLASS*)N$1 = 4ll;
-							*(int64*)((uint8*)N$1 + 40ll) = 66ll;
+							*(int64*)((uint8*)N$1 + 40ll) = 67ll;
 							ASTDELNODE( R$1 );
 							ASTDELNODE( L$1 );
 						}
-						goto label$662;
-						label$663:;
-						if( (*(int64*)((uint8*)R$1 + 8ll) & 511ll) != 15ll ) goto label$664;
+						goto label$773;
+						label$774:;
+						if( (*(int64*)((uint8*)R$1 + 8ll) & 511ll) != 15ll ) goto label$775;
 						{
 							ASTDELNODE( N$1 );
-							struct $7ASTNODE* vr$25 = ASTNEWUOP( 67ll, R$1 );
+							struct $7ASTNODE* vr$25 = ASTNEWUOP( 68ll, R$1 );
 							N$1 = vr$25;
 							ASTDELNODE( L$1 );
 						}
-						label$664:;
-						label$662:;
+						label$775:;
+						label$773:;
 					}
-					goto label$658;
-					label$659:;
-					static const void* tmp$160[2ll] = {
-						&&label$660,
-						&&label$660,
+					goto label$769;
+					label$770:;
+					static const void* tmp$188[2ll] = {
+						&&label$771,
+						&&label$771,
 					};
-					if( TMP$152$5 > 1ull ) goto label$658;
-					goto *tmp$160[TMP$152$5 - 0ull];
-					label$658:;
+					if( TMP$180$5 > 1ull ) goto label$769;
+					goto *tmp$188[TMP$180$5 - 0ull];
+					label$769:;
 				}
 			}
-			label$656:;
-			label$655:;
+			label$767:;
+			label$766:;
 		}
-		label$653:;
-		label$652:;
+		label$764:;
+		label$763:;
 	}
-	label$651:;
-	label$650:;
+	label$762:;
+	label$761:;
 	L$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 112ll);
-	if( L$1 == (struct $7ASTNODE*)0ull ) goto label$666;
+	if( L$1 == (struct $7ASTNODE*)0ull ) goto label$777;
 	{
 		struct $7ASTNODE* vr$27 = HOPTRECIPROCAL( L$1 );
 		*(struct $7ASTNODE**)((uint8*)N$1 + 112ll) = vr$27;
 	}
-	label$666:;
-	label$665:;
+	label$777:;
+	label$776:;
 	R$1 = *(struct $7ASTNODE**)((uint8*)N$1 + 120ll);
-	if( R$1 == (struct $7ASTNODE*)0ull ) goto label$668;
+	if( R$1 == (struct $7ASTNODE*)0ull ) goto label$779;
 	{
 		struct $7ASTNODE* vr$30 = HOPTRECIPROCAL( R$1 );
 		*(struct $7ASTNODE**)((uint8*)N$1 + 120ll) = vr$30;
 	}
-	label$668:;
-	label$667:;
+	label$779:;
+	label$778:;
 	fb$result$1 = N$1;
-	label$646:;
+	label$757:;
 	return fb$result$1;
 }

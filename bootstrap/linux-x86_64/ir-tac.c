@@ -44,6 +44,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -72,8 +82,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -137,10 +149,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -210,7 +223,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -278,6 +291,16 @@ struct $7FBS_VAR {
 	int64 BITS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7FBS_VAR ) == 104 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -376,9 +399,9 @@ struct $8FBS_ENUM {
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $11FB_FUNCMODE;
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -507,9 +530,9 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
-typedef FBSTRING* (*tmp$29)( void*, int64* );
-typedef uint32* (*tmp$30)( void*, int64* );
+typedef FBSTRING* (*tmp$29)( void );
+typedef FBSTRING* (*tmp$30)( void*, int64* );
+typedef uint32* (*tmp$31)( void*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -521,11 +544,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -600,7 +623,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -681,14 +704,14 @@ struct $6TFLIST {
 };
 __FB_STATIC_ASSERT( sizeof( struct $6TFLIST ) == 112 );
 struct $8REGCLASS;
-typedef int64 (*tmp$83)( struct $8REGCLASS*, struct $6IRVREG*, struct $6IRVREG*, uint64 );
-typedef int64 (*tmp$84)( struct $8REGCLASS*, int64, struct $6IRVREG*, struct $6IRVREG* );
-typedef void (*tmp$85)( struct $8REGCLASS*, int64 );
-typedef int64 (*tmp$86)( struct $8REGCLASS*, int64 );
-typedef void (*tmp$87)( struct $8REGCLASS*, int64, struct $6IRVREG*, struct $6IRVREG* );
-typedef int64 (*tmp$88)( struct $8REGCLASS* );
-typedef struct $6IRVREG* (*tmp$89)( struct $8REGCLASS*, int64, struct $6IRVREG** );
-typedef void (*tmp$90)( struct $8REGCLASS* );
+typedef int64 (*tmp$86)( struct $8REGCLASS*, struct $6IRVREG*, struct $6IRVREG*, uint64 );
+typedef int64 (*tmp$87)( struct $8REGCLASS*, int64, struct $6IRVREG*, struct $6IRVREG* );
+typedef void (*tmp$88)( struct $8REGCLASS*, int64 );
+typedef int64 (*tmp$89)( struct $8REGCLASS*, int64 );
+typedef void (*tmp$90)( struct $8REGCLASS*, int64, struct $6IRVREG*, struct $6IRVREG* );
+typedef int64 (*tmp$91)( struct $8REGCLASS* );
+typedef struct $6IRVREG* (*tmp$92)( struct $8REGCLASS*, int64, struct $6IRVREG** );
+typedef void (*tmp$93)( struct $8REGCLASS* );
 struct $7REG_REG;
 struct $7REG_REG {
 	int64 NUM;
@@ -711,19 +734,19 @@ struct $10REG_STKCTX {
 };
 __FB_STATIC_ASSERT( sizeof( struct $10REG_STKCTX ) == 72 );
 struct $8REGCLASS {
-	tmp$83 ENSURE;
-	tmp$83 _ALLOCATE;
-	tmp$84 ALLOCATEREG;
-	tmp$85 FREE;
-	tmp$86 ISFREE;
-	tmp$87 SETOWNER;
-	tmp$88 GETMAXREGS;
-	tmp$88 GETFIRST;
-	tmp$86 GETNEXT;
-	tmp$89 GETVREG;
-	tmp$86 GETREALREG;
-	tmp$90 CLEAR;
-	tmp$90 DUMP;
+	tmp$86 ENSURE;
+	tmp$86 _ALLOCATE;
+	tmp$87 ALLOCATEREG;
+	tmp$88 FREE;
+	tmp$89 ISFREE;
+	tmp$90 SETOWNER;
+	tmp$91 GETMAXREGS;
+	tmp$91 GETFIRST;
+	tmp$89 GETNEXT;
+	tmp$92 GETVREG;
+	tmp$89 GETREALREG;
+	tmp$93 CLEAR;
+	tmp$93 DUMP;
 	int64 CLASS;
 	int64 ISSTACK;
 	int64 REGS;
@@ -733,10 +756,10 @@ struct $8REGCLASS {
 	struct $10REG_STKCTX STKCTX;
 };
 __FB_STATIC_ASSERT( sizeof( struct $8REGCLASS ) == 608 );
-typedef int64 (*tmp$39)( void );
-typedef void (*tmp$38)( void );
+typedef int64 (*tmp$41)( void );
+typedef void (*tmp$40)( void );
 typedef int64 $14IR_OPTIONVALUE;
-typedef int64 (*tmp$40)( $14IR_OPTIONVALUE );
+typedef int64 (*tmp$42)( $14IR_OPTIONVALUE );
 typedef int64 $12FB_DATACLASS;
 struct $13SYMB_DATATYPE {
 	$12FB_DATACLASS CLASS;
@@ -748,12 +771,13 @@ struct $13SYMB_DATATYPE {
 	char* NAME;
 };
 __FB_STATIC_ASSERT( sizeof( struct $13SYMB_DATATYPE ) == 56 );
-typedef void (*tmp$42)( struct $8FBSYMBOL* );
-typedef void (*tmp$43)( struct $8FBSYMBOL*, struct $8FBSYMBOL* );
-typedef char* (*tmp$44)( void );
-typedef void (*tmp$100)( struct $8FBSYMBOL*, int64, struct $8FBSYMBOL*, struct $8FBSYMBOL* );
-typedef void (*tmp$98)( int64, int64, int64, int64* );
-typedef struct $6IRVREG* (*tmp$72)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
+typedef void (*tmp$44)( struct $8FBSYMBOL* );
+typedef void (*tmp$45)( struct $8FBSYMBOL*, struct $8FBSYMBOL* );
+typedef char* (*tmp$46)( void );
+typedef void (*tmp$103)( struct $8FBSYMBOL*, int64, struct $8FBSYMBOL*, struct $8FBSYMBOL* );
+typedef int64 $10IR_EMITOPT;
+typedef void (*tmp$101)( int64, int64, int64, int64* );
+typedef struct $6IRVREG* (*tmp$74)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
 typedef int64 $11AST_OPFLAGS;
 struct $10AST_OPINFO {
 	$13AST_NODECLASS CLASS;
@@ -762,21 +786,17 @@ struct $10AST_OPINFO {
 	$6AST_OP SELFOP;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10AST_OPINFO ) == 32 );
-typedef uint64 (*tmp$76)( struct $6IRVREG* );
-typedef int64 (*tmp$41)( int64, int64 );
-typedef void (*tmp$45)( struct $6IRVREG*, struct $6IRVREG* );
-typedef void (*tmp$99)( int64, int64, int64*, int64* );
+typedef uint64 (*tmp$78)( struct $6IRVREG* );
+typedef int64 (*tmp$43)( int64, int64 );
+typedef void (*tmp$47)( struct $6IRVREG*, struct $6IRVREG* );
+typedef void (*tmp$102)( int64, int64, int64*, int64* );
 void fb_MemSwap( void*, void*, int64 );
 void free( void* );
 FBSTRING* fb_StrAssign( void*, int64, void*, int64, int32 );
 void fb_StrDelete( FBSTRING* );
-void fb_WstrDelete( uint32* );
 FBSTRING* fb_StrConcat( FBSTRING*, void*, int64, void*, int64 );
 FBSTRING* fb_StrConcatAssign( void*, int64, void*, int64, int32 );
-FBSTRING* fb_StrAllocTempDescZ( char* );
 FBSTRING* fb_LongintToStr( int64 );
-FBSTRING* fb_LEFT( FBSTRING*, int64 );
-uint32* fb_WstrLeft( uint32*, int64 );
 static void fb_ctor__irztac( void ) __attribute__(( constructor ));
 static void _ZN11TSTRSETITEMaSERKS_( struct $11TSTRSETITEM*, struct $11TSTRSETITEM* );
 typedef int64 $12FB_ERRMSGOPT;
@@ -787,8 +807,8 @@ struct $8FBSYMBOL* SYMBALLOCFLOATCONST( double, int64 );
 void SYMBGETREALTYPE( struct $8FBSYMBOL*, int64*, struct $8FBSYMBOL** );
 char* SYMBGETMANGLEDNAME( struct $8FBSYMBOL* );
 char* ZSTRDUP( char* );
-char* HESCAPE( char* );
-char* HESCAPEW( uint32* );
+char* HESCAPE( char*, int64 );
+char* HESCAPEW( uint32*, int64 );
 void FLISTINIT( struct $6TFLIST*, int64, int64 );
 void FLISTEND( struct $6TFLIST* );
 void* FLISTNEWITEM( struct $6TFLIST* );
@@ -871,6 +891,7 @@ struct $12EMIT_DBGNODE {
 __FB_STATIC_ASSERT( sizeof( struct $12EMIT_DBGNODE ) == 40 );
 struct $9EMIT_NODE {
 	$19EMIT_NODECLASS_ENUM CLASS;
+	$10IR_EMITOPT OPTIONS;
 	union {
 		struct $12EMIT_BOPNODE BOP;
 		struct $12EMIT_UOPNODE UOP;
@@ -885,7 +906,7 @@ struct $9EMIT_NODE {
 	};
 	int64 REGFREETB[2];
 };
-__FB_STATIC_ASSERT( sizeof( struct $9EMIT_NODE ) == 80 );
+__FB_STATIC_ASSERT( sizeof( struct $9EMIT_NODE ) == 88 );
 struct $9EMIT_NODE* EMITJMPTB( struct $8FBSYMBOL*, uint64*, struct $8FBSYMBOL**, int64, struct $8FBSYMBOL*, uint64, uint64 );
 struct $9EMIT_NODE* EMITCALL( struct $8FBSYMBOL*, int64 );
 struct $9EMIT_NODE* EMITCALLPTR( struct $6IRVREG*, int64 );
@@ -913,12 +934,12 @@ struct $9EMIT_NODE* EMITEQV( struct $6IRVREG*, struct $6IRVREG* );
 struct $9EMIT_NODE* EMITIMP( struct $6IRVREG*, struct $6IRVREG* );
 struct $9EMIT_NODE* EMITADDROF( struct $6IRVREG*, struct $6IRVREG* );
 struct $9EMIT_NODE* EMITDEREF( struct $6IRVREG*, struct $6IRVREG* );
-struct $9EMIT_NODE* EMITGT( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG* );
-struct $9EMIT_NODE* EMITLT( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG* );
-struct $9EMIT_NODE* EMITEQ( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG* );
-struct $9EMIT_NODE* EMITNE( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG* );
-struct $9EMIT_NODE* EMITLE( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG* );
-struct $9EMIT_NODE* EMITGE( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG* );
+struct $9EMIT_NODE* EMITGT( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, $10IR_EMITOPT );
+struct $9EMIT_NODE* EMITLT( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, $10IR_EMITOPT );
+struct $9EMIT_NODE* EMITEQ( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, $10IR_EMITOPT );
+struct $9EMIT_NODE* EMITNE( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, $10IR_EMITOPT );
+struct $9EMIT_NODE* EMITLE( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, $10IR_EMITOPT );
+struct $9EMIT_NODE* EMITGE( struct $6IRVREG*, struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, $10IR_EMITOPT );
 struct $9EMIT_NODE* EMITATN2( struct $6IRVREG*, struct $6IRVREG* );
 struct $9EMIT_NODE* EMITPOW( struct $6IRVREG*, struct $6IRVREG* );
 struct $9EMIT_NODE* EMITNEG( struct $6IRVREG* );
@@ -949,7 +970,7 @@ struct $9EMIT_NODE* EMITPUSHUDT( struct $6IRVREG*, int64 );
 struct $9EMIT_NODE* EMITPOPST0( void );
 struct $9EMIT_NODE* EMITMEMMOVE( struct $6IRVREG*, struct $6IRVREG*, int64 );
 struct $9EMIT_NODE* EMITMEMSWAP( struct $6IRVREG*, struct $6IRVREG*, int64 );
-struct $9EMIT_NODE* EMITMEMCLEAR( struct $6IRVREG*, struct $6IRVREG* );
+struct $9EMIT_NODE* EMITMEMFILL( struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
 struct $9EMIT_NODE* EMITSTKCLEAR( int64, int64 );
 struct $9EMIT_NODE* EMITDBGLINEBEGIN( struct $8FBSYMBOL*, int64, char* );
 struct $9EMIT_NODE* EMITDBGLINEEND( struct $8FBSYMBOL*, int64 );
@@ -959,15 +980,15 @@ void EMITVARINIBEGIN( struct $8FBSYMBOL* );
 void EMITVARINII( int64, int64 );
 void EMITVARINIF( int64, double );
 void EMITVARINIOFS( char*, int64 );
-void EMITVARINISTR( char* );
+void EMITVARINISTR( char*, int64 );
 void EMITVARINIWSTR( char* );
-void EMITVARINIPAD( int64 );
+void EMITVARINIPAD( int64, int64 );
 void EMITFBCTINFBEGIN( void );
 void EMITFBCTINFSTRING( char* );
 void EMITFBCTINFEND( void );
 static void HFLUSHUOP( int64, struct $6IRVREG*, struct $6IRVREG* );
 static void HFLUSHBOP( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG* );
-static void HFLUSHCOMP( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG*, struct $8FBSYMBOL* );
+static void HFLUSHCOMP( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG*, struct $8FBSYMBOL*, $10IR_EMITOPT );
 static void HFLUSHSTORE( int64, struct $6IRVREG*, struct $6IRVREG* );
 static void HFLUSHLOAD( int64, struct $6IRVREG*, struct $6IRVREG* );
 static void HFLUSHCONVERT( int64, struct $6IRVREG*, struct $6IRVREG* );
@@ -1004,7 +1025,7 @@ static void _EMITPROCBEGIN( struct $8FBSYMBOL*, struct $8FBSYMBOL* );
 static void _EMITPROCEND( struct $8FBSYMBOL*, struct $8FBSYMBOL*, struct $8FBSYMBOL* );
 static void _EMITSCOPEBEGIN( struct $8FBSYMBOL* );
 static void _EMITSCOPEEND( struct $8FBSYMBOL* );
-static void _EMITBOP( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG*, struct $8FBSYMBOL* );
+static void _EMITBOP( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG*, struct $8FBSYMBOL*, $10IR_EMITOPT );
 static void _EMITUOP( int64, struct $6IRVREG*, struct $6IRVREG* );
 static void _EMITCONVERT( struct $6IRVREG*, struct $6IRVREG* );
 static void _EMITSTORE( struct $6IRVREG*, struct $6IRVREG* );
@@ -1021,7 +1042,7 @@ static void _EMITSTACKALIGN( int64 );
 static void _EMITJUMPPTR( struct $6IRVREG* );
 static void _EMITBRANCH( int64, struct $8FBSYMBOL* );
 static void _EMITJMPTB( struct $6IRVREG*, struct $8FBSYMBOL*, uint64*, struct $8FBSYMBOL**, int64, struct $8FBSYMBOL*, uint64, uint64 );
-static void _EMITMEM( int64, struct $6IRVREG*, struct $6IRVREG*, int64 );
+static void _EMITMEM( int64, struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
 static void _EMITMACRO( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG* );
 static void _EMITDECL( struct $8FBSYMBOL* );
 static void _EMITDBG( int64, struct $8FBSYMBOL*, int64, char* );
@@ -1032,9 +1053,9 @@ static void _EMITVARINIEND( struct $8FBSYMBOL* );
 static void _EMITVARINII( struct $8FBSYMBOL*, int64 );
 static void _EMITVARINIF( struct $8FBSYMBOL*, double );
 static void _EMITVARINIOFS( struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
-static void _EMITVARINISTR( int64, char*, int64 );
+static void _EMITVARINISTR( int64, char*, int64, int64 );
 static void _EMITVARINIWSTR( int64, uint32*, int64 );
-static void _EMITVARINIPAD( int64 );
+static void _EMITVARINIPAD( int64, int64 );
 static void _EMITVARINISCOPEBEGIN( struct $8FBSYMBOL*, int64 );
 static void _EMITVARINISCOPEEND( void );
 static void _EMITFBCTINFBEGIN( void );
@@ -1060,104 +1081,104 @@ static uint64 _GETDISTANCE( struct $6IRVREG* );
 static void _LOADVR( int64, struct $6IRVREG*, struct $6IRVREG* );
 static void _STOREVR( struct $6IRVREG*, struct $6IRVREG* );
 static void _XCHGTOS( int64 );
-typedef void (*tmp$46)( int64 );
-typedef void (*tmp$47)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, struct $8FBSYMBOL* );
-typedef void (*tmp$48)( struct $8FBSYMBOL*, struct $6IRVREG*, int64, int64, struct $6IRVREG* );
-typedef void (*tmp$49)( struct $9ASTASMTOK* );
-typedef void (*tmp$50)( char* );
-typedef void (*tmp$51)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG*, struct $8FBSYMBOL* );
-typedef void (*tmp$52)( int64, struct $6IRVREG*, struct $6IRVREG* );
-typedef void (*tmp$53)( struct $6IRVREG* );
-typedef void (*tmp$54)( struct $8FBSYMBOL*, int64, struct $6IRVREG*, int64 );
-typedef void (*tmp$55)( struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
-typedef void (*tmp$56)( int64, struct $8FBSYMBOL* );
-typedef void (*tmp$57)( struct $6IRVREG*, struct $8FBSYMBOL*, uint64*, struct $8FBSYMBOL**, int64, struct $8FBSYMBOL*, uint64, uint64 );
-typedef void (*tmp$58)( int64, struct $6IRVREG*, struct $6IRVREG*, int64 );
-typedef void (*tmp$59)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG* );
-typedef void (*tmp$60)( int64, struct $8FBSYMBOL*, int64, char* );
-typedef void (*tmp$61)( struct $8FBSYMBOL*, int64 );
-typedef void (*tmp$62)( struct $8FBSYMBOL*, double );
-typedef void (*tmp$63)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
-typedef void (*tmp$64)( int64, char*, int64 );
-typedef void (*tmp$65)( int64, uint32*, int64 );
-typedef void (*tmp$66)( int64 );
-typedef void (*tmp$67)( struct $8FBSYMBOL*, int64 );
-typedef void (*tmp$68)( char* );
-typedef struct $6IRVREG* (*tmp$69)( int64, struct $8FBSYMBOL* );
-typedef struct $6IRVREG* (*tmp$70)( int64, struct $8FBSYMBOL*, int64 );
-typedef struct $6IRVREG* (*tmp$71)( int64, struct $8FBSYMBOL*, double );
-typedef struct $6IRVREG* (*tmp$73)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64, int64, struct $6IRVREG* );
-typedef struct $6IRVREG* (*tmp$74)( int64, struct $8FBSYMBOL*, int64, struct $6IRVREG* );
-typedef void (*tmp$75)( struct $6IRVREG*, int64, struct $8FBSYMBOL* );
+typedef void (*tmp$48)( int64 );
+typedef void (*tmp$49)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, struct $8FBSYMBOL* );
+typedef void (*tmp$50)( struct $8FBSYMBOL*, struct $6IRVREG*, int64, int64, struct $6IRVREG* );
+typedef void (*tmp$51)( struct $9ASTASMTOK* );
+typedef void (*tmp$52)( char* );
+typedef void (*tmp$53)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG*, struct $8FBSYMBOL*, $10IR_EMITOPT );
+typedef void (*tmp$54)( int64, struct $6IRVREG*, struct $6IRVREG* );
+typedef void (*tmp$55)( struct $6IRVREG* );
+typedef void (*tmp$56)( struct $8FBSYMBOL*, int64, struct $6IRVREG*, int64 );
+typedef void (*tmp$57)( struct $8FBSYMBOL*, struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
+typedef void (*tmp$58)( int64, struct $8FBSYMBOL* );
+typedef void (*tmp$59)( struct $6IRVREG*, struct $8FBSYMBOL*, uint64*, struct $8FBSYMBOL**, int64, struct $8FBSYMBOL*, uint64, uint64 );
+typedef void (*tmp$60)( int64, struct $6IRVREG*, struct $6IRVREG*, int64, int64 );
+typedef void (*tmp$61)( int64, struct $6IRVREG*, struct $6IRVREG*, struct $6IRVREG* );
+typedef void (*tmp$62)( int64, struct $8FBSYMBOL*, int64, char* );
+typedef void (*tmp$63)( struct $8FBSYMBOL*, int64 );
+typedef void (*tmp$64)( struct $8FBSYMBOL*, double );
+typedef void (*tmp$65)( struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64 );
+typedef void (*tmp$66)( int64, char*, int64, int64 );
+typedef void (*tmp$67)( int64, uint32*, int64 );
+typedef void (*tmp$68)( int64, int64 );
+typedef void (*tmp$69)( struct $8FBSYMBOL*, int64 );
+typedef void (*tmp$70)( char* );
+typedef struct $6IRVREG* (*tmp$71)( int64, struct $8FBSYMBOL* );
+typedef struct $6IRVREG* (*tmp$72)( int64, struct $8FBSYMBOL*, int64 );
+typedef struct $6IRVREG* (*tmp$73)( int64, struct $8FBSYMBOL*, double );
+typedef struct $6IRVREG* (*tmp$75)( int64, struct $8FBSYMBOL*, struct $8FBSYMBOL*, int64, int64, struct $6IRVREG* );
+typedef struct $6IRVREG* (*tmp$76)( int64, struct $8FBSYMBOL*, int64, struct $6IRVREG* );
+typedef void (*tmp$77)( struct $6IRVREG*, int64, struct $8FBSYMBOL* );
 struct $7IR_VTBL {
-	tmp$38 INIT;
-	tmp$38 END;
-	tmp$39 EMITBEGIN;
-	tmp$38 EMITEND;
-	tmp$40 GETOPTIONVALUE;
-	tmp$41 SUPPORTSOP;
-	tmp$42 PROCBEGIN;
-	tmp$42 PROCEND;
-	tmp$43 PROCALLOCARG;
-	tmp$43 PROCALLOCLOCAL;
-	tmp$44 PROCGETFRAMEREGNAME;
-	tmp$42 SCOPEBEGIN;
-	tmp$42 SCOPEEND;
-	tmp$42 PROCALLOCSTATICVARS;
-	tmp$45 EMITCONVERT;
-	tmp$42 EMITLABEL;
-	tmp$42 EMITLABELNF;
-	tmp$46 EMITRETURN;
-	tmp$43 EMITPROCBEGIN;
-	tmp$47 EMITPROCEND;
-	tmp$48 EMITPUSHARG;
-	tmp$49 EMITASMLINE;
-	tmp$50 EMITCOMMENT;
-	tmp$51 EMITBOP;
-	tmp$52 EMITUOP;
-	tmp$45 EMITSTORE;
-	tmp$38 EMITSPILLREGS;
-	tmp$53 EMITLOAD;
-	tmp$45 EMITLOADRES;
-	tmp$52 EMITSTACK;
-	tmp$52 EMITADDR;
-	tmp$54 EMITCALL;
-	tmp$55 EMITCALLPTR;
-	tmp$46 EMITSTACKALIGN;
-	tmp$53 EMITJUMPPTR;
-	tmp$56 EMITBRANCH;
-	tmp$57 EMITJMPTB;
-	tmp$58 EMITMEM;
-	tmp$59 EMITMACRO;
-	tmp$42 EMITSCOPEBEGIN;
-	tmp$42 EMITSCOPEEND;
-	tmp$42 EMITDECL;
-	tmp$60 EMITDBG;
-	tmp$42 EMITVARINIBEGIN;
-	tmp$42 EMITVARINIEND;
-	tmp$61 EMITVARINII;
-	tmp$62 EMITVARINIF;
-	tmp$63 EMITVARINIOFS;
-	tmp$64 EMITVARINISTR;
-	tmp$65 EMITVARINIWSTR;
-	tmp$66 EMITVARINIPAD;
-	tmp$67 EMITVARINISCOPEBEGIN;
-	tmp$38 EMITVARINISCOPEEND;
-	tmp$38 EMITFBCTINFBEGIN;
-	tmp$68 EMITFBCTINFSTRING;
-	tmp$38 EMITFBCTINFEND;
-	tmp$69 ALLOCVREG;
-	tmp$70 ALLOCVRIMM;
-	tmp$71 ALLOCVRIMMF;
-	tmp$72 ALLOCVRVAR;
-	tmp$73 ALLOCVRIDX;
-	tmp$74 ALLOCVRPTR;
-	tmp$72 ALLOCVROFS;
-	tmp$75 SETVREGDATATYPE;
-	tmp$76 GETDISTANCE;
-	tmp$52 LOADVR;
-	tmp$45 STOREVR;
-	tmp$46 XCHGTOS;
+	tmp$40 INIT;
+	tmp$40 END;
+	tmp$41 EMITBEGIN;
+	tmp$40 EMITEND;
+	tmp$42 GETOPTIONVALUE;
+	tmp$43 SUPPORTSOP;
+	tmp$44 PROCBEGIN;
+	tmp$44 PROCEND;
+	tmp$45 PROCALLOCARG;
+	tmp$45 PROCALLOCLOCAL;
+	tmp$46 PROCGETFRAMEREGNAME;
+	tmp$44 SCOPEBEGIN;
+	tmp$44 SCOPEEND;
+	tmp$44 PROCALLOCSTATICVARS;
+	tmp$47 EMITCONVERT;
+	tmp$44 EMITLABEL;
+	tmp$44 EMITLABELNF;
+	tmp$48 EMITRETURN;
+	tmp$45 EMITPROCBEGIN;
+	tmp$49 EMITPROCEND;
+	tmp$50 EMITPUSHARG;
+	tmp$51 EMITASMLINE;
+	tmp$52 EMITCOMMENT;
+	tmp$53 EMITBOP;
+	tmp$54 EMITUOP;
+	tmp$47 EMITSTORE;
+	tmp$40 EMITSPILLREGS;
+	tmp$55 EMITLOAD;
+	tmp$47 EMITLOADRES;
+	tmp$54 EMITSTACK;
+	tmp$54 EMITADDR;
+	tmp$56 EMITCALL;
+	tmp$57 EMITCALLPTR;
+	tmp$48 EMITSTACKALIGN;
+	tmp$55 EMITJUMPPTR;
+	tmp$58 EMITBRANCH;
+	tmp$59 EMITJMPTB;
+	tmp$60 EMITMEM;
+	tmp$61 EMITMACRO;
+	tmp$44 EMITSCOPEBEGIN;
+	tmp$44 EMITSCOPEEND;
+	tmp$44 EMITDECL;
+	tmp$62 EMITDBG;
+	tmp$44 EMITVARINIBEGIN;
+	tmp$44 EMITVARINIEND;
+	tmp$63 EMITVARINII;
+	tmp$64 EMITVARINIF;
+	tmp$65 EMITVARINIOFS;
+	tmp$66 EMITVARINISTR;
+	tmp$67 EMITVARINIWSTR;
+	tmp$68 EMITVARINIPAD;
+	tmp$69 EMITVARINISCOPEBEGIN;
+	tmp$40 EMITVARINISCOPEEND;
+	tmp$40 EMITFBCTINFBEGIN;
+	tmp$70 EMITFBCTINFSTRING;
+	tmp$40 EMITFBCTINFEND;
+	tmp$71 ALLOCVREG;
+	tmp$72 ALLOCVRIMM;
+	tmp$73 ALLOCVRIMMF;
+	tmp$74 ALLOCVRVAR;
+	tmp$75 ALLOCVRIDX;
+	tmp$76 ALLOCVRPTR;
+	tmp$74 ALLOCVROFS;
+	tmp$77 SETVREGDATATYPE;
+	tmp$78 GETDISTANCE;
+	tmp$54 LOADVR;
+	tmp$47 STOREVR;
+	tmp$48 XCHGTOS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7IR_VTBL ) == 544 );
 extern struct $7IR_VTBL IRTAC_VTBL$;
@@ -1216,7 +1237,7 @@ struct $6ASTCTX {
 };
 __FB_STATIC_ASSERT( sizeof( struct $6ASTCTX ) == 472 );
 extern struct $6ASTCTX AST$;
-extern struct $10AST_OPINFO AST_OPTB$[121];
+extern struct $10AST_OPINFO AST_OPTB$[122];
 struct $16__FB_ARRAYDIMTB$ {
 	int64 ELEMENTS;
 	int64 LBOUND;
@@ -1233,7 +1254,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 extern struct $13SYMB_DATATYPE SYMB_DTYPETB$[26];
 struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $13SYMB_DATATYPE* DATA;
@@ -1245,7 +1266,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -1256,7 +1277,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
 typedef int64 $10FB_BACKEND;
 typedef int64 $13FB_COMPTARGET;
@@ -1289,6 +1310,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -1312,8 +1334,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -1356,11 +1380,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 typedef int64 $16FB_RESTART_FLAGS;
 struct $7TSTRSET {
 	struct $5TLIST LIST;
@@ -1398,34 +1423,34 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
-typedef void (*tmp$101)( int64, int64 );
-typedef char* (*tmp$102)( int64 );
-typedef char* (*tmp$103)( int64, int64 );
+typedef void (*tmp$104)( int64, int64 );
+typedef char* (*tmp$105)( int64 );
+typedef char* (*tmp$106)( int64, int64 );
 struct $9EMIT_VTBL {
-	tmp$39 INIT;
-	tmp$38 END;
-	tmp$40 GETOPTIONVALUE;
-	tmp$39 OPEN;
-	tmp$38 CLOSE;
-	tmp$41 ISREGPRESERVED;
-	tmp$41 GETFREEPRESERVEDREG;
-	tmp$98 GETARGREG;
-	tmp$99 GETRESULTREG;
-	tmp$44 PROCGETFRAMEREGNAME;
-	tmp$42 PROCBEGIN;
-	tmp$42 PROCEND;
-	tmp$43 PROCHEADER;
-	tmp$100 PROCFOOTER;
-	tmp$43 PROCALLOCARG;
-	tmp$43 PROCALLOCLOCAL;
-	tmp$42 PROCALLOCSTATICVARS;
-	tmp$42 SCOPEBEGIN;
-	tmp$42 SCOPEEND;
-	tmp$101 SETSECTION;
-	tmp$102 GETTYPESTRING;
-	tmp$103 GETSECTIONSTRING;
+	tmp$41 INIT;
+	tmp$40 END;
+	tmp$42 GETOPTIONVALUE;
+	tmp$41 OPEN;
+	tmp$40 CLOSE;
+	tmp$43 ISREGPRESERVED;
+	tmp$43 GETFREEPRESERVEDREG;
+	tmp$101 GETARGREG;
+	tmp$102 GETRESULTREG;
+	tmp$46 PROCGETFRAMEREGNAME;
+	tmp$44 PROCBEGIN;
+	tmp$44 PROCEND;
+	tmp$45 PROCHEADER;
+	tmp$103 PROCFOOTER;
+	tmp$45 PROCALLOCARG;
+	tmp$45 PROCALLOCLOCAL;
+	tmp$44 PROCALLOCSTATICVARS;
+	tmp$44 SCOPEBEGIN;
+	tmp$44 SCOPEEND;
+	tmp$104 SETSECTION;
+	tmp$105 GETTYPESTRING;
+	tmp$106 GETSECTIONSTRING;
 };
 __FB_STATIC_ASSERT( sizeof( struct $9EMIT_VTBL ) == 176 );
 struct $7EMITCTX {
@@ -1453,7 +1478,7 @@ struct $8FBARRAY1IPvE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1IPvE ) == 72 );
-static struct $8FBARRAY1IPvE tmp$104$;
+static struct $8FBARRAY1IPvE tmp$107$;
 struct $9IRTAC_CTX {
 	struct $6TFLIST TACTB;
 	int64 TACCNT;
@@ -1463,7 +1488,7 @@ struct $9IRTAC_CTX {
 __FB_STATIC_ASSERT( sizeof( struct $9IRTAC_CTX ) == 240 );
 static struct $9IRTAC_CTX CTX$;
 static struct $8REGCLASS* REGTB$[2];
-struct $7IR_VTBL IRTAC_VTBL$ = { (tmp$38)&_INIT, (tmp$38)&_END, (tmp$39)&_EMITBEGIN, (tmp$38)&_EMITEND, (tmp$40)&_GETOPTIONVALUE, (tmp$41)0ull, (tmp$42)&_PROCBEGIN, (tmp$42)&_PROCEND, (tmp$43)&_PROCALLOCARG, (tmp$43)&_PROCALLOCLOCAL, (tmp$44)&_PROCGETFRAMEREGNAME, (tmp$42)&_SCOPEBEGIN, (tmp$42)&_SCOPEEND, (tmp$42)&_PROCALLOCSTATICVARS, (tmp$45)&_EMITCONVERT, (tmp$42)&_EMITLABEL, (tmp$42)&_EMITLABELNF, (tmp$46)&_EMITRETURN, (tmp$43)&_EMITPROCBEGIN, (tmp$47)&_EMITPROCEND, (tmp$48)&_EMITPUSHARG, (tmp$49)&_EMITASMLINE, (tmp$50)&_EMITCOMMENT, (tmp$51)&_EMITBOP, (tmp$52)&_EMITUOP, (tmp$45)&_EMITSTORE, (tmp$38)&_EMITSPILLREGS, (tmp$53)&_EMITLOAD, (tmp$45)&_EMITLOADRES, (tmp$52)&_EMITSTACK, (tmp$52)&_EMITADDR, (tmp$54)&_EMITCALL, (tmp$55)&_EMITCALLPTR, (tmp$46)&_EMITSTACKALIGN, (tmp$53)&_EMITJUMPPTR, (tmp$56)&_EMITBRANCH, (tmp$57)&_EMITJMPTB, (tmp$58)&_EMITMEM, (tmp$59)&_EMITMACRO, (tmp$42)&_EMITSCOPEBEGIN, (tmp$42)&_EMITSCOPEEND, (tmp$42)&_EMITDECL, (tmp$60)&_EMITDBG, (tmp$42)&_EMITVARINIBEGIN, (tmp$42)&_EMITVARINIEND, (tmp$61)&_EMITVARINII, (tmp$62)&_EMITVARINIF, (tmp$63)&_EMITVARINIOFS, (tmp$64)&_EMITVARINISTR, (tmp$65)&_EMITVARINIWSTR, (tmp$66)&_EMITVARINIPAD, (tmp$67)&_EMITVARINISCOPEBEGIN, (tmp$38)&_EMITVARINISCOPEEND, (tmp$38)&_EMITFBCTINFBEGIN, (tmp$68)&_EMITFBCTINFSTRING, (tmp$38)&_EMITFBCTINFEND, (tmp$69)&_ALLOCVREG, (tmp$70)&_ALLOCVRIMM, (tmp$71)&_ALLOCVRIMMF, (tmp$72)&_ALLOCVRVAR, (tmp$73)&_ALLOCVRIDX, (tmp$74)&_ALLOCVRPTR, (tmp$72)&_ALLOCVROFS, (tmp$75)&_SETVREGDATATYPE, (tmp$76)&_GETDISTANCE, (tmp$52)&_LOADVR, (tmp$45)&_STOREVR, (tmp$46)&_XCHGTOS };
+struct $7IR_VTBL IRTAC_VTBL$ = { (tmp$40)&_INIT, (tmp$40)&_END, (tmp$41)&_EMITBEGIN, (tmp$40)&_EMITEND, (tmp$42)&_GETOPTIONVALUE, (tmp$43)0ull, (tmp$44)&_PROCBEGIN, (tmp$44)&_PROCEND, (tmp$45)&_PROCALLOCARG, (tmp$45)&_PROCALLOCLOCAL, (tmp$46)&_PROCGETFRAMEREGNAME, (tmp$44)&_SCOPEBEGIN, (tmp$44)&_SCOPEEND, (tmp$44)&_PROCALLOCSTATICVARS, (tmp$47)&_EMITCONVERT, (tmp$44)&_EMITLABEL, (tmp$44)&_EMITLABELNF, (tmp$48)&_EMITRETURN, (tmp$45)&_EMITPROCBEGIN, (tmp$49)&_EMITPROCEND, (tmp$50)&_EMITPUSHARG, (tmp$51)&_EMITASMLINE, (tmp$52)&_EMITCOMMENT, (tmp$53)&_EMITBOP, (tmp$54)&_EMITUOP, (tmp$47)&_EMITSTORE, (tmp$40)&_EMITSPILLREGS, (tmp$55)&_EMITLOAD, (tmp$47)&_EMITLOADRES, (tmp$54)&_EMITSTACK, (tmp$54)&_EMITADDR, (tmp$56)&_EMITCALL, (tmp$57)&_EMITCALLPTR, (tmp$48)&_EMITSTACKALIGN, (tmp$55)&_EMITJUMPPTR, (tmp$58)&_EMITBRANCH, (tmp$59)&_EMITJMPTB, (tmp$60)&_EMITMEM, (tmp$61)&_EMITMACRO, (tmp$44)&_EMITSCOPEBEGIN, (tmp$44)&_EMITSCOPEEND, (tmp$44)&_EMITDECL, (tmp$62)&_EMITDBG, (tmp$44)&_EMITVARINIBEGIN, (tmp$44)&_EMITVARINIEND, (tmp$63)&_EMITVARINII, (tmp$64)&_EMITVARINIF, (tmp$65)&_EMITVARINIOFS, (tmp$66)&_EMITVARINISTR, (tmp$67)&_EMITVARINIWSTR, (tmp$68)&_EMITVARINIPAD, (tmp$69)&_EMITVARINISCOPEBEGIN, (tmp$40)&_EMITVARINISCOPEEND, (tmp$40)&_EMITFBCTINFBEGIN, (tmp$70)&_EMITFBCTINFSTRING, (tmp$40)&_EMITFBCTINFEND, (tmp$71)&_ALLOCVREG, (tmp$72)&_ALLOCVRIMM, (tmp$73)&_ALLOCVRIMMF, (tmp$74)&_ALLOCVRVAR, (tmp$75)&_ALLOCVRIDX, (tmp$76)&_ALLOCVRPTR, (tmp$74)&_ALLOCVROFS, (tmp$77)&_SETVREGDATATYPE, (tmp$78)&_GETDISTANCE, (tmp$54)&_LOADVR, (tmp$47)&_STOREVR, (tmp$48)&_XCHGTOS };
 
 __attribute__(( constructor )) static void fb_ctor__irztac( void )
 {
@@ -1521,7 +1546,7 @@ static int64 _EMITBEGIN( void )
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$18:;
-	int64 vr$1 = (*(tmp$39*)((uint8*)&EMIT$ + 320ll))(  );
+	int64 vr$1 = (*(tmp$41*)((uint8*)&EMIT$ + 320ll))(  );
 	fb$result$1 = vr$1;
 	label$19:;
 	return fb$result$1;
@@ -1530,7 +1555,7 @@ static int64 _EMITBEGIN( void )
 static void _EMITEND( void )
 {
 	label$20:;
-	(*(tmp$38*)((uint8*)&EMIT$ + 328ll))(  );
+	(*(tmp$40*)((uint8*)&EMIT$ + 328ll))(  );
 	label$21:;
 }
 
@@ -1539,7 +1564,7 @@ static int64 _GETOPTIONVALUE( $14IR_OPTIONVALUE OPT$1 )
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$22:;
-	int64 vr$1 = (*(tmp$40*)((uint8*)&EMIT$ + 312ll))( OPT$1 );
+	int64 vr$1 = (*(tmp$42*)((uint8*)&EMIT$ + 312ll))( OPT$1 );
 	fb$result$1 = vr$1;
 	label$23:;
 	return fb$result$1;
@@ -1556,11 +1581,11 @@ static void HLOADIDX( struct $6IRVREG* VREG$1 )
 	label$27:;
 	label$26:;
 	{
-		$15IRVREGTYPE_ENUM TMP$106$2;
-		TMP$106$2 = *($15IRVREGTYPE_ENUM*)VREG$1;
-		if( TMP$106$2 == 2ll ) goto label$30;
+		$15IRVREGTYPE_ENUM TMP$109$2;
+		TMP$109$2 = *($15IRVREGTYPE_ENUM*)VREG$1;
+		if( TMP$109$2 == 2ll ) goto label$30;
 		label$31:;
-		if( TMP$106$2 != 3ll ) goto label$29;
+		if( TMP$109$2 != 3ll ) goto label$29;
 		label$30:;
 		{
 		}
@@ -1585,7 +1610,7 @@ static void HLOADIDX( struct $6IRVREG* VREG$1 )
 	}
 	label$36:;
 	label$35:;
-	(*(tmp$83*)*(struct $8REGCLASS**)REGTB$)( *(struct $8REGCLASS**)REGTB$, VI$1, (struct $6IRVREG*)0ull, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+	(*(tmp$86*)*(struct $8REGCLASS**)REGTB$)( *(struct $8REGCLASS**)REGTB$, VI$1, (struct $6IRVREG*)0ull, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 	label$25:;
 }
 
@@ -1714,28 +1739,28 @@ static void _EMIT( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1, str
 static void _PROCBEGIN( struct $8FBSYMBOL* PROC$1 )
 {
 	label$61:;
-	(*(tmp$42*)((uint8*)&EMIT$ + 376ll))( PROC$1 );
+	(*(tmp$44*)((uint8*)&EMIT$ + 376ll))( PROC$1 );
 	label$62:;
 }
 
 static void _PROCEND( struct $8FBSYMBOL* PROC$1 )
 {
 	label$63:;
-	(*(tmp$42*)((uint8*)&EMIT$ + 384ll))( PROC$1 );
+	(*(tmp$44*)((uint8*)&EMIT$ + 384ll))( PROC$1 );
 	label$64:;
 }
 
 static void _PROCALLOCARG( struct $8FBSYMBOL* PROC$1, struct $8FBSYMBOL* SYM$1 )
 {
 	label$65:;
-	(*(tmp$43*)((uint8*)&EMIT$ + 408ll))( PROC$1, SYM$1 );
+	(*(tmp$45*)((uint8*)&EMIT$ + 408ll))( PROC$1, SYM$1 );
 	label$66:;
 }
 
 static void _PROCALLOCLOCAL( struct $8FBSYMBOL* PROC$1, struct $8FBSYMBOL* SYM$1 )
 {
 	label$67:;
-	(*(tmp$43*)((uint8*)&EMIT$ + 416ll))( PROC$1, SYM$1 );
+	(*(tmp$45*)((uint8*)&EMIT$ + 416ll))( PROC$1, SYM$1 );
 	label$68:;
 }
 
@@ -1744,7 +1769,7 @@ static char* _PROCGETFRAMEREGNAME( void )
 	char* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$69:;
-	char* vr$1 = (*(tmp$44*)((uint8*)&EMIT$ + 368ll))(  );
+	char* vr$1 = (*(tmp$46*)((uint8*)&EMIT$ + 368ll))(  );
 	fb$result$1 = vr$1;
 	label$70:;
 	return fb$result$1;
@@ -1753,21 +1778,21 @@ static char* _PROCGETFRAMEREGNAME( void )
 static void _SCOPEBEGIN( struct $8FBSYMBOL* S$1 )
 {
 	label$71:;
-	(*(tmp$42*)((uint8*)&EMIT$ + 432ll))( S$1 );
+	(*(tmp$44*)((uint8*)&EMIT$ + 432ll))( S$1 );
 	label$72:;
 }
 
 static void _SCOPEEND( struct $8FBSYMBOL* S$1 )
 {
 	label$73:;
-	(*(tmp$42*)((uint8*)&EMIT$ + 440ll))( S$1 );
+	(*(tmp$44*)((uint8*)&EMIT$ + 440ll))( S$1 );
 	label$74:;
 }
 
 static void _PROCALLOCSTATICVARS( struct $8FBSYMBOL* HEAD_SYM$1 )
 {
 	label$75:;
-	(*(tmp$42*)((uint8*)&EMIT$ + 424ll))( HEAD_SYM$1 );
+	(*(tmp$44*)((uint8*)&EMIT$ + 424ll))( HEAD_SYM$1 );
 	label$76:;
 }
 
@@ -1796,7 +1821,7 @@ static void _EMITPROCBEGIN( struct $8FBSYMBOL* PROC$1, struct $8FBSYMBOL* INITLA
 		CLASS_$1 = 0ll;
 		label$86:;
 		{
-			(*(tmp$90*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) + 88ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) );
+			(*(tmp$93*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) + 88ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) );
 		}
 		label$84:;
 		CLASS_$1 = CLASS_$1 + 1ll;
@@ -1804,7 +1829,7 @@ static void _EMITPROCBEGIN( struct $8FBSYMBOL* PROC$1, struct $8FBSYMBOL* INITLA
 		if( CLASS_$1 <= 1ll ) goto label$86;
 		label$85:;
 	}
-	(*(tmp$43*)((uint8*)&EMIT$ + 392ll))( PROC$1, INITLABEL$1 );
+	(*(tmp$45*)((uint8*)&EMIT$ + 392ll))( PROC$1, INITLABEL$1 );
 	label$82:;
 }
 
@@ -1813,7 +1838,7 @@ static void _EMITPROCEND( struct $8FBSYMBOL* PROC$1, struct $8FBSYMBOL* INITLABE
 	label$87:;
 	_FLUSH(  );
 	int64 vr$0 = SYMBPROCCALCBYTESTOPOP( PROC$1 );
-	(*(tmp$100*)((uint8*)&EMIT$ + 400ll))( PROC$1, vr$0, INITLABEL$1, EXITLABEL$1 );
+	(*(tmp$103*)((uint8*)&EMIT$ + 400ll))( PROC$1, vr$0, INITLABEL$1, EXITLABEL$1 );
 	label$88:;
 }
 
@@ -1831,10 +1856,10 @@ static void _EMITSCOPEEND( struct $8FBSYMBOL* S$1 )
 	label$92:;
 }
 
-static void _EMITBOP( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1, struct $6IRVREG* VR$1, struct $8FBSYMBOL* LABEL$1 )
+static void _EMITBOP( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1, struct $6IRVREG* VR$1, struct $8FBSYMBOL* LABEL$1, $10IR_EMITOPT OPTIONS$1 )
 {
 	label$93:;
-	_EMIT( OP$1, V1$1, V2$1, VR$1, LABEL$1, 0ll, (char*)0ull );
+	_EMIT( OP$1, V1$1, V2$1, VR$1, LABEL$1, OPTIONS$1, (char*)0ull );
 	label$94:;
 }
 
@@ -1849,35 +1874,35 @@ static void _EMITCONVERT( struct $6IRVREG* V1$1, struct $6IRVREG* V2$1 )
 {
 	label$97:;
 	{
-		int64 TMP$107$2;
-		$12FB_DATACLASS TMP$108$2;
+		int64 TMP$110$2;
+		$12FB_DATACLASS TMP$111$2;
 		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$99;
-		TMP$107$2 = 24ll;
-		goto label$856;
+		TMP$110$2 = 24ll;
+		goto label$857;
 		label$99:;
-		TMP$107$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$856:;
-		TMP$108$2 = *($12FB_DATACLASS*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$107$2 * 56ll));
-		if( TMP$108$2 != 0ll ) goto label$101;
+		TMP$110$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$857:;
+		TMP$111$2 = *($12FB_DATACLASS*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$110$2 * 56ll));
+		if( TMP$111$2 != 0ll ) goto label$101;
 		label$102:;
 		{
 			if( (*(int64*)((uint8*)V1$1 + 8ll) & 511ll) != 1ll ) goto label$104;
 			{
-				_EMIT( 84ll, V1$1, V2$1, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
+				_EMIT( 85ll, V1$1, V2$1, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
 			}
 			goto label$103;
 			label$104:;
 			{
-				_EMIT( 82ll, V1$1, V2$1, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
+				_EMIT( 83ll, V1$1, V2$1, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
 			}
 			label$103:;
 		}
 		goto label$100;
 		label$101:;
-		if( TMP$108$2 != 1ll ) goto label$105;
+		if( TMP$111$2 != 1ll ) goto label$105;
 		label$106:;
 		{
-			_EMIT( 83ll, V1$1, V2$1, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
+			_EMIT( 84ll, V1$1, V2$1, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
 		}
 		label$105:;
 		label$100:;
@@ -1895,21 +1920,21 @@ static void _EMITSTORE( struct $6IRVREG* V1$1, struct $6IRVREG* V2$1 )
 static void _EMITSPILLREGS( void )
 {
 	label$109:;
-	_EMIT( 87ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
+	_EMIT( 88ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
 	label$110:;
 }
 
 static void _EMITLOAD( struct $6IRVREG* V1$1 )
 {
 	label$111:;
-	_EMIT( 85ll, V1$1, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
+	_EMIT( 86ll, V1$1, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
 	label$112:;
 }
 
 static void _EMITLOADRES( struct $6IRVREG* V1$1, struct $6IRVREG* VR$1 )
 {
 	label$113:;
-	_EMIT( 86ll, V1$1, (struct $6IRVREG*)0ull, VR$1, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
+	_EMIT( 87ll, V1$1, (struct $6IRVREG*)0ull, VR$1, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
 	label$114:;
 }
 
@@ -1932,15 +1957,15 @@ static void _EMITPUSHARG( struct $8FBSYMBOL* PARAM$1, struct $6IRVREG* VR$1, int
 		REG1$2 = -1ll;
 		if( VR$1 == (struct $6IRVREG*)0ull ) goto label$122;
 		{
-			int64 TMP$109$3;
+			int64 TMP$112$3;
 			VR_TYP$2 = *(int64*)VR$1;
 			if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$123;
-			TMP$109$3 = 24ll;
-			goto label$857;
+			TMP$112$3 = 24ll;
+			goto label$858;
 			label$123:;
-			TMP$109$3 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
-			label$857:;
-			VR_DTYPE$2 = TMP$109$3;
+			TMP$112$3 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
+			label$858:;
+			VR_DTYPE$2 = TMP$112$3;
 			if( VR_DTYPE$2 != 24ll ) goto label$125;
 			{
 				VR_DTYPE$2 = 9ll;
@@ -1957,10 +1982,10 @@ static void _EMITPUSHARG( struct $8FBSYMBOL* PARAM$1, struct $6IRVREG* VR$1, int
 			VR_DCLASS$2 = -1ll;
 		}
 		label$121:;
-		(*(tmp$98*)((uint8*)&EMIT$ + 352ll))( VR_DCLASS$2, VR_TYP$2, *(int64*)((uint8*)PARAM$1 + 136ll), &REG1$2 );
+		(*(tmp$101*)((uint8*)&EMIT$ + 352ll))( VR_DCLASS$2, VR_TYP$2, *(int64*)((uint8*)PARAM$1 + 136ll), &REG1$2 );
 		if( REG1$2 == -1ll ) goto label$127;
 		{
-			int64 TMP$110$3;
+			int64 TMP$113$3;
 			*(int64*)((uint8*)LREG$1 + 24ll) = REG1$2;
 			if( *(int64*)VR$1 != 4ll ) goto label$129;
 			{
@@ -1969,13 +1994,13 @@ static void _EMITPUSHARG( struct $8FBSYMBOL* PARAM$1, struct $6IRVREG* VR$1, int
 			label$129:;
 			label$128:;
 			if( (VR_DTYPE$2 & 480ll) == 0ll ) goto label$130;
-			TMP$110$3 = 24ll;
-			goto label$858;
+			TMP$113$3 = 24ll;
+			goto label$859;
 			label$130:;
-			TMP$110$3 = VR_DTYPE$2 & 31ll;
-			label$858:;
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$2 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$2 << (3ll & 63ll))), LREG$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$110$3 * 56ll)) + 8ll) );
-			_EMITSTACK( 88ll, VR$1, LREG$1 );
+			TMP$113$3 = VR_DTYPE$2 & 31ll;
+			label$859:;
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$2 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$2 << (3ll & 63ll))), LREG$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$113$3 * 56ll)) + 8ll) );
+			_EMITSTACK( 89ll, VR$1, LREG$1 );
 			goto label$118;
 		}
 		label$127:;
@@ -1985,12 +2010,12 @@ static void _EMITPUSHARG( struct $8FBSYMBOL* PARAM$1, struct $6IRVREG* VR$1, int
 	label$119:;
 	if( UDTLEN$1 != 0ll ) goto label$132;
 	{
-		_EMITSTACK( 88ll, VR$1, (struct $6IRVREG*)0ull );
+		_EMITSTACK( 89ll, VR$1, (struct $6IRVREG*)0ull );
 	}
 	goto label$131;
 	label$132:;
 	{
-		_EMIT( 90ll, VR$1, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, UDTLEN$1, (char*)0ull );
+		_EMIT( 91ll, VR$1, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, UDTLEN$1, (char*)0ull );
 	}
 	label$131:;
 	label$118:;
@@ -2006,35 +2031,35 @@ static void _EMITADDR( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* VR$1 
 static void _EMITLABELNF( struct $8FBSYMBOL* L$1 )
 {
 	label$135:;
-	_EMIT( 100ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, L$1, 0ll, (char*)0ull );
+	_EMIT( 101ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, L$1, 0ll, (char*)0ull );
 	label$136:;
 }
 
 static void _EMITCALL( struct $8FBSYMBOL* PROC$1, int64 BYTESTOPOP$1, struct $6IRVREG* VR$1, int64 LEVEL$1 )
 {
 	label$137:;
-	_EMIT( 102ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, VR$1, PROC$1, BYTESTOPOP$1, (char*)0ull );
+	_EMIT( 103ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, VR$1, PROC$1, BYTESTOPOP$1, (char*)0ull );
 	label$138:;
 }
 
 static void _EMITCALLPTR( struct $8FBSYMBOL* PROC$1, struct $6IRVREG* V1$1, struct $6IRVREG* VR$1, int64 BYTESTOPOP$1, int64 LEVEL$1 )
 {
 	label$139:;
-	_EMIT( 103ll, V1$1, (struct $6IRVREG*)0ull, VR$1, PROC$1, BYTESTOPOP$1, (char*)0ull );
+	_EMIT( 104ll, V1$1, (struct $6IRVREG*)0ull, VR$1, PROC$1, BYTESTOPOP$1, (char*)0ull );
 	label$140:;
 }
 
 static void _EMITSTACKALIGN( int64 BYTES$1 )
 {
 	label$141:;
-	_EMIT( 91ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, BYTES$1, (char*)0ull );
+	_EMIT( 92ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, BYTES$1, (char*)0ull );
 	label$142:;
 }
 
 static void _EMITJUMPPTR( struct $6IRVREG* V1$1 )
 {
 	label$143:;
-	_EMIT( 104ll, V1$1, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
+	_EMIT( 105ll, V1$1, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, 0ll, (char*)0ull );
 	label$144:;
 }
 
@@ -2053,10 +2078,10 @@ static void _EMITJMPTB( struct $6IRVREG* V1$1, struct $8FBSYMBOL* TBSYM$1, uint6
 	label$148:;
 }
 
-static void _EMITMEM( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1, int64 BYTES$1 )
+static void _EMITMEM( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1, int64 BYTES$1, int64 FILLCHAR$1 )
 {
 	label$149:;
-	_EMIT( OP$1, V1$1, V2$1, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, BYTES$1, (char*)0ull );
+	_EMIT( OP$1, V1$1, V2$1, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)0ull, BYTES$1, (char*)FILLCHAR$1 );
 	label$150:;
 }
 
@@ -2083,7 +2108,7 @@ static void _EMITCOMMENT( char* TEXT$1 )
 {
 	label$157:;
 	char* vr$0 = ZSTRDUP( TEXT$1 );
-	_EMIT( 117ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)vr$0, 0ll, (char*)0ull );
+	_EMIT( 118ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)vr$0, 0ll, (char*)0ull );
 	label$158:;
 }
 
@@ -2098,25 +2123,25 @@ static void _EMITASMLINE( struct $9ASTASMTOK* ASMTOKENHEAD$1 )
 	if( N$1 == (struct $9ASTASMTOK*)0ull ) goto label$162;
 	{
 		{
-			$14AST_ASMTOKTYPE TMP$111$3;
-			TMP$111$3 = *($14AST_ASMTOKTYPE*)N$1;
-			if( TMP$111$3 != 0ll ) goto label$164;
+			$14AST_ASMTOKTYPE TMP$114$3;
+			TMP$114$3 = *($14AST_ASMTOKTYPE*)N$1;
+			if( TMP$114$3 != 0ll ) goto label$164;
 			label$165:;
 			{
-				FBSTRING TMP$112$4;
-				__builtin_memset( &TMP$112$4, 0, 24ll );
-				FBSTRING* vr$6 = fb_StrConcat( &TMP$112$4, (void*)&LN$1, -1ll, *(void**)((uint8*)N$1 + 8ll), 0ll );
+				FBSTRING TMP$115$4;
+				__builtin_memset( &TMP$115$4, 0, 24ll );
+				FBSTRING* vr$6 = fb_StrConcat( &TMP$115$4, (void*)&LN$1, -1ll, *(void**)((uint8*)N$1 + 8ll), 0ll );
 				fb_StrAssign( (void*)&LN$1, -1ll, (void*)vr$6, -1ll, 0 );
 			}
 			goto label$163;
 			label$164:;
-			if( TMP$111$3 != 1ll ) goto label$166;
+			if( TMP$114$3 != 1ll ) goto label$166;
 			label$167:;
 			{
-				FBSTRING TMP$113$4;
+				FBSTRING TMP$116$4;
 				char* vr$9 = SYMBGETMANGLEDNAME( *(struct $8FBSYMBOL**)((uint8*)N$1 + 8ll) );
-				__builtin_memset( &TMP$113$4, 0, 24ll );
-				FBSTRING* vr$13 = fb_StrConcat( &TMP$113$4, (void*)&LN$1, -1ll, (void*)vr$9, 0ll );
+				__builtin_memset( &TMP$116$4, 0, 24ll );
+				FBSTRING* vr$13 = fb_StrConcat( &TMP$116$4, (void*)&LN$1, -1ll, (void*)vr$9, 0ll );
 				fb_StrAssign( (void*)&LN$1, -1ll, (void*)vr$13, -1ll, 0 );
 				int64 OFS$4;
 				OFS$4 = *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)N$1 + 8ll) + 88ll);
@@ -2142,7 +2167,7 @@ static void _EMITASMLINE( struct $9ASTASMTOK* ASMTOKENHEAD$1 )
 	goto label$161;
 	label$162:;
 	char* vr$21 = ZSTRDUP( (char*)*(char**)&LN$1 );
-	_EMIT( 118ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)vr$21, 0ll, (char*)0ull );
+	_EMIT( 119ll, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $6IRVREG*)0ull, (struct $8FBSYMBOL*)vr$21, 0ll, (char*)0ull );
 	fb_StrDelete( (FBSTRING*)&LN$1 );
 	label$160:;
 }
@@ -2192,7 +2217,7 @@ static void _EMITVARINIOFS( struct $8FBSYMBOL* SYM$1, struct $8FBSYMBOL* RHS$1, 
 	label$181:;
 }
 
-static void _EMITVARINISTR( int64 TOTLGT$1, char* LITSTR$1, int64 LITLGT$1 )
+static void _EMITVARINISTR( int64 TOTLGT$1, char* LITSTR$1, int64 LITLGT$1, int64 NOTERM$1 )
 {
 	label$182:;
 	char* S$1;
@@ -2206,27 +2231,28 @@ static void _EMITVARINISTR( int64 TOTLGT$1, char* LITSTR$1, int64 LITLGT$1 )
 	label$184:;
 	if( LITLGT$1 <= TOTLGT$1 ) goto label$187;
 	{
-		FBSTRING TMP$115$2;
 		ERRREPORTWARN( 9ll, (char*)0ull, 1ll, (char*)0ull );
-		__builtin_memset( &TMP$115$2, 0, 24ll );
-		FBSTRING* vr$2 = fb_StrAllocTempDescZ( (char*)LITSTR$1 );
-		FBSTRING* vr$3 = fb_LEFT( (FBSTRING*)vr$2, TOTLGT$1 );
-		fb_StrAssign( (void*)&TMP$115$2, -1ll, (void*)vr$3, -1ll, 0 );
-		char* vr$5 = HESCAPE( (char*)*(char**)&TMP$115$2 );
-		S$1 = vr$5;
-		fb_StrDelete( (FBSTRING*)&TMP$115$2 );
+		char* vr$1 = HESCAPE( (char*)LITSTR$1, TOTLGT$1 );
+		S$1 = vr$1;
 	}
 	goto label$186;
 	label$187:;
 	{
-		char* vr$7 = HESCAPE( (char*)LITSTR$1 );
-		S$1 = vr$7;
+		char* vr$2 = HESCAPE( (char*)LITSTR$1, 0ll );
+		S$1 = vr$2;
 	}
 	label$186:;
-	EMITVARINISTR( S$1 );
+	EMITVARINISTR( S$1, NOTERM$1 );
 	if( LITLGT$1 >= TOTLGT$1 ) goto label$189;
 	{
-		EMITVARINIPAD( TOTLGT$1 - LITLGT$1 );
+		int64 TMP$118$2;
+		if( NOTERM$1 == 0ll ) goto label$190;
+		TMP$118$2 = 32ll;
+		goto label$860;
+		label$190:;
+		TMP$118$2 = 0ll;
+		label$860:;
+		EMITVARINIPAD( TOTLGT$1 - LITLGT$1, TMP$118$2 );
 	}
 	label$189:;
 	label$188:;
@@ -2235,115 +2261,111 @@ static void _EMITVARINISTR( int64 TOTLGT$1, char* LITSTR$1, int64 LITLGT$1 )
 
 static void _EMITVARINIWSTR( int64 TOTLGT$1, uint32* LITSTR$1, int64 LITLGT$1 )
 {
-	label$190:;
+	label$191:;
 	char* S$1;
 	__builtin_memset( &S$1, 0, 8ll );
 	int64 WCLEN$1;
 	__builtin_memset( &WCLEN$1, 0, 8ll );
-	if( TOTLGT$1 != 0ll ) goto label$193;
+	if( TOTLGT$1 != 0ll ) goto label$194;
 	{
-		EMITVARINII( *(int64*)((uint8*)&ENV$ + 544ll), 0ll );
-		goto label$191;
-	}
-	label$193:;
-	label$192:;
-	if( LITLGT$1 <= TOTLGT$1 ) goto label$195;
-	{
-		uint32* TMP$116$2;
-		ERRREPORTWARN( 9ll, (char*)0ull, 1ll, (char*)0ull );
-		uint32* vr$2 = fb_WstrLeft( (uint32*)LITSTR$1, TOTLGT$1 );
-		TMP$116$2 = vr$2;
-		char* vr$3 = HESCAPEW( (uint32*)TMP$116$2 );
-		S$1 = vr$3;
-		fb_WstrDelete( (uint32*)TMP$116$2 );
-	}
-	goto label$194;
-	label$195:;
-	{
-		char* vr$4 = HESCAPEW( (uint32*)LITSTR$1 );
-		S$1 = vr$4;
+		EMITVARINII( *(int64*)((uint8*)&ENV$ + 568ll), 0ll );
+		goto label$192;
 	}
 	label$194:;
+	label$193:;
+	if( LITLGT$1 <= TOTLGT$1 ) goto label$196;
+	{
+		ERRREPORTWARN( 9ll, (char*)0ull, 1ll, (char*)0ull );
+		char* vr$2 = HESCAPEW( (uint32*)LITSTR$1, TOTLGT$1 );
+		S$1 = vr$2;
+	}
+	goto label$195;
+	label$196:;
+	{
+		char* vr$3 = HESCAPEW( (uint32*)LITSTR$1, 0ll );
+		S$1 = vr$3;
+	}
+	label$195:;
 	WCLEN$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 400ll);
 	EMITVARINIWSTR( S$1 );
-	if( LITLGT$1 >= TOTLGT$1 ) goto label$197;
+	if( LITLGT$1 >= TOTLGT$1 ) goto label$198;
 	{
-		EMITVARINIPAD( (TOTLGT$1 - LITLGT$1) * WCLEN$1 );
+		EMITVARINIPAD( (TOTLGT$1 - LITLGT$1) * WCLEN$1, 0ll );
 	}
+	label$198:;
 	label$197:;
-	label$196:;
-	label$191:;
+	label$192:;
 }
 
-static void _EMITVARINIPAD( int64 BYTES$1 )
+static void _EMITVARINIPAD( int64 BYTES$1, int64 FILLCHAR$1 )
 {
-	label$198:;
-	EMITVARINIPAD( BYTES$1 );
 	label$199:;
+	EMITVARINIPAD( BYTES$1, FILLCHAR$1 );
+	label$200:;
 }
 
 static void _EMITVARINISCOPEBEGIN( struct $8FBSYMBOL* SYM$1, int64 IS_ARRAY$1 )
 {
-	label$200:;
 	label$201:;
+	label$202:;
 }
 
 static void _EMITVARINISCOPEEND( void )
 {
-	label$202:;
 	label$203:;
+	label$204:;
 }
 
 static void _EMITFBCTINFBEGIN( void )
 {
-	label$204:;
-	EMITFBCTINFBEGIN(  );
 	label$205:;
+	EMITFBCTINFBEGIN(  );
+	label$206:;
 }
 
 static void _EMITFBCTINFSTRING( char* S$1 )
 {
-	label$206:;
-	EMITFBCTINFSTRING( S$1 );
 	label$207:;
+	EMITFBCTINFSTRING( S$1 );
+	label$208:;
 }
 
 static void _EMITFBCTINFEND( void )
 {
-	label$208:;
-	EMITFBCTINFEND(  );
 	label$209:;
+	EMITFBCTINFEND(  );
+	label$210:;
 }
 
 static struct $6IRVREG* HNEWVR( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1, int64 VTYPE$1 )
 {
-	int64 TMP$117$1;
+	int64 TMP$119$1;
 	struct $6IRVREG* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$210:;
+	label$211:;
 	struct $6IRVREG* V$1;
 	void* vr$2 = FLISTNEWITEM( (struct $6TFLIST*)((uint8*)&CTX$ + 128ll) );
 	V$1 = (struct $6IRVREG*)vr$2;
 	*($15IRVREGTYPE_ENUM*)V$1 = VTYPE$1;
-	if( (DTYPE$1 & 480ll) == 0ll ) goto label$212;
-	TMP$117$1 = 24ll;
-	goto label$859;
-	label$212:;
-	TMP$117$1 = DTYPE$1 & 31ll;
-	label$859:;
-	*($11FB_DATATYPE*)((uint8*)V$1 + 8ll) = TMP$117$1;
+	if( (DTYPE$1 & 480ll) == 0ll ) goto label$213;
+	TMP$119$1 = 24ll;
+	goto label$861;
+	label$213:;
+	TMP$119$1 = DTYPE$1 & 31ll;
+	label$861:;
+	*($11FB_DATATYPE*)((uint8*)V$1 + 8ll) = TMP$119$1;
 	*(struct $8FBSYMBOL**)((uint8*)V$1 + 16ll) = SUBTYPE$1;
 	*(int64*)((uint8*)V$1 + 24ll) = -1ll;
-	if( *(int64*)((uint8*)&ENV$ + 232ll) != 0ll ) goto label$214;
+	if( *(int64*)((uint8*)&ENV$ + 232ll) != 0ll ) goto label$215;
 	{
 		*($12IR_REGFAMILY*)((uint8*)V$1 + 32ll) = 0ll;
 	}
-	goto label$213;
-	label$214:;
+	goto label$214;
+	label$215:;
 	{
 		*($12IR_REGFAMILY*)((uint8*)V$1 + 32ll) = 1ll;
 	}
-	label$213:;
+	label$214:;
 	*(int64*)((uint8*)V$1 + 40ll) = 0ll;
 	*(struct $8FBSYMBOL**)((uint8*)V$1 + 56ll) = (struct $8FBSYMBOL*)0ull;
 	*(int64*)((uint8*)V$1 + 64ll) = 0ll;
@@ -2354,7 +2376,7 @@ static struct $6IRVREG* HNEWVR( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1, int
 	*(struct $9IRTACVREG**)((uint8*)V$1 + 104ll) = (struct $9IRTACVREG*)0ull;
 	*(struct $5IRTAC**)((uint8*)V$1 + 112ll) = (struct $5IRTAC*)0ull;
 	fb$result$1 = V$1;
-	label$211:;
+	label$212:;
 	return fb$result$1;
 }
 
@@ -2362,20 +2384,20 @@ static struct $6IRVREG* _ALLOCVREG( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1 
 {
 	struct $6IRVREG* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$215:;
+	label$216:;
 	struct $6IRVREG* VR$1;
 	DTYPE$1 = DTYPE$1 & 511ll;
 	struct $6IRVREG* vr$2 = HNEWVR( DTYPE$1, SUBTYPE$1, 4ll );
 	VR$1 = vr$2;
-	if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$218;
+	if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$219;
 	{
 		struct $6IRVREG* vr$6 = HNEWVR( 8ll, (struct $8FBSYMBOL*)0ull, 4ll );
 		*(struct $6IRVREG**)((uint8*)VR$1 + 88ll) = vr$6;
 	}
+	label$219:;
 	label$218:;
-	label$217:;
 	fb$result$1 = VR$1;
-	label$216:;
+	label$217:;
 	return fb$result$1;
 }
 
@@ -2383,26 +2405,26 @@ static struct $6IRVREG* _ALLOCVRIMM( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1
 {
 	struct $6IRVREG* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$219:;
+	label$220:;
 	struct $6IRVREG* VR$1;
 	DTYPE$1 = DTYPE$1 & 511ll;
 	struct $6IRVREG* vr$2 = HNEWVR( DTYPE$1, SUBTYPE$1, 0ll );
 	VR$1 = vr$2;
-	if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$222;
+	if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$223;
 	{
 		*(int64*)((uint8*)VR$1 + 48ll) = VALUE$1 & 4294967295ll;
 		struct $6IRVREG* vr$8 = HNEWVR( 8ll, (struct $8FBSYMBOL*)0ull, 0ll );
 		*(struct $6IRVREG**)((uint8*)VR$1 + 88ll) = vr$8;
 		*(int64*)((uint8*)*(struct $6IRVREG**)((uint8*)VR$1 + 88ll) + 48ll) = (int64)((uint64)VALUE$1 >> (32ll & 63ll));
 	}
-	goto label$221;
-	label$222:;
+	goto label$222;
+	label$223:;
 	{
 		*(int64*)((uint8*)VR$1 + 48ll) = VALUE$1;
 	}
-	label$221:;
+	label$222:;
 	fb$result$1 = VR$1;
-	label$220:;
+	label$221:;
 	return fb$result$1;
 }
 
@@ -2410,27 +2432,27 @@ static struct $6IRVREG* _ALLOCVRIMMF( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$
 {
 	struct $6IRVREG* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$223:;
+	label$224:;
 	struct $6IRVREG* VR$1;
 	struct $8FBSYMBOL* S$1;
 	DTYPE$1 = DTYPE$1 & 511ll;
-	if( (*(int64*)((uint8*)&IR$ + 544ll) & 2ll) == 0ll ) goto label$226;
+	if( (*(int64*)((uint8*)&IR$ + 544ll) & 2ll) == 0ll ) goto label$227;
 	{
 		struct $6IRVREG* vr$3 = HNEWVR( DTYPE$1, SUBTYPE$1, 0ll );
 		VR$1 = vr$3;
 		*(double*)((uint8*)VR$1 + 48ll) = VALUE$1;
 	}
-	goto label$225;
-	label$226:;
+	goto label$226;
+	label$227:;
 	{
 		struct $8FBSYMBOL* vr$5 = SYMBALLOCFLOATCONST( VALUE$1, DTYPE$1 );
 		S$1 = vr$5;
-		struct $6IRVREG* vr$7 = (*(tmp$72*)((uint8*)&IR$ + 472ll))( DTYPE$1, SUBTYPE$1, S$1, *(int64*)((uint8*)S$1 + 88ll) );
+		struct $6IRVREG* vr$7 = (*(tmp$74*)((uint8*)&IR$ + 472ll))( DTYPE$1, SUBTYPE$1, S$1, *(int64*)((uint8*)S$1 + 88ll) );
 		VR$1 = vr$7;
 	}
-	label$225:;
+	label$226:;
 	fb$result$1 = VR$1;
-	label$224:;
+	label$225:;
 	return fb$result$1;
 }
 
@@ -2438,7 +2460,7 @@ static struct $6IRVREG* _ALLOCVRVAR( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1
 {
 	struct $6IRVREG* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$227:;
+	label$228:;
 	struct $6IRVREG* VR$1;
 	struct $6IRVREG* VA$1;
 	DTYPE$1 = DTYPE$1 & 511ll;
@@ -2446,17 +2468,17 @@ static struct $6IRVREG* _ALLOCVRVAR( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1
 	VR$1 = vr$2;
 	*(struct $8FBSYMBOL**)((uint8*)VR$1 + 56ll) = SYMBOL$1;
 	*(int64*)((uint8*)VR$1 + 64ll) = OFS$1;
-	if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$230;
+	if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$231;
 	{
 		struct $6IRVREG* vr$8 = HNEWVR( 8ll, (struct $8FBSYMBOL*)0ull, 1ll );
 		VA$1 = vr$8;
 		*(struct $6IRVREG**)((uint8*)VR$1 + 88ll) = VA$1;
 		*(int64*)((uint8*)VA$1 + 64ll) = OFS$1 + 4ll;
 	}
+	label$231:;
 	label$230:;
-	label$229:;
 	fb$result$1 = VR$1;
-	label$228:;
+	label$229:;
 	return fb$result$1;
 }
 
@@ -2464,7 +2486,7 @@ static struct $6IRVREG* _ALLOCVRIDX( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1
 {
 	struct $6IRVREG* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$231:;
+	label$232:;
 	struct $6IRVREG* VR$1;
 	struct $6IRVREG* VA$1;
 	DTYPE$1 = DTYPE$1 & 511ll;
@@ -2474,17 +2496,17 @@ static struct $6IRVREG* _ALLOCVRIDX( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1
 	*(int64*)((uint8*)VR$1 + 64ll) = OFS$1;
 	*(int64*)((uint8*)VR$1 + 72ll) = MULT$1;
 	*(struct $6IRVREG**)((uint8*)VR$1 + 80ll) = VIDX$1;
-	if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$234;
+	if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$235;
 	{
 		struct $6IRVREG* vr$10 = HNEWVR( 8ll, (struct $8FBSYMBOL*)0ull, 2ll );
 		VA$1 = vr$10;
 		*(struct $6IRVREG**)((uint8*)VR$1 + 88ll) = VA$1;
 		*(int64*)((uint8*)VA$1 + 64ll) = OFS$1 + 4ll;
 	}
+	label$235:;
 	label$234:;
-	label$233:;
 	fb$result$1 = VR$1;
-	label$232:;
+	label$233:;
 	return fb$result$1;
 }
 
@@ -2492,7 +2514,7 @@ static struct $6IRVREG* _ALLOCVRPTR( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1
 {
 	struct $6IRVREG* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$235:;
+	label$236:;
 	struct $6IRVREG* VR$1;
 	struct $6IRVREG* VA$1;
 	DTYPE$1 = DTYPE$1 & 511ll;
@@ -2501,17 +2523,17 @@ static struct $6IRVREG* _ALLOCVRPTR( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1
 	*(int64*)((uint8*)VR$1 + 64ll) = OFS$1;
 	*(int64*)((uint8*)VR$1 + 72ll) = 1ll;
 	*(struct $6IRVREG**)((uint8*)VR$1 + 80ll) = VIDX$1;
-	if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$238;
+	if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$239;
 	{
 		struct $6IRVREG* vr$9 = HNEWVR( 8ll, (struct $8FBSYMBOL*)0ull, 3ll );
 		VA$1 = vr$9;
 		*(struct $6IRVREG**)((uint8*)VR$1 + 88ll) = VA$1;
 		*(int64*)((uint8*)VA$1 + 64ll) = OFS$1 + 4ll;
 	}
+	label$239:;
 	label$238:;
-	label$237:;
 	fb$result$1 = VR$1;
-	label$236:;
+	label$237:;
 	return fb$result$1;
 }
 
@@ -2519,7 +2541,7 @@ static struct $6IRVREG* _ALLOCVROFS( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1
 {
 	struct $6IRVREG* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$239:;
+	label$240:;
 	struct $6IRVREG* VR$1;
 	DTYPE$1 = DTYPE$1 & 511ll;
 	struct $6IRVREG* vr$2 = HNEWVR( DTYPE$1, SUBTYPE$1, 5ll );
@@ -2527,69 +2549,69 @@ static struct $6IRVREG* _ALLOCVROFS( int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1
 	*(struct $8FBSYMBOL**)((uint8*)VR$1 + 56ll) = SYMBOL$1;
 	*(int64*)((uint8*)VR$1 + 64ll) = OFS$1;
 	fb$result$1 = VR$1;
-	label$240:;
+	label$241:;
 	return fb$result$1;
 }
 
 static void _SETVREGDATATYPE( struct $6IRVREG* VREG$1, int64 DTYPE$1, struct $8FBSYMBOL* SUBTYPE$1 )
 {
-	label$241:;
+	label$242:;
 	DTYPE$1 = DTYPE$1 & 511ll;
-	if( VREG$1 == (struct $6IRVREG*)0ull ) goto label$244;
+	if( VREG$1 == (struct $6IRVREG*)0ull ) goto label$245;
 	{
-		int64 TMP$118$2;
-		if( (DTYPE$1 & 480ll) == 0ll ) goto label$245;
-		TMP$118$2 = 24ll;
-		goto label$860;
-		label$245:;
-		TMP$118$2 = DTYPE$1 & 31ll;
-		label$860:;
-		*($11FB_DATATYPE*)((uint8*)VREG$1 + 8ll) = TMP$118$2;
+		int64 TMP$120$2;
+		if( (DTYPE$1 & 480ll) == 0ll ) goto label$246;
+		TMP$120$2 = 24ll;
+		goto label$862;
+		label$246:;
+		TMP$120$2 = DTYPE$1 & 31ll;
+		label$862:;
+		*($11FB_DATATYPE*)((uint8*)VREG$1 + 8ll) = TMP$120$2;
 		*(struct $8FBSYMBOL**)((uint8*)VREG$1 + 16ll) = SUBTYPE$1;
 	}
+	label$245:;
 	label$244:;
 	label$243:;
-	label$242:;
 }
 
 static void HRENAME( struct $6IRVREG* VOLD$1, struct $6IRVREG* VNEW$1 )
 {
-	label$246:;
+	label$247:;
 	struct $9IRTACVREG* T$1;
 	struct $6IRVREG* V$1;
 	T$1 = *(struct $9IRTACVREG**)((uint8*)VOLD$1 + 96ll);
-	label$248:;
+	label$249:;
 	{
-		if( *(struct $6IRVREG**)((uint8*)T$1 + 8ll) == (struct $6IRVREG*)0ull ) goto label$252;
+		if( *(struct $6IRVREG**)((uint8*)T$1 + 8ll) == (struct $6IRVREG*)0ull ) goto label$253;
 		{
-			if( *(struct $6IRVREG**)((uint8*)*(struct $6IRVREG**)((uint8*)T$1 + 8ll) + 80ll) != VOLD$1 ) goto label$254;
+			if( *(struct $6IRVREG**)((uint8*)*(struct $6IRVREG**)((uint8*)T$1 + 8ll) + 80ll) != VOLD$1 ) goto label$255;
 			{
 				*(struct $6IRVREG**)((uint8*)*(struct $6IRVREG**)((uint8*)T$1 + 8ll) + 80ll) = VNEW$1;
 			}
-			goto label$253;
-			label$254:;
+			goto label$254;
+			label$255:;
 			{
 				*(struct $6IRVREG**)((uint8*)*(struct $6IRVREG**)((uint8*)T$1 + 8ll) + 88ll) = VNEW$1;
 			}
-			label$253:;
+			label$254:;
 		}
+		label$253:;
 		label$252:;
-		label$251:;
 		*(struct $6IRVREG**)T$1 = VNEW$1;
 		T$1 = *(struct $9IRTACVREG**)((uint8*)T$1 + 16ll);
 	}
+	label$251:;
+	if( T$1 != (struct $9IRTACVREG*)0ull ) goto label$249;
 	label$250:;
-	if( T$1 != (struct $9IRTACVREG*)0ull ) goto label$248;
-	label$249:;
 	*(struct $9IRTACVREG**)((uint8*)VNEW$1 + 96ll) = *(struct $9IRTACVREG**)((uint8*)VOLD$1 + 96ll);
 	*(struct $9IRTACVREG**)((uint8*)VNEW$1 + 104ll) = *(struct $9IRTACVREG**)((uint8*)VOLD$1 + 104ll);
 	*(struct $5IRTAC**)((uint8*)VNEW$1 + 112ll) = *(struct $5IRTAC**)((uint8*)VOLD$1 + 112ll);
-	label$247:;
+	label$248:;
 }
 
 static void HREUSE( struct $5IRTAC* T$1 )
 {
-	label$255:;
+	label$256:;
 	struct $6IRVREG* V1$1;
 	struct $6IRVREG* V2$1;
 	struct $6IRVREG* VR$1;
@@ -2607,270 +2629,270 @@ static void HREUSE( struct $5IRTAC* T$1 )
 	V1$1 = *(struct $6IRVREG**)((uint8*)T$1 + 88ll);
 	V2$1 = *(struct $6IRVREG**)((uint8*)T$1 + 160ll);
 	VR$1 = *(struct $6IRVREG**)((uint8*)T$1 + 16ll);
-	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$258;
+	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$259;
 	{
-		int64 TMP$119$2;
+		int64 TMP$121$2;
 		V1_TYP$1 = *(int64*)V1$1;
-		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$259;
-		TMP$119$2 = 24ll;
-		goto label$861;
-		label$259:;
-		TMP$119$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$861:;
-		V1_DTYPE$1 = TMP$119$2;
-		if( V1_DTYPE$1 != 24ll ) goto label$261;
+		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$260;
+		TMP$121$2 = 24ll;
+		goto label$863;
+		label$260:;
+		TMP$121$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$863:;
+		V1_DTYPE$1 = TMP$121$2;
+		if( V1_DTYPE$1 != 24ll ) goto label$262;
 		{
 			V1_DTYPE$1 = 9ll;
 		}
+		label$262:;
 		label$261:;
-		label$260:;
 		V1_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V1_DTYPE$1 * 56ll));
 	}
-	goto label$257;
-	label$258:;
+	goto label$258;
+	label$259:;
 	{
 		V1_TYP$1 = -1ll;
 		V1_DTYPE$1 = 2147483648ll;
 		V1_DCLASS$1 = -1ll;
 	}
-	label$257:;
-	if( V2$1 == (struct $6IRVREG*)0ull ) goto label$263;
+	label$258:;
+	if( V2$1 == (struct $6IRVREG*)0ull ) goto label$264;
 	{
-		int64 TMP$120$2;
+		int64 TMP$122$2;
 		V2_TYP$1 = *(int64*)V2$1;
-		if( (*(int64*)((uint8*)V2$1 + 8ll) & 480ll) == 0ll ) goto label$264;
-		TMP$120$2 = 24ll;
-		goto label$862;
-		label$264:;
-		TMP$120$2 = *(int64*)((uint8*)V2$1 + 8ll) & 31ll;
-		label$862:;
-		V2_DTYPE$1 = TMP$120$2;
-		if( V2_DTYPE$1 != 24ll ) goto label$266;
+		if( (*(int64*)((uint8*)V2$1 + 8ll) & 480ll) == 0ll ) goto label$265;
+		TMP$122$2 = 24ll;
+		goto label$864;
+		label$265:;
+		TMP$122$2 = *(int64*)((uint8*)V2$1 + 8ll) & 31ll;
+		label$864:;
+		V2_DTYPE$1 = TMP$122$2;
+		if( V2_DTYPE$1 != 24ll ) goto label$267;
 		{
 			V2_DTYPE$1 = 9ll;
 		}
+		label$267:;
 		label$266:;
-		label$265:;
 		V2_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V2_DTYPE$1 * 56ll));
 	}
-	goto label$262;
-	label$263:;
+	goto label$263;
+	label$264:;
 	{
 		V2_TYP$1 = -1ll;
 		V2_DTYPE$1 = 2147483648ll;
 		V2_DCLASS$1 = -1ll;
 	}
-	label$262:;
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$268;
+	label$263:;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$269;
 	{
-		int64 TMP$121$2;
+		int64 TMP$123$2;
 		VR_TYP$1 = *(int64*)VR$1;
-		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$269;
-		TMP$121$2 = 24ll;
-		goto label$863;
-		label$269:;
-		TMP$121$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
-		label$863:;
-		VR_DTYPE$1 = TMP$121$2;
-		if( VR_DTYPE$1 != 24ll ) goto label$271;
+		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$270;
+		TMP$123$2 = 24ll;
+		goto label$865;
+		label$270:;
+		TMP$123$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
+		label$865:;
+		VR_DTYPE$1 = TMP$123$2;
+		if( VR_DTYPE$1 != 24ll ) goto label$272;
 		{
 			VR_DTYPE$1 = 9ll;
 		}
+		label$272:;
 		label$271:;
-		label$270:;
 		VR_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (VR_DTYPE$1 * 56ll));
 	}
-	goto label$267;
-	label$268:;
+	goto label$268;
+	label$269:;
 	{
 		VR_TYP$1 = -1ll;
 		VR_DTYPE$1 = 2147483648ll;
 		VR_DCLASS$1 = -1ll;
 	}
-	label$267:;
+	label$268:;
 	{
-		$13AST_NODECLASS TMP$122$2;
-		TMP$122$2 = *($13AST_NODECLASS*)((int64)(struct $10AST_OPINFO*)AST_OPTB$ + (OP$1 << (5ll & 63ll)));
-		if( TMP$122$2 != 4ll ) goto label$273;
-		label$274:;
+		$13AST_NODECLASS TMP$124$2;
+		TMP$124$2 = *($13AST_NODECLASS*)((int64)(struct $10AST_OPINFO*)AST_OPTB$ + (OP$1 << (5ll & 63ll)));
+		if( TMP$124$2 != 4ll ) goto label$274;
+		label$275:;
 		{
-			if( VR$1 == V1$1 ) goto label$276;
-			{
-				int64 TMP$123$4;
-				int64 TMP$124$4;
-				if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$277;
-				TMP$123$4 = 24ll;
-				goto label$864;
-				label$277:;
-				TMP$123$4 = VR_DTYPE$1 & 31ll;
-				label$864:;
-				if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$278;
-				TMP$124$4 = 24ll;
-				goto label$865;
-				label$278:;
-				TMP$124$4 = V1_DTYPE$1 & 31ll;
-				label$865:;
-				if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$123$4 * 56ll)) + 40ll) != *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$124$4 * 56ll)) + 40ll) ) goto label$280;
-				{
-					uint64 vr$29 = (*(tmp$76*)((uint8*)&IR$ + 512ll))( V1$1 );
-					if( vr$29 != 2147483647ull ) goto label$282;
-					{
-						HRENAME( VR$1, V1$1 );
-					}
-					label$282:;
-					label$281:;
-				}
-				label$280:;
-				label$279:;
-			}
-			label$276:;
-			label$275:;
-		}
-		goto label$272;
-		label$273:;
-		if( TMP$122$2 == 3ll ) goto label$284;
-		label$285:;
-		if( TMP$122$2 != 14ll ) goto label$283;
-		label$284:;
-		{
-			int64 V1RENAME$3;
-			int64 V2RENAME$3;
-			if( VR$1 != (struct $6IRVREG*)0ull ) goto label$287;
-			{
-				goto label$256;
-			}
-			label$287:;
-			label$286:;
-			if( V1_DCLASS$1 == V2_DCLASS$1 ) goto label$289;
-			{
-				goto label$256;
-			}
-			label$289:;
-			label$288:;
-			V1RENAME$3 = 0ll;
-			if( VR$1 == V1$1 ) goto label$291;
+			if( VR$1 == V1$1 ) goto label$277;
 			{
 				int64 TMP$125$4;
 				int64 TMP$126$4;
-				if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$292;
+				if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$278;
 				TMP$125$4 = 24ll;
 				goto label$866;
-				label$292:;
+				label$278:;
 				TMP$125$4 = VR_DTYPE$1 & 31ll;
 				label$866:;
-				if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$293;
+				if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$279;
 				TMP$126$4 = 24ll;
 				goto label$867;
-				label$293:;
+				label$279:;
 				TMP$126$4 = V1_DTYPE$1 & 31ll;
 				label$867:;
-				if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$125$4 * 56ll)) + 40ll) != *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$126$4 * 56ll)) + 40ll) ) goto label$295;
+				if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$125$4 * 56ll)) + 40ll) != *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$126$4 * 56ll)) + 40ll) ) goto label$281;
 				{
-					uint64 vr$36 = (*(tmp$76*)((uint8*)&IR$ + 512ll))( V1$1 );
-					if( vr$36 != 2147483647ull ) goto label$297;
+					uint64 vr$29 = (*(tmp$78*)((uint8*)&IR$ + 512ll))( V1$1 );
+					if( vr$29 != 2147483647ull ) goto label$283;
+					{
+						HRENAME( VR$1, V1$1 );
+					}
+					label$283:;
+					label$282:;
+				}
+				label$281:;
+				label$280:;
+			}
+			label$277:;
+			label$276:;
+		}
+		goto label$273;
+		label$274:;
+		if( TMP$124$2 == 3ll ) goto label$285;
+		label$286:;
+		if( TMP$124$2 != 14ll ) goto label$284;
+		label$285:;
+		{
+			int64 V1RENAME$3;
+			int64 V2RENAME$3;
+			if( VR$1 != (struct $6IRVREG*)0ull ) goto label$288;
+			{
+				goto label$257;
+			}
+			label$288:;
+			label$287:;
+			if( V1_DCLASS$1 == V2_DCLASS$1 ) goto label$290;
+			{
+				goto label$257;
+			}
+			label$290:;
+			label$289:;
+			V1RENAME$3 = 0ll;
+			if( VR$1 == V1$1 ) goto label$292;
+			{
+				int64 TMP$127$4;
+				int64 TMP$128$4;
+				if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$293;
+				TMP$127$4 = 24ll;
+				goto label$868;
+				label$293:;
+				TMP$127$4 = VR_DTYPE$1 & 31ll;
+				label$868:;
+				if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$294;
+				TMP$128$4 = 24ll;
+				goto label$869;
+				label$294:;
+				TMP$128$4 = V1_DTYPE$1 & 31ll;
+				label$869:;
+				if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$127$4 * 56ll)) + 40ll) != *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$128$4 * 56ll)) + 40ll) ) goto label$296;
+				{
+					uint64 vr$36 = (*(tmp$78*)((uint8*)&IR$ + 512ll))( V1$1 );
+					if( vr$36 != 2147483647ull ) goto label$298;
 					{
 						V1RENAME$3 = -1ll;
 					}
+					label$298:;
 					label$297:;
-					label$296:;
 				}
+				label$296:;
 				label$295:;
-				label$294:;
 			}
+			label$292:;
 			label$291:;
-			label$290:;
 			V2RENAME$3 = 0ll;
-			if( (*(int64*)(((int64)(struct $10AST_OPINFO*)AST_OPTB$ + (OP$1 << (5ll & 63ll))) + 8ll) & 2ll) == 0ll ) goto label$299;
+			if( (*(int64*)(((int64)(struct $10AST_OPINFO*)AST_OPTB$ + (OP$1 << (5ll & 63ll))) + 8ll) & 2ll) == 0ll ) goto label$300;
 			{
-				if( VR$1 == V2$1 ) goto label$301;
+				if( VR$1 == V2$1 ) goto label$302;
 				{
-					int64 TMP$127$5;
-					int64 TMP$128$5;
-					if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$302;
-					TMP$127$5 = 24ll;
-					goto label$868;
-					label$302:;
-					TMP$127$5 = VR_DTYPE$1 & 31ll;
-					label$868:;
-					if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$303;
-					TMP$128$5 = 24ll;
-					goto label$869;
+					int64 TMP$129$5;
+					int64 TMP$130$5;
+					if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$303;
+					TMP$129$5 = 24ll;
+					goto label$870;
 					label$303:;
-					TMP$128$5 = V2_DTYPE$1 & 31ll;
-					label$869:;
-					if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$127$5 * 56ll)) + 40ll) != *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$128$5 * 56ll)) + 40ll) ) goto label$305;
+					TMP$129$5 = VR_DTYPE$1 & 31ll;
+					label$870:;
+					if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$304;
+					TMP$130$5 = 24ll;
+					goto label$871;
+					label$304:;
+					TMP$130$5 = V2_DTYPE$1 & 31ll;
+					label$871:;
+					if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$129$5 * 56ll)) + 40ll) != *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$130$5 * 56ll)) + 40ll) ) goto label$306;
 					{
-						if( V2_TYP$1 == 0ll ) goto label$307;
+						if( V2_TYP$1 == 0ll ) goto label$308;
 						{
-							uint64 vr$45 = (*(tmp$76*)((uint8*)&IR$ + 512ll))( V2$1 );
-							if( vr$45 != 2147483647ull ) goto label$309;
+							uint64 vr$45 = (*(tmp$78*)((uint8*)&IR$ + 512ll))( V2$1 );
+							if( vr$45 != 2147483647ull ) goto label$310;
 							{
 								V2RENAME$3 = -1ll;
 							}
+							label$310:;
 							label$309:;
-							label$308:;
 						}
+						label$308:;
 						label$307:;
-						label$306:;
 					}
+					label$306:;
 					label$305:;
-					label$304:;
 				}
+				label$302:;
 				label$301:;
-				label$300:;
 			}
+			label$300:;
 			label$299:;
-			label$298:;
-			if( (V1RENAME$3 & V2RENAME$3) == 0ll ) goto label$311;
+			if( (V1RENAME$3 & V2RENAME$3) == 0ll ) goto label$312;
 			{
-				if( *(int64*)V1$1 == 4ll ) goto label$313;
+				if( *(int64*)V1$1 == 4ll ) goto label$314;
 				{
 					V1RENAME$3 = 0ll;
 				}
+				label$314:;
 				label$313:;
-				label$312:;
 			}
+			label$312:;
 			label$311:;
-			label$310:;
-			if( V1RENAME$3 == 0ll ) goto label$315;
+			if( V1RENAME$3 == 0ll ) goto label$316;
 			{
 				HRENAME( VR$1, V1$1 );
 			}
-			goto label$314;
-			label$315:;
-			if( V2RENAME$3 == 0ll ) goto label$316;
+			goto label$315;
+			label$316:;
+			if( V2RENAME$3 == 0ll ) goto label$317;
 			{
 				{
 					fb_MemSwap( (void*)((uint8*)T$1 + 88ll), (void*)((uint8*)T$1 + 160ll), 72ll );
 				}
 				HRENAME( VR$1, V2$1 );
 			}
-			label$316:;
-			label$314:;
+			label$317:;
+			label$315:;
 		}
-		label$283:;
-		label$272:;
+		label$284:;
+		label$273:;
 	}
-	label$256:;
+	label$257:;
 }
 
 static void _FLUSH( void )
 {
-	label$317:;
+	label$318:;
 	static int64 OP$1;
 	static struct $5IRTAC* T$1;
 	static struct $6IRVREG* V1$1;
 	static struct $6IRVREG* V2$1;
 	static struct $6IRVREG* VR$1;
-	if( *(int64*)((uint8*)&CTX$ + 112ll) != 0ll ) goto label$320;
+	if( *(int64*)((uint8*)&CTX$ + 112ll) != 0ll ) goto label$321;
 	{
-		goto label$318;
+		goto label$319;
 	}
+	label$321:;
 	label$320:;
-	label$319:;
 	void* vr$1 = FLISTGETHEAD( (struct $6TFLIST*)&CTX$ );
 	T$1 = (struct $5IRTAC*)vr$1;
-	label$321:;
+	label$322:;
 	{
 		*(struct $5IRTAC**)((uint8*)&CTX$ + 120ll) = T$1;
 		HREUSE( T$1 );
@@ -2879,232 +2901,232 @@ static void _FLUSH( void )
 		V2$1 = *(struct $6IRVREG**)((uint8*)T$1 + 160ll);
 		VR$1 = *(struct $6IRVREG**)((uint8*)T$1 + 16ll);
 		{
-			uint64 TMP$129$3;
-			TMP$129$3 = *(uint64*)((int64)(struct $10AST_OPINFO*)AST_OPTB$ + (OP$1 << (5ll & 63ll)));
-			goto label$325;
-			label$326:;
+			uint64 TMP$131$3;
+			TMP$131$3 = *(uint64*)((int64)(struct $10AST_OPINFO*)AST_OPTB$ + (OP$1 << (5ll & 63ll)));
+			goto label$326;
+			label$327:;
 			{
 				HFLUSHUOP( OP$1, V1$1, VR$1 );
 			}
-			goto label$324;
-			label$327:;
+			goto label$325;
+			label$328:;
 			{
 				HFLUSHBOP( OP$1, V1$1, V2$1, VR$1 );
 			}
-			goto label$324;
-			label$328:;
-			{
-				HFLUSHCOMP( OP$1, V1$1, V2$1, VR$1, *(struct $8FBSYMBOL**)((uint8*)T$1 + 232ll) );
-			}
-			goto label$324;
+			goto label$325;
 			label$329:;
+			{
+				HFLUSHCOMP( OP$1, V1$1, V2$1, VR$1, *(struct $8FBSYMBOL**)((uint8*)T$1 + 232ll), *($10IR_EMITOPT*)((uint8*)T$1 + 240ll) );
+			}
+			goto label$325;
+			label$330:;
 			{
 				HFLUSHSTORE( OP$1, V1$1, V2$1 );
 			}
-			goto label$324;
-			label$330:;
+			goto label$325;
+			label$331:;
 			{
 				HFLUSHLOAD( OP$1, V1$1, VR$1 );
 			}
-			goto label$324;
-			label$331:;
+			goto label$325;
+			label$332:;
 			{
 				HFLUSHCONVERT( OP$1, V1$1, V2$1 );
 			}
-			goto label$324;
-			label$332:;
+			goto label$325;
+			label$333:;
 			{
 				HFLUSHSTACK( OP$1, V1$1, V2$1, *(int64*)((uint8*)T$1 + 240ll) );
 			}
-			goto label$324;
-			label$333:;
+			goto label$325;
+			label$334:;
 			{
 				HFLUSHCALL( OP$1, *(struct $8FBSYMBOL**)((uint8*)T$1 + 232ll), *(int64*)((uint8*)T$1 + 240ll), V1$1, VR$1 );
 			}
-			goto label$324;
-			label$334:;
+			goto label$325;
+			label$335:;
 			{
 				HFLUSHBRANCH( OP$1, *(struct $8FBSYMBOL**)((uint8*)T$1 + 232ll) );
 			}
-			goto label$324;
-			label$335:;
+			goto label$325;
+			label$336:;
 			{
 				HFLUSHADDR( OP$1, V1$1, VR$1 );
 			}
-			goto label$324;
-			label$336:;
-			{
-				HFLUSHMEM( OP$1, V1$1, V2$1, *(int64*)((uint8*)T$1 + 240ll), *(void**)((uint8*)T$1 + 232ll) );
-			}
-			goto label$324;
+			goto label$325;
 			label$337:;
+			{
+				HFLUSHMEM( OP$1, V1$1, V2$1, *(int64*)((uint8*)T$1 + 240ll), *(void**)((uint8*)T$1 + 248ll) );
+			}
+			goto label$325;
+			label$338:;
 			{
 				HFLUSHDBG( OP$1, *(struct $8FBSYMBOL**)((uint8*)T$1 + 232ll), *(int64*)((uint8*)T$1 + 240ll), *(char**)((uint8*)T$1 + 248ll) );
 			}
-			goto label$324;
-			label$338:;
+			goto label$325;
+			label$339:;
 			{
 				HFLUSHLIT( OP$1, *(char**)((uint8*)T$1 + 232ll) );
 			}
-			goto label$324;
-			label$325:;
-			static const void* tmp$182[30ll] = {
-				&&label$330,
-				&&label$329,
-				&&label$327,
-				&&label$326,
+			goto label$325;
+			label$326:;
+			static const void* tmp$184[30ll] = {
 				&&label$331,
-				&&label$335,
-				&&label$334,
-				&&label$324,
-				&&label$333,
-				&&label$324,
+				&&label$330,
+				&&label$328,
+				&&label$327,
 				&&label$332,
 				&&label$336,
-				&&label$324,
-				&&label$328,
-				&&label$324,
-				&&label$324,
-				&&label$324,
-				&&label$324,
-				&&label$324,
-				&&label$324,
-				&&label$324,
-				&&label$324,
-				&&label$324,
-				&&label$324,
-				&&label$324,
-				&&label$324,
-				&&label$338,
-				&&label$324,
-				&&label$324,
+				&&label$335,
+				&&label$325,
+				&&label$334,
+				&&label$325,
+				&&label$333,
 				&&label$337,
+				&&label$325,
+				&&label$329,
+				&&label$325,
+				&&label$325,
+				&&label$325,
+				&&label$325,
+				&&label$325,
+				&&label$325,
+				&&label$325,
+				&&label$325,
+				&&label$325,
+				&&label$325,
+				&&label$325,
+				&&label$325,
+				&&label$339,
+				&&label$325,
+				&&label$325,
+				&&label$338,
 			};
-			if( (TMP$129$3 - 1ull) > 29ull ) goto label$324;
-			goto *tmp$182[TMP$129$3 - 1ull];
-			label$324:;
+			if( (TMP$131$3 - 1ull) > 29ull ) goto label$325;
+			goto *tmp$184[TMP$131$3 - 1ull];
+			label$325:;
 		}
-		if( *(int64*)((uint8*)&ENV$ + 232ll) < 1ll ) goto label$340;
+		if( *(int64*)((uint8*)&ENV$ + 232ll) < 1ll ) goto label$341;
 		{
-			if( *(int64*)((int64)(struct $10AST_OPINFO*)AST_OPTB$ + (OP$1 << (5ll & 63ll))) == 9ll ) goto label$342;
+			if( *(int64*)((int64)(struct $10AST_OPINFO*)AST_OPTB$ + (OP$1 << (5ll & 63ll))) == 9ll ) goto label$343;
 			{
-				if( VR$1 == (struct $6IRVREG*)0ull ) goto label$344;
+				if( VR$1 == (struct $6IRVREG*)0ull ) goto label$345;
 				{
-					if( *(int64*)((uint8*)VR$1 + 32ll) != 0ll ) goto label$346;
+					if( *(int64*)((uint8*)VR$1 + 32ll) != 0ll ) goto label$347;
 					{
 						*($12IR_REGFAMILY*)((uint8*)VR$1 + 32ll) = 1ll;
-						label$346:;
+						label$347:;
 					}
 				}
+				label$345:;
 				label$344:;
-				label$343:;
 			}
+			label$343:;
 			label$342:;
-			label$341:;
 		}
+		label$341:;
 		label$340:;
-		label$339:;
-		void* vr$21 = FLISTGETNEXT( (void*)T$1 );
-		T$1 = (struct $5IRTAC*)vr$21;
+		void* vr$22 = FLISTGETNEXT( (void*)T$1 );
+		T$1 = (struct $5IRTAC*)vr$22;
 	}
+	label$324:;
+	if( T$1 != (struct $5IRTAC*)0ull ) goto label$322;
 	label$323:;
-	if( T$1 != (struct $5IRTAC*)0ull ) goto label$321;
-	label$322:;
 	*(struct $5IRTAC**)((uint8*)&CTX$ + 120ll) = (struct $5IRTAC*)0ull;
 	*(int64*)((uint8*)&CTX$ + 112ll) = 0ll;
 	FLISTRESET( (struct $6TFLIST*)&CTX$ );
 	FLISTRESET( (struct $6TFLIST*)((uint8*)&CTX$ + 128ll) );
 	HFREEPRESERVEDREGS(  );
-	label$318:;
+	label$319:;
 }
 
 static void HFLUSHBRANCH( int64 OP$1, struct $8FBSYMBOL* LABEL$1 )
 {
-	label$347:;
+	label$348:;
 	{
-		uint64 TMP$130$2;
-		TMP$130$2 = (uint64)OP$1;
-		goto label$350;
-		label$351:;
+		uint64 TMP$132$2;
+		TMP$132$2 = (uint64)OP$1;
+		goto label$351;
+		label$352:;
 		{
 			EMITLABEL( LABEL$1 );
 		}
-		goto label$349;
-		label$352:;
+		goto label$350;
+		label$353:;
 		{
 			EMITJUMP( LABEL$1 );
 		}
-		goto label$349;
-		label$353:;
+		goto label$350;
+		label$354:;
 		{
 			EMITCALL( LABEL$1, 0ll );
 		}
-		goto label$349;
-		label$354:;
+		goto label$350;
+		label$355:;
 		{
 			EMITRET( 0ll );
 		}
-		goto label$349;
-		label$355:;
+		goto label$350;
+		label$356:;
 		{
 			EMITBRANCH( OP$1, LABEL$1 );
 		}
-		goto label$349;
-		label$350:;
-		static const void* tmp$183[4ll] = {
-			&&label$352,
+		goto label$350;
+		label$351:;
+		static const void* tmp$185[4ll] = {
 			&&label$353,
-			&&label$351,
 			&&label$354,
+			&&label$352,
+			&&label$355,
 		};
-		if( (TMP$130$2 - 98ull) > 3ull ) goto label$355;
-		goto *tmp$183[TMP$130$2 - 98ull];
-		label$349:;
+		if( (TMP$132$2 - 99ull) > 3ull ) goto label$356;
+		goto *tmp$185[TMP$132$2 - 99ull];
+		label$350:;
 	}
-	label$348:;
+	label$349:;
 }
 
 static void HFREEPRESERVEDREGS( void )
 {
-	label$356:;
+	label$357:;
 	static int64 CLASS_$1;
 	static int64 REG$1;
 	{
 		CLASS_$1 = 0ll;
-		label$361:;
+		label$362:;
 		{
-			int64 vr$1 = (*(tmp$88*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) + 56ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) );
+			int64 vr$1 = (*(tmp$91*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) + 56ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) );
 			REG$1 = vr$1;
-			label$362:;
-			if( REG$1 == -1ll ) goto label$363;
+			label$363:;
+			if( REG$1 == -1ll ) goto label$364;
 			{
-				int64 vr$5 = (*(tmp$86*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) + 32ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))), REG$1 );
-				if( vr$5 != 0ll ) goto label$365;
+				int64 vr$5 = (*(tmp$89*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) + 32ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))), REG$1 );
+				if( vr$5 != 0ll ) goto label$366;
 				{
-					(*(tmp$85*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) + 24ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))), REG$1 );
+					(*(tmp$88*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) + 24ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))), REG$1 );
 				}
+				label$366:;
 				label$365:;
-				label$364:;
-				int64 vr$12 = (*(tmp$86*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) + 64ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))), REG$1 );
+				int64 vr$12 = (*(tmp$89*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))) + 64ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$1 << (3ll & 63ll))), REG$1 );
 				REG$1 = vr$12;
 			}
-			goto label$362;
-			label$363:;
+			goto label$363;
+			label$364:;
 		}
-		label$359:;
-		CLASS_$1 = CLASS_$1 + 1ll;
-		label$358:;
-		if( CLASS_$1 <= 1ll ) goto label$361;
 		label$360:;
+		CLASS_$1 = CLASS_$1 + 1ll;
+		label$359:;
+		if( CLASS_$1 <= 1ll ) goto label$362;
+		label$361:;
 	}
-	label$357:;
+	label$358:;
 }
 
 static int64 HPRESERVEREG( struct $6IRVREG* VR$1 )
 {
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$366:;
+	label$367:;
 	int64 VR_DCLASS$1;
 	int64 VR_DTYPE$1;
 	int64 VR_TYP$1;
@@ -3115,104 +3137,104 @@ static int64 HPRESERVEREG( struct $6IRVREG* VR$1 )
 	struct $6IRVREG ORIGVREG$1;
 	struct $6IRVREG ORIGVAUX$1;
 	struct $6IRVREG DESTVREG$1;
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$369;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$370;
 	{
-		int64 TMP$131$2;
+		int64 TMP$133$2;
 		VR_TYP$1 = *(int64*)VR$1;
-		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$370;
-		TMP$131$2 = 24ll;
-		goto label$870;
-		label$370:;
-		TMP$131$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
-		label$870:;
-		VR_DTYPE$1 = TMP$131$2;
-		if( VR_DTYPE$1 != 24ll ) goto label$372;
+		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$371;
+		TMP$133$2 = 24ll;
+		goto label$872;
+		label$371:;
+		TMP$133$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
+		label$872:;
+		VR_DTYPE$1 = TMP$133$2;
+		if( VR_DTYPE$1 != 24ll ) goto label$373;
 		{
 			VR_DTYPE$1 = 9ll;
 		}
+		label$373:;
 		label$372:;
-		label$371:;
 		VR_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (VR_DTYPE$1 * 56ll));
 	}
-	goto label$368;
-	label$369:;
+	goto label$369;
+	label$370:;
 	{
 		VR_TYP$1 = -1ll;
 		VR_DTYPE$1 = 2147483648ll;
 		VR_DCLASS$1 = -1ll;
 	}
-	label$368:;
+	label$369:;
 	__builtin_memcpy( &ORIGVREG$1, VR$1, 120 );
-	int64 vr$9 = (*(tmp$41*)((uint8*)&EMIT$ + 336ll))( VR_DCLASS$1, *(int64*)((uint8*)VR$1 + 24ll) );
+	int64 vr$9 = (*(tmp$43*)((uint8*)&EMIT$ + 336ll))( VR_DCLASS$1, *(int64*)((uint8*)VR$1 + 24ll) );
 	PRESERVED1$1 = vr$9;
-	if( ((int64)-(VR_DTYPE$1 == 13ll) | (int64)-(VR_DTYPE$1 == 14ll)) == 0ll ) goto label$374;
+	if( ((int64)-(VR_DTYPE$1 == 13ll) | (int64)-(VR_DTYPE$1 == 14ll)) == 0ll ) goto label$375;
 	{
 		__builtin_memcpy( &ORIGVAUX$1, *(struct $6IRVREG**)((uint8*)VR$1 + 88ll), 120 );
 		*(struct $6IRVREG**)((uint8*)&ORIGVREG$1 + 88ll) = &ORIGVAUX$1;
-		int64 vr$18 = (*(tmp$41*)((uint8*)&EMIT$ + 336ll))( VR_DCLASS$1, *(int64*)((uint8*)*(struct $6IRVREG**)((uint8*)VR$1 + 88ll) + 24ll) );
+		int64 vr$18 = (*(tmp$43*)((uint8*)&EMIT$ + 336ll))( VR_DCLASS$1, *(int64*)((uint8*)*(struct $6IRVREG**)((uint8*)VR$1 + 88ll) + 24ll) );
 		PRESERVED2$1 = vr$18;
 	}
-	goto label$373;
-	label$374:;
+	goto label$374;
+	label$375:;
 	{
 		PRESERVED2$1 = -1ll;
 	}
-	label$373:;
-	if( (PRESERVED1$1 & PRESERVED2$1) == 0ll ) goto label$376;
+	label$374:;
+	if( (PRESERVED1$1 & PRESERVED2$1) == 0ll ) goto label$377;
 	{
 		fb$result$1 = -1ll;
-		goto label$367;
+		goto label$368;
 	}
+	label$377:;
 	label$376:;
-	label$375:;
-	if( PRESERVED1$1 != 0ll ) goto label$378;
+	if( PRESERVED1$1 != 0ll ) goto label$379;
 	{
-		int64 vr$20 = (*(tmp$41*)((uint8*)&EMIT$ + 344ll))( VR_DCLASS$1, VR_DTYPE$1 );
+		int64 vr$20 = (*(tmp$43*)((uint8*)&EMIT$ + 344ll))( VR_DCLASS$1, VR_DTYPE$1 );
 		FREG1$1 = vr$20;
-		if( FREG1$1 != -1ll ) goto label$380;
+		if( FREG1$1 != -1ll ) goto label$381;
 		{
 			fb$result$1 = 0ll;
-			goto label$367;
+			goto label$368;
 		}
+		label$381:;
 		label$380:;
-		label$379:;
-		int64 vr$22 = (*(tmp$84*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))) + 16ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), FREG1$1, VR$1, (struct $6IRVREG*)0ull );
+		int64 vr$22 = (*(tmp$87*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))) + 16ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), FREG1$1, VR$1, (struct $6IRVREG*)0ull );
 		*(int64*)((uint8*)VR$1 + 24ll) = vr$22;
 	}
+	label$379:;
 	label$378:;
-	label$377:;
-	if( PRESERVED2$1 != 0ll ) goto label$382;
+	if( PRESERVED2$1 != 0ll ) goto label$383;
 	{
-		int64 vr$26 = (*(tmp$41*)((uint8*)&EMIT$ + 344ll))( 0ll, 8ll );
+		int64 vr$26 = (*(tmp$43*)((uint8*)&EMIT$ + 344ll))( 0ll, 8ll );
 		FREG2$1 = vr$26;
-		if( FREG2$1 != -1ll ) goto label$384;
+		if( FREG2$1 != -1ll ) goto label$385;
 		{
-			if( PRESERVED1$1 != 0ll ) goto label$386;
+			if( PRESERVED1$1 != 0ll ) goto label$387;
 			{
-				(*(tmp$85*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))) + 24ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)VR$1 + 24ll) );
+				(*(tmp$88*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))) + 24ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)VR$1 + 24ll) );
 				*(int64*)((uint8*)VR$1 + 24ll) = *(int64*)((uint8*)&ORIGVREG$1 + 24ll);
 			}
+			label$387:;
 			label$386:;
-			label$385:;
 			fb$result$1 = 0ll;
-			goto label$367;
+			goto label$368;
 		}
+		label$385:;
 		label$384:;
-		label$383:;
-		int64 vr$33 = (*(tmp$84*)((uint8*)*(struct $8REGCLASS**)REGTB$ + 16ll))( *(struct $8REGCLASS**)REGTB$, FREG2$1, *(struct $6IRVREG**)((uint8*)VR$1 + 88ll), VR$1 );
+		int64 vr$33 = (*(tmp$87*)((uint8*)*(struct $8REGCLASS**)REGTB$ + 16ll))( *(struct $8REGCLASS**)REGTB$, FREG2$1, *(struct $6IRVREG**)((uint8*)VR$1 + 88ll), VR$1 );
 		*(int64*)((uint8*)*(struct $6IRVREG**)((uint8*)VR$1 + 88ll) + 24ll) = vr$33;
 	}
+	label$383:;
 	label$382:;
-	label$381:;
-	if( ~(PRESERVED1$1 | PRESERVED2$1) == 0ll ) goto label$388;
+	if( ~(PRESERVED1$1 | PRESERVED2$1) == 0ll ) goto label$389;
 	{
 		EMITMOV( VR$1, &ORIGVREG$1 );
 	}
-	goto label$387;
-	label$388:;
-	if( PRESERVED1$1 != 0ll ) goto label$389;
+	goto label$388;
+	label$389:;
+	if( PRESERVED1$1 != 0ll ) goto label$390;
 	{
-		if( ((int64)-(VR_DTYPE$1 == 13ll) | (int64)-(VR_DTYPE$1 == 14ll)) == 0ll ) goto label$391;
+		if( ((int64)-(VR_DTYPE$1 == 13ll) | (int64)-(VR_DTYPE$1 == 14ll)) == 0ll ) goto label$392;
 		{
 			__builtin_memcpy( &DESTVREG$1, VR$1, 120 );
 			*($11FB_DATATYPE*)((uint8*)&DESTVREG$1 + 8ll) = 8ll;
@@ -3221,39 +3243,39 @@ static int64 HPRESERVEREG( struct $6IRVREG* VR$1 )
 			*(struct $6IRVREG**)((uint8*)&ORIGVREG$1 + 88ll) = (struct $6IRVREG*)0ull;
 			EMITMOV( &DESTVREG$1, &ORIGVREG$1 );
 		}
-		goto label$390;
-		label$391:;
+		goto label$391;
+		label$392:;
 		{
 			EMITMOV( VR$1, &ORIGVREG$1 );
 		}
-		label$390:;
+		label$391:;
 	}
-	goto label$387;
-	label$389:;
+	goto label$388;
+	label$390:;
 	{
 		EMITMOV( *(struct $6IRVREG**)((uint8*)VR$1 + 88ll), &ORIGVAUX$1 );
 	}
-	label$387:;
-	if( PRESERVED1$1 != 0ll ) goto label$393;
+	label$388:;
+	if( PRESERVED1$1 != 0ll ) goto label$394;
 	{
-		(*(tmp$85*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))) + 24ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)&ORIGVREG$1 + 24ll) );
+		(*(tmp$88*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))) + 24ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)&ORIGVREG$1 + 24ll) );
 	}
-	label$393:;
-	label$392:;
-	if( PRESERVED2$1 != 0ll ) goto label$395;
-	{
-		(*(tmp$85*)((uint8*)*(struct $8REGCLASS**)REGTB$ + 24ll))( *(struct $8REGCLASS**)REGTB$, *(int64*)((uint8*)&ORIGVAUX$1 + 24ll) );
-	}
-	label$395:;
 	label$394:;
+	label$393:;
+	if( PRESERVED2$1 != 0ll ) goto label$396;
+	{
+		(*(tmp$88*)((uint8*)*(struct $8REGCLASS**)REGTB$ + 24ll))( *(struct $8REGCLASS**)REGTB$, *(int64*)((uint8*)&ORIGVAUX$1 + 24ll) );
+	}
+	label$396:;
+	label$395:;
 	fb$result$1 = -1ll;
-	label$367:;
+	label$368:;
 	return fb$result$1;
 }
 
 static void HPRESERVEREGS( struct $6IRVREG* PTRVREG$1 )
 {
-	label$396:;
+	label$397:;
 	int64 NPREG$1;
 	int64 REG$1;
 	struct $6IRVREG* VR$1;
@@ -3261,226 +3283,226 @@ static void HPRESERVEREGS( struct $6IRVREG* PTRVREG$1 )
 	{
 		int64 CLASS_$2;
 		CLASS_$2 = 0ll;
-		label$401:;
+		label$402:;
 		{
 			NPREG$1 = -1ll;
-			if( CLASS_$2 != 0ll ) goto label$403;
+			if( CLASS_$2 != 0ll ) goto label$404;
 			{
-				if( PTRVREG$1 == (struct $6IRVREG*)0ull ) goto label$405;
+				if( PTRVREG$1 == (struct $6IRVREG*)0ull ) goto label$406;
 				{
 					{
-						$15IRVREGTYPE_ENUM TMP$132$6;
-						TMP$132$6 = *($15IRVREGTYPE_ENUM*)PTRVREG$1;
-						if( TMP$132$6 != 4ll ) goto label$407;
-						label$408:;
+						$15IRVREGTYPE_ENUM TMP$134$6;
+						TMP$134$6 = *($15IRVREGTYPE_ENUM*)PTRVREG$1;
+						if( TMP$134$6 != 4ll ) goto label$408;
+						label$409:;
 						{
 							NPREG$1 = *(int64*)((uint8*)PTRVREG$1 + 24ll);
 						}
-						goto label$406;
-						label$407:;
-						if( TMP$132$6 == 2ll ) goto label$410;
+						goto label$407;
+						label$408:;
+						if( TMP$134$6 == 2ll ) goto label$411;
+						label$412:;
+						if( TMP$134$6 != 3ll ) goto label$410;
 						label$411:;
-						if( TMP$132$6 != 3ll ) goto label$409;
-						label$410:;
 						{
 							PTRVREG$1 = *(struct $6IRVREG**)((uint8*)PTRVREG$1 + 80ll);
-							if( PTRVREG$1 == (struct $6IRVREG*)0ull ) goto label$413;
+							if( PTRVREG$1 == (struct $6IRVREG*)0ull ) goto label$414;
 							{
 								NPREG$1 = *(int64*)((uint8*)PTRVREG$1 + 24ll);
 							}
+							label$414:;
 							label$413:;
-							label$412:;
 						}
-						label$409:;
-						label$406:;
+						label$410:;
+						label$407:;
 					}
 					PTRVREG$1 = (struct $6IRVREG*)0ull;
 				}
+				label$406:;
 				label$405:;
-				label$404:;
 			}
+			label$404:;
 			label$403:;
-			label$402:;
-			int64 vr$5 = (*(tmp$88*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 56ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) );
+			int64 vr$5 = (*(tmp$91*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 56ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) );
 			REG$1 = vr$5;
-			label$414:;
-			if( REG$1 == -1ll ) goto label$415;
+			label$415:;
+			if( REG$1 == -1ll ) goto label$416;
 			{
-				int64 vr$9 = (*(tmp$86*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 32ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1 );
-				if( ((int64)-(vr$9 == 0ll) & (int64)-(REG$1 != NPREG$1)) == 0ll ) goto label$417;
+				int64 vr$9 = (*(tmp$89*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 32ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1 );
+				if( ((int64)-(vr$9 == 0ll) & (int64)-(REG$1 != NPREG$1)) == 0ll ) goto label$418;
 				{
-					struct $6IRVREG* vr$17 = (*(tmp$89*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 72ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1, &VAUXPARENT$1 );
+					struct $6IRVREG* vr$17 = (*(tmp$92*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 72ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1, &VAUXPARENT$1 );
 					VR$1 = vr$17;
-					if( VAUXPARENT$1 == (struct $6IRVREG*)0ull ) goto label$419;
+					if( VAUXPARENT$1 == (struct $6IRVREG*)0ull ) goto label$420;
 					{
 						VR$1 = VAUXPARENT$1;
 					}
-					label$419:;
-					label$418:;
-					int64 vr$20 = HPRESERVEREG( VR$1 );
-					if( vr$20 != 0ll ) goto label$421;
-					{
-						(*(tmp$45*)((uint8*)&IR$ + 528ll))( VR$1, (struct $6IRVREG*)0ull );
-					}
-					label$421:;
 					label$420:;
+					label$419:;
+					int64 vr$20 = HPRESERVEREG( VR$1 );
+					if( vr$20 != 0ll ) goto label$422;
+					{
+						(*(tmp$47*)((uint8*)&IR$ + 528ll))( VR$1, (struct $6IRVREG*)0ull );
+					}
+					label$422:;
+					label$421:;
 				}
+				label$418:;
 				label$417:;
-				label$416:;
-				int64 vr$22 = (*(tmp$86*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 64ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1 );
+				int64 vr$22 = (*(tmp$89*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 64ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1 );
 				REG$1 = vr$22;
 			}
-			goto label$414;
-			label$415:;
+			goto label$415;
+			label$416:;
 		}
-		label$399:;
-		CLASS_$2 = CLASS_$2 + 1ll;
-		label$398:;
-		if( CLASS_$2 <= 1ll ) goto label$401;
 		label$400:;
+		CLASS_$2 = CLASS_$2 + 1ll;
+		label$399:;
+		if( CLASS_$2 <= 1ll ) goto label$402;
+		label$401:;
 	}
-	label$397:;
+	label$398:;
 }
 
 static void HLOADPOINTER( struct $6IRVREG* V1$1 )
 {
-	label$422:;
+	label$423:;
 	int64 VTYPE$1;
 	int64 DTYPE$1;
 	int64 DCLASS$1;
-	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$425;
+	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$426;
 	{
-		int64 TMP$133$2;
+		int64 TMP$135$2;
 		VTYPE$1 = *(int64*)V1$1;
-		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$426;
-		TMP$133$2 = 24ll;
-		goto label$871;
-		label$426:;
-		TMP$133$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$871:;
-		DTYPE$1 = TMP$133$2;
-		if( DTYPE$1 != 24ll ) goto label$428;
+		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$427;
+		TMP$135$2 = 24ll;
+		goto label$873;
+		label$427:;
+		TMP$135$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$873:;
+		DTYPE$1 = TMP$135$2;
+		if( DTYPE$1 != 24ll ) goto label$429;
 		{
 			DTYPE$1 = 9ll;
 		}
+		label$429:;
 		label$428:;
-		label$427:;
 		DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (DTYPE$1 * 56ll));
 	}
-	goto label$424;
-	label$425:;
+	goto label$425;
+	label$426:;
 	{
 		VTYPE$1 = -1ll;
 		DTYPE$1 = 2147483648ll;
 		DCLASS$1 = -1ll;
 	}
-	label$424:;
+	label$425:;
 	HLOADIDX( V1$1 );
-	if( VTYPE$1 != 4ll ) goto label$430;
+	if( VTYPE$1 != 4ll ) goto label$431;
 	{
-		int64 TMP$134$2;
-		if( (DTYPE$1 & 480ll) == 0ll ) goto label$431;
-		TMP$134$2 = 24ll;
-		goto label$872;
-		label$431:;
-		TMP$134$2 = DTYPE$1 & 31ll;
-		label$872:;
-		(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$134$2 * 56ll)) + 8ll) );
+		int64 TMP$136$2;
+		if( (DTYPE$1 & 480ll) == 0ll ) goto label$432;
+		TMP$136$2 = 24ll;
+		goto label$874;
+		label$432:;
+		TMP$136$2 = DTYPE$1 & 31ll;
+		label$874:;
+		(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$136$2 * 56ll)) + 8ll) );
 	}
+	label$431:;
 	label$430:;
-	label$429:;
-	label$423:;
+	label$424:;
 }
 
 static void HLOADRESULT( struct $8FBSYMBOL* PROC$1, struct $6IRVREG* VR$1 )
 {
-	label$432:;
+	label$433:;
 	int64 VTYPE$1;
 	int64 DTYPE$1;
 	int64 DCLASS$1;
 	int64 REG1$1;
 	int64 REG2$1;
 	struct $6IRVREG* VA$1;
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$435;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$436;
 	{
-		if( VR$1 == (struct $6IRVREG*)0ull ) goto label$437;
+		if( VR$1 == (struct $6IRVREG*)0ull ) goto label$438;
 		{
-			int64 TMP$135$3;
+			int64 TMP$137$3;
 			VTYPE$1 = *(int64*)VR$1;
-			if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$438;
-			TMP$135$3 = 24ll;
-			goto label$873;
-			label$438:;
-			TMP$135$3 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
-			label$873:;
-			DTYPE$1 = TMP$135$3;
-			if( DTYPE$1 != 24ll ) goto label$440;
+			if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$439;
+			TMP$137$3 = 24ll;
+			goto label$875;
+			label$439:;
+			TMP$137$3 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
+			label$875:;
+			DTYPE$1 = TMP$137$3;
+			if( DTYPE$1 != 24ll ) goto label$441;
 			{
 				DTYPE$1 = 9ll;
 			}
+			label$441:;
 			label$440:;
-			label$439:;
 			DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (DTYPE$1 * 56ll));
 		}
-		goto label$436;
-		label$437:;
+		goto label$437;
+		label$438:;
 		{
 			VTYPE$1 = -1ll;
 			DTYPE$1 = 2147483648ll;
 			DCLASS$1 = -1ll;
 		}
-		label$436:;
-		(*(tmp$99*)((uint8*)&EMIT$ + 360ll))( DTYPE$1, DCLASS$1, &REG1$1, &REG2$1 );
-		if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$442;
+		label$437:;
+		(*(tmp$102*)((uint8*)&EMIT$ + 360ll))( DTYPE$1, DCLASS$1, &REG1$1, &REG2$1 );
+		if( ((int64)-(DTYPE$1 == 13ll) | (int64)-(DTYPE$1 == 14ll)) == 0ll ) goto label$443;
 		{
 			VA$1 = *(struct $6IRVREG**)((uint8*)VR$1 + 88ll);
-			int64 vr$13 = (*(tmp$84*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))) + 16ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))), REG2$1, VA$1, VR$1 );
+			int64 vr$13 = (*(tmp$87*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))) + 16ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))), REG2$1, VA$1, VR$1 );
 			*(int64*)((uint8*)VA$1 + 24ll) = vr$13;
 			*($15IRVREGTYPE_ENUM*)VA$1 = 4ll;
 		}
+		label$443:;
 		label$442:;
-		label$441:;
-		int64 vr$19 = (*(tmp$84*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))) + 16ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))), REG1$1, VR$1, (struct $6IRVREG*)0ull );
+		int64 vr$19 = (*(tmp$87*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))) + 16ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))), REG1$1, VR$1, (struct $6IRVREG*)0ull );
 		*(int64*)((uint8*)VR$1 + 24ll) = vr$19;
 		*($15IRVREGTYPE_ENUM*)VR$1 = 4ll;
 		HFREEREG( VR$1, 0ll );
 	}
-	goto label$434;
-	label$435:;
+	goto label$435;
+	label$436:;
 	{
-		int64 TMP$136$2;
-		if( (*(int64*)((uint8*)PROC$1 + 160ll) & 480ll) == 0ll ) goto label$443;
-		TMP$136$2 = 24ll;
-		goto label$874;
-		label$443:;
-		TMP$136$2 = *(int64*)((uint8*)PROC$1 + 160ll) & 31ll;
-		label$874:;
-		if( ((int64)-(*(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$136$2 * 56ll)) == 1ll) & (int64)-(*(int64*)((uint8*)PROC$1 + 176ll) != 1ll)) == 0ll ) goto label$445;
+		int64 TMP$138$2;
+		if( (*(int64*)((uint8*)PROC$1 + 160ll) & 480ll) == 0ll ) goto label$444;
+		TMP$138$2 = 24ll;
+		goto label$876;
+		label$444:;
+		TMP$138$2 = *(int64*)((uint8*)PROC$1 + 160ll) & 31ll;
+		label$876:;
+		if( ((int64)-(*(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$138$2 * 56ll)) == 1ll) & (int64)-(*(int64*)((uint8*)PROC$1 + 176ll) != 1ll)) == 0ll ) goto label$446;
 		{
 			EMITPOPST0(  );
 		}
+		label$446:;
 		label$445:;
-		label$444:;
 	}
+	label$435:;
 	label$434:;
-	label$433:;
 }
 
 static void HFLUSHCALL( int64 OP$1, struct $8FBSYMBOL* PROC$1, int64 BYTESTOPOP$1, struct $6IRVREG* V1$1, struct $6IRVREG* VR$1 )
 {
-	label$446:;
+	label$447:;
 	{
-		if( OP$1 != 102ll ) goto label$449;
-		label$450:;
+		if( OP$1 != 103ll ) goto label$450;
+		label$451:;
 		{
 			HPRESERVEREGS( (struct $6IRVREG*)0ull );
 			EMITCALL( PROC$1, BYTESTOPOP$1 );
 			HLOADRESULT( PROC$1, VR$1 );
 		}
-		goto label$448;
-		label$449:;
-		if( OP$1 != 103ll ) goto label$451;
-		label$452:;
+		goto label$449;
+		label$450:;
+		if( OP$1 != 104ll ) goto label$452;
+		label$453:;
 		{
 			HPRESERVEREGS( V1$1 );
 			HLOADPOINTER( V1$1 );
@@ -3488,128 +3510,128 @@ static void HFLUSHCALL( int64 OP$1, struct $8FBSYMBOL* PROC$1, int64 BYTESTOPOP$
 			HFREEREG( V1$1, 0ll );
 			HLOADRESULT( PROC$1, VR$1 );
 		}
-		goto label$448;
-		label$451:;
-		if( OP$1 != 104ll ) goto label$453;
-		label$454:;
+		goto label$449;
+		label$452:;
+		if( OP$1 != 105ll ) goto label$454;
+		label$455:;
 		{
 			HLOADPOINTER( V1$1 );
 			EMITJUMPPTR( V1$1 );
 			HFREEREG( V1$1, 0ll );
 		}
-		goto label$448;
-		label$453:;
+		goto label$449;
+		label$454:;
 		{
 		}
-		label$455:;
-		label$448:;
+		label$456:;
+		label$449:;
 	}
-	label$447:;
+	label$448:;
 }
 
 static void HFLUSHSTACK( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* VR$1, int64 EX$1 )
 {
-	label$456:;
+	label$457:;
 	static int64 V1_TYP$1;
 	static int64 V1_DTYPE$1;
 	static int64 V1_DCLASS$1;
 	static struct $6IRVREG* VA$1;
-	if( OP$1 != 91ll ) goto label$459;
+	if( OP$1 != 92ll ) goto label$460;
 	{
 		EMITSTACKALIGN( EX$1 );
-		goto label$457;
+		goto label$458;
 	}
+	label$460:;
 	label$459:;
-	label$458:;
-	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$461;
+	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$462;
 	{
-		int64 TMP$137$2;
+		int64 TMP$139$2;
 		V1_TYP$1 = *(int64*)V1$1;
-		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$462;
-		TMP$137$2 = 24ll;
-		goto label$875;
-		label$462:;
-		TMP$137$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$875:;
-		V1_DTYPE$1 = TMP$137$2;
-		if( V1_DTYPE$1 != 24ll ) goto label$464;
+		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$463;
+		TMP$139$2 = 24ll;
+		goto label$877;
+		label$463:;
+		TMP$139$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$877:;
+		V1_DTYPE$1 = TMP$139$2;
+		if( V1_DTYPE$1 != 24ll ) goto label$465;
 		{
 			V1_DTYPE$1 = 9ll;
 		}
+		label$465:;
 		label$464:;
-		label$463:;
 		V1_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V1_DTYPE$1 * 56ll));
 	}
-	goto label$460;
-	label$461:;
+	goto label$461;
+	label$462:;
 	{
 		V1_TYP$1 = -1ll;
 		V1_DTYPE$1 = 2147483648ll;
 		V1_DCLASS$1 = -1ll;
 	}
-	label$460:;
+	label$461:;
 	HLOADIDX( V1$1 );
 	HLOADIDX( VR$1 );
-	if( V1_TYP$1 != 4ll ) goto label$466;
+	if( V1_TYP$1 != 4ll ) goto label$467;
 	{
-		int64 TMP$138$2;
-		if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$468;
+		int64 TMP$140$2;
+		if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$469;
 		{
 			VA$1 = *(struct $6IRVREG**)((uint8*)V1$1 + 88ll);
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 			V1_DTYPE$1 = 8ll;
 		}
-		label$468:;
-		label$467:;
-		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$469;
-		TMP$138$2 = 24ll;
-		goto label$876;
 		label$469:;
-		TMP$138$2 = V1_DTYPE$1 & 31ll;
-		label$876:;
-		(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$138$2 * 56ll)) + 8ll) );
+		label$468:;
+		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$470;
+		TMP$140$2 = 24ll;
+		goto label$878;
+		label$470:;
+		TMP$140$2 = V1_DTYPE$1 & 31ll;
+		label$878:;
+		(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$140$2 * 56ll)) + 8ll) );
 	}
+	label$467:;
 	label$466:;
-	label$465:;
 	{
-		if( OP$1 != 88ll ) goto label$471;
-		label$472:;
+		if( OP$1 != 89ll ) goto label$472;
+		label$473:;
 		{
-			if( VR$1 == (struct $6IRVREG*)0ull ) goto label$474;
+			if( VR$1 == (struct $6IRVREG*)0ull ) goto label$475;
 			{
 				EMITLOAD( VR$1, V1$1 );
 			}
-			goto label$473;
-			label$474:;
+			goto label$474;
+			label$475:;
 			{
 				EMITPUSH( V1$1 );
 			}
-			label$473:;
+			label$474:;
 		}
-		goto label$470;
-		label$471:;
-		if( OP$1 != 90ll ) goto label$475;
-		label$476:;
+		goto label$471;
+		label$472:;
+		if( OP$1 != 91ll ) goto label$476;
+		label$477:;
 		{
 			EMITPUSHUDT( V1$1, EX$1 );
 		}
-		goto label$470;
-		label$475:;
-		if( OP$1 != 89ll ) goto label$477;
-		label$478:;
+		goto label$471;
+		label$476:;
+		if( OP$1 != 90ll ) goto label$478;
+		label$479:;
 		{
 			EMITPOP( V1$1 );
 		}
-		label$477:;
-		label$470:;
+		label$478:;
+		label$471:;
 	}
 	HFREEREG( V1$1, 0ll );
-	label$457:;
+	label$458:;
 }
 
 static void HFLUSHUOP( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* VR$1 )
 {
-	label$479:;
+	label$480:;
 	static int64 V1_TYP$1;
 	static int64 V1_DTYPE$1;
 	static int64 V1_DCLASS$1;
@@ -3619,281 +3641,282 @@ static void HFLUSHUOP( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* VR$1 
 	static struct $6IRVREG* VA$1;
 	static int64 V1VECTOR$1;
 	V1VECTOR$1 = *(int64*)((uint8*)V1$1 + 40ll);
-	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$482;
+	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$483;
 	{
-		int64 TMP$139$2;
+		int64 TMP$141$2;
 		V1_TYP$1 = *(int64*)V1$1;
-		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$483;
-		TMP$139$2 = 24ll;
-		goto label$877;
-		label$483:;
-		TMP$139$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$877:;
-		V1_DTYPE$1 = TMP$139$2;
-		if( V1_DTYPE$1 != 24ll ) goto label$485;
+		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$484;
+		TMP$141$2 = 24ll;
+		goto label$879;
+		label$484:;
+		TMP$141$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$879:;
+		V1_DTYPE$1 = TMP$141$2;
+		if( V1_DTYPE$1 != 24ll ) goto label$486;
 		{
 			V1_DTYPE$1 = 9ll;
 		}
+		label$486:;
 		label$485:;
-		label$484:;
 		V1_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V1_DTYPE$1 * 56ll));
 	}
-	goto label$481;
-	label$482:;
+	goto label$482;
+	label$483:;
 	{
 		V1_TYP$1 = -1ll;
 		V1_DTYPE$1 = 2147483648ll;
 		V1_DCLASS$1 = -1ll;
 	}
-	label$481:;
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$487;
+	label$482:;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$488;
 	{
-		int64 TMP$140$2;
+		int64 TMP$142$2;
 		VR_TYP$1 = *(int64*)VR$1;
-		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$488;
-		TMP$140$2 = 24ll;
-		goto label$878;
-		label$488:;
-		TMP$140$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
-		label$878:;
-		VR_DTYPE$1 = TMP$140$2;
-		if( VR_DTYPE$1 != 24ll ) goto label$490;
+		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$489;
+		TMP$142$2 = 24ll;
+		goto label$880;
+		label$489:;
+		TMP$142$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
+		label$880:;
+		VR_DTYPE$1 = TMP$142$2;
+		if( VR_DTYPE$1 != 24ll ) goto label$491;
 		{
 			VR_DTYPE$1 = 9ll;
 		}
+		label$491:;
 		label$490:;
-		label$489:;
 		VR_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (VR_DTYPE$1 * 56ll));
 	}
-	goto label$486;
-	label$487:;
+	goto label$487;
+	label$488:;
 	{
 		VR_TYP$1 = -1ll;
 		VR_DTYPE$1 = 2147483648ll;
 		VR_DCLASS$1 = -1ll;
 	}
-	label$486:;
+	label$487:;
 	HLOADIDX( V1$1 );
 	HLOADIDX( VR$1 );
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$492;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$493;
 	{
-		if( V1$1 == VR$1 ) goto label$494;
+		if( V1$1 == VR$1 ) goto label$495;
 		{
-			int64 TMP$141$3;
-			if( ((int64)-(VR_DTYPE$1 == 13ll) | (int64)-(VR_DTYPE$1 == 14ll)) == 0ll ) goto label$496;
+			int64 TMP$143$3;
+			if( ((int64)-(VR_DTYPE$1 == 13ll) | (int64)-(VR_DTYPE$1 == 14ll)) == 0ll ) goto label$497;
 			{
 				VA$1 = *(struct $6IRVREG**)((uint8*)VR$1 + 88ll);
-				(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VA$1, VR$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+				(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VA$1, VR$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 				VR_DTYPE$1 = 8ll;
 			}
-			label$496:;
-			label$495:;
-			if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$497;
-			TMP$141$3 = 24ll;
-			goto label$879;
 			label$497:;
-			TMP$141$3 = VR_DTYPE$1 & 31ll;
-			label$879:;
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VR$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$141$3 * 56ll)) + 8ll) );
+			label$496:;
+			if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$498;
+			TMP$143$3 = 24ll;
+			goto label$881;
+			label$498:;
+			TMP$143$3 = VR_DTYPE$1 & 31ll;
+			label$881:;
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VR$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$143$3 * 56ll)) + 8ll) );
 		}
+		label$495:;
 		label$494:;
-		label$493:;
 	}
+	label$493:;
 	label$492:;
-	label$491:;
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$499;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$500;
 	{
-		int64 TMP$142$2;
-		if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$501;
+		int64 TMP$144$2;
+		if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$502;
 		{
 			VA$1 = *(struct $6IRVREG**)((uint8*)V1$1 + 88ll);
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 			V1_DTYPE$1 = 8ll;
 		}
+		label$502:;
 		label$501:;
-		label$500:;
-		if( OP$1 != 75ll ) goto label$503;
+		if( OP$1 != 76ll ) goto label$504;
 		{
 			*(int64*)((uint8*)V1$1 + 40ll) = 0ll;
 		}
-		label$503:;
-		label$502:;
-		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$504;
-		TMP$142$2 = 24ll;
-		goto label$880;
 		label$504:;
-		TMP$142$2 = V1_DTYPE$1 & 31ll;
-		label$880:;
-		(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$142$2 * 56ll)) + 8ll) );
-		if( OP$1 != 75ll ) goto label$506;
+		label$503:;
+		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$505;
+		TMP$144$2 = 24ll;
+		goto label$882;
+		label$505:;
+		TMP$144$2 = V1_DTYPE$1 & 31ll;
+		label$882:;
+		(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$144$2 * 56ll)) + 8ll) );
+		if( OP$1 != 76ll ) goto label$507;
 		{
 			*(int64*)((uint8*)V1$1 + 40ll) = V1VECTOR$1;
 		}
+		label$507:;
 		label$506:;
-		label$505:;
 	}
+	label$500:;
 	label$499:;
-	label$498:;
 	{
-		uint64 TMP$143$2;
-		TMP$143$2 = (uint64)OP$1;
-		goto label$508;
-		label$509:;
+		uint64 TMP$145$2;
+		TMP$145$2 = (uint64)OP$1;
+		goto label$509;
+		label$510:;
 		{
 			EMITNEG( V1$1 );
 		}
-		goto label$507;
-		label$510:;
+		goto label$508;
+		label$511:;
 		{
 			EMITNOT( V1$1 );
 		}
-		goto label$507;
-		label$511:;
+		goto label$508;
+		label$512:;
 		{
 			EMITHADD( V1$1 );
 			*(int64*)((uint8*)V1$1 + 40ll) = 0ll;
 		}
-		goto label$507;
-		label$512:;
+		goto label$508;
+		label$513:;
 		{
 			EMITABS( V1$1 );
 		}
-		goto label$507;
-		label$513:;
+		goto label$508;
+		label$514:;
 		{
 			EMITSGN( V1$1 );
 		}
-		goto label$507;
-		label$514:;
+		goto label$508;
+		label$515:;
 		{
 			EMITFIX( V1$1 );
 		}
-		goto label$507;
-		label$515:;
+		goto label$508;
+		label$516:;
 		{
 			EMITFRAC( V1$1 );
 		}
-		goto label$507;
-		label$516:;
+		goto label$508;
+		label$517:;
 		{
 			EMITCONVFD2FS( V1$1 );
 		}
-		goto label$507;
-		label$517:;
+		goto label$508;
+		label$518:;
 		{
 			EMITSIN( V1$1 );
 		}
-		goto label$507;
-		label$518:;
+		goto label$508;
+		label$519:;
 		{
 			EMITASIN( V1$1 );
 		}
-		goto label$507;
-		label$519:;
+		goto label$508;
+		label$520:;
 		{
 			EMITCOS( V1$1 );
 		}
-		goto label$507;
-		label$520:;
+		goto label$508;
+		label$521:;
 		{
 			EMITACOS( V1$1 );
 		}
-		goto label$507;
-		label$521:;
+		goto label$508;
+		label$522:;
 		{
 			EMITTAN( V1$1 );
 		}
-		goto label$507;
-		label$522:;
+		goto label$508;
+		label$523:;
 		{
 			EMITATAN( V1$1 );
 		}
-		goto label$507;
-		label$523:;
+		goto label$508;
+		label$524:;
 		{
 			EMITSQRT( V1$1 );
 		}
-		goto label$507;
-		label$524:;
+		goto label$508;
+		label$525:;
 		{
 			EMITRSQRT( V1$1 );
 		}
-		goto label$507;
-		label$525:;
+		goto label$508;
+		label$526:;
 		{
 			EMITRCP( V1$1 );
 		}
-		goto label$507;
-		label$526:;
+		goto label$508;
+		label$527:;
 		{
 			EMITLOG( V1$1 );
 		}
-		goto label$507;
-		label$527:;
+		goto label$508;
+		label$528:;
 		{
 			EMITEXP( V1$1 );
 		}
-		goto label$507;
-		label$528:;
+		goto label$508;
+		label$529:;
 		{
 			EMITFLOOR( V1$1 );
 		}
-		goto label$507;
-		label$529:;
+		goto label$508;
+		label$530:;
 		{
 			EMITSWZREP( V1$1 );
 		}
-		goto label$507;
-		label$508:;
-		static const void* tmp$184[24ll] = {
-			&&label$510,
-			&&label$507,
-			&&label$509,
+		goto label$508;
+		label$509:;
+		static const void* tmp$186[25ll] = {
 			&&label$511,
+			&&label$508,
+			&&label$508,
+			&&label$510,
 			&&label$512,
 			&&label$513,
-			&&label$517,
+			&&label$514,
 			&&label$518,
 			&&label$519,
 			&&label$520,
 			&&label$521,
 			&&label$522,
-			&&label$507,
 			&&label$523,
+			&&label$508,
 			&&label$524,
 			&&label$525,
 			&&label$526,
 			&&label$527,
 			&&label$528,
-			&&label$514,
-			&&label$515,
-			&&label$507,
-			&&label$516,
 			&&label$529,
+			&&label$515,
+			&&label$516,
+			&&label$508,
+			&&label$517,
+			&&label$530,
 		};
-		if( (TMP$143$2 - 52ull) > 23ull ) goto label$507;
-		goto *tmp$184[TMP$143$2 - 52ull];
-		label$507:;
+		if( (TMP$145$2 - 52ull) > 24ull ) goto label$508;
+		goto *tmp$186[TMP$145$2 - 52ull];
+		label$508:;
 	}
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$531;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$532;
 	{
-		if( V1$1 == VR$1 ) goto label$533;
+		if( V1$1 == VR$1 ) goto label$534;
 		{
 			EMITMOV( VR$1, V1$1 );
 		}
+		label$534:;
 		label$533:;
-		label$532:;
 	}
+	label$532:;
 	label$531:;
-	label$530:;
 	HFREEREG( V1$1, 0ll );
 	HFREEREG( VR$1, 0ll );
-	label$480:;
+	label$481:;
 }
 
 static void HFLUSHBOP( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1, struct $6IRVREG* VR$1 )
 {
-	label$534:;
+	label$535:;
 	static int64 V1_TYP$1;
 	static int64 V1_DTYPE$1;
 	static int64 V1_DCLASS$1;
@@ -3904,315 +3927,316 @@ static void HFLUSHBOP( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1,
 	static int64 VR_DTYPE$1;
 	static int64 VR_DCLASS$1;
 	static struct $6IRVREG* VA$1;
-	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$537;
+	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$538;
 	{
-		int64 TMP$144$2;
+		int64 TMP$146$2;
 		V1_TYP$1 = *(int64*)V1$1;
-		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$538;
-		TMP$144$2 = 24ll;
-		goto label$881;
-		label$538:;
-		TMP$144$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$881:;
-		V1_DTYPE$1 = TMP$144$2;
-		if( V1_DTYPE$1 != 24ll ) goto label$540;
+		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$539;
+		TMP$146$2 = 24ll;
+		goto label$883;
+		label$539:;
+		TMP$146$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$883:;
+		V1_DTYPE$1 = TMP$146$2;
+		if( V1_DTYPE$1 != 24ll ) goto label$541;
 		{
 			V1_DTYPE$1 = 9ll;
 		}
+		label$541:;
 		label$540:;
-		label$539:;
 		V1_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V1_DTYPE$1 * 56ll));
 	}
-	goto label$536;
-	label$537:;
+	goto label$537;
+	label$538:;
 	{
 		V1_TYP$1 = -1ll;
 		V1_DTYPE$1 = 2147483648ll;
 		V1_DCLASS$1 = -1ll;
 	}
-	label$536:;
-	if( V2$1 == (struct $6IRVREG*)0ull ) goto label$542;
+	label$537:;
+	if( V2$1 == (struct $6IRVREG*)0ull ) goto label$543;
 	{
-		int64 TMP$145$2;
+		int64 TMP$147$2;
 		V2_TYP$1 = *(int64*)V2$1;
-		if( (*(int64*)((uint8*)V2$1 + 8ll) & 480ll) == 0ll ) goto label$543;
-		TMP$145$2 = 24ll;
-		goto label$882;
-		label$543:;
-		TMP$145$2 = *(int64*)((uint8*)V2$1 + 8ll) & 31ll;
-		label$882:;
-		V2_DTYPE$1 = TMP$145$2;
-		if( V2_DTYPE$1 != 24ll ) goto label$545;
+		if( (*(int64*)((uint8*)V2$1 + 8ll) & 480ll) == 0ll ) goto label$544;
+		TMP$147$2 = 24ll;
+		goto label$884;
+		label$544:;
+		TMP$147$2 = *(int64*)((uint8*)V2$1 + 8ll) & 31ll;
+		label$884:;
+		V2_DTYPE$1 = TMP$147$2;
+		if( V2_DTYPE$1 != 24ll ) goto label$546;
 		{
 			V2_DTYPE$1 = 9ll;
 		}
+		label$546:;
 		label$545:;
-		label$544:;
 		V2_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V2_DTYPE$1 * 56ll));
 	}
-	goto label$541;
-	label$542:;
+	goto label$542;
+	label$543:;
 	{
 		V2_TYP$1 = -1ll;
 		V2_DTYPE$1 = 2147483648ll;
 		V2_DCLASS$1 = -1ll;
 	}
-	label$541:;
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$547;
+	label$542:;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$548;
 	{
-		int64 TMP$146$2;
+		int64 TMP$148$2;
 		VR_TYP$1 = *(int64*)VR$1;
-		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$548;
-		TMP$146$2 = 24ll;
-		goto label$883;
-		label$548:;
-		TMP$146$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
-		label$883:;
-		VR_DTYPE$1 = TMP$146$2;
-		if( VR_DTYPE$1 != 24ll ) goto label$550;
+		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$549;
+		TMP$148$2 = 24ll;
+		goto label$885;
+		label$549:;
+		TMP$148$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
+		label$885:;
+		VR_DTYPE$1 = TMP$148$2;
+		if( VR_DTYPE$1 != 24ll ) goto label$551;
 		{
 			VR_DTYPE$1 = 9ll;
 		}
+		label$551:;
 		label$550:;
-		label$549:;
 		VR_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (VR_DTYPE$1 * 56ll));
 	}
-	goto label$546;
-	label$547:;
+	goto label$547;
+	label$548:;
 	{
 		VR_TYP$1 = -1ll;
 		VR_DTYPE$1 = 2147483648ll;
 		VR_DCLASS$1 = -1ll;
 	}
-	label$546:;
+	label$547:;
 	HLOADIDX( V1$1 );
 	HLOADIDX( V2$1 );
 	HLOADIDX( VR$1 );
-	if( VR$1 != (struct $6IRVREG*)0ull ) goto label$552;
+	if( VR$1 != (struct $6IRVREG*)0ull ) goto label$553;
 	{
-		if( V2_TYP$1 == 0ll ) goto label$554;
+		if( V2_TYP$1 == 0ll ) goto label$555;
 		{
-			int64 TMP$147$3;
-			if( ((int64)-(V2_DTYPE$1 == 13ll) | (int64)-(V2_DTYPE$1 == 14ll)) == 0ll ) goto label$556;
+			int64 TMP$149$3;
+			if( ((int64)-(V2_DTYPE$1 == 13ll) | (int64)-(V2_DTYPE$1 == 14ll)) == 0ll ) goto label$557;
 			{
 				VA$1 = *(struct $6IRVREG**)((uint8*)V2$1 + 88ll);
-				(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), VA$1, V2$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+				(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), VA$1, V2$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 				V2_DTYPE$1 = 8ll;
 			}
-			label$556:;
-			label$555:;
-			if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$557;
-			TMP$147$3 = 24ll;
-			goto label$884;
 			label$557:;
-			TMP$147$3 = V2_DTYPE$1 & 31ll;
-			label$884:;
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), V2$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$147$3 * 56ll)) + 8ll) );
+			label$556:;
+			if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$558;
+			TMP$149$3 = 24ll;
+			goto label$886;
+			label$558:;
+			TMP$149$3 = V2_DTYPE$1 & 31ll;
+			label$886:;
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), V2$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$149$3 * 56ll)) + 8ll) );
 		}
+		label$555:;
 		label$554:;
-		label$553:;
 	}
-	goto label$551;
-	label$552:;
+	goto label$552;
+	label$553:;
 	{
-		int64 TMP$149$2;
-		if( V2_TYP$1 != 4ll ) goto label$559;
+		int64 TMP$151$2;
+		if( V2_TYP$1 != 4ll ) goto label$560;
 		{
-			int64 TMP$148$3;
-			if( ((int64)-(V2_DTYPE$1 == 13ll) | (int64)-(V2_DTYPE$1 == 14ll)) == 0ll ) goto label$561;
+			int64 TMP$150$3;
+			if( ((int64)-(V2_DTYPE$1 == 13ll) | (int64)-(V2_DTYPE$1 == 14ll)) == 0ll ) goto label$562;
 			{
 				VA$1 = *(struct $6IRVREG**)((uint8*)V2$1 + 88ll);
-				(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), VA$1, V2$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+				(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), VA$1, V2$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 				V2_DTYPE$1 = 8ll;
 			}
-			label$561:;
-			label$560:;
-			if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$562;
-			TMP$148$3 = 24ll;
-			goto label$885;
 			label$562:;
-			TMP$148$3 = V2_DTYPE$1 & 31ll;
-			label$885:;
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), V2$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$148$3 * 56ll)) + 8ll) );
+			label$561:;
+			if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$563;
+			TMP$150$3 = 24ll;
+			goto label$887;
+			label$563:;
+			TMP$150$3 = V2_DTYPE$1 & 31ll;
+			label$887:;
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), V2$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$150$3 * 56ll)) + 8ll) );
 		}
+		label$560:;
 		label$559:;
-		label$558:;
-		if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$564;
+		if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$565;
 		{
 			VA$1 = *(struct $6IRVREG**)((uint8*)V1$1 + 88ll);
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 			V1_DTYPE$1 = 8ll;
 		}
-		label$564:;
-		label$563:;
-		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$565;
-		TMP$149$2 = 24ll;
-		goto label$886;
 		label$565:;
-		TMP$149$2 = V1_DTYPE$1 & 31ll;
-		label$886:;
-		(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$149$2 * 56ll)) + 8ll) );
+		label$564:;
+		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$566;
+		TMP$151$2 = 24ll;
+		goto label$888;
+		label$566:;
+		TMP$151$2 = V1_DTYPE$1 & 31ll;
+		label$888:;
+		(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$151$2 * 56ll)) + 8ll) );
 	}
-	label$551:;
+	label$552:;
 	{
-		uint64 TMP$150$2;
-		TMP$150$2 = (uint64)OP$1;
-		goto label$567;
-		label$568:;
+		uint64 TMP$152$2;
+		TMP$152$2 = (uint64)OP$1;
+		goto label$568;
+		label$569:;
 		{
 			EMITADD( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$569:;
+		goto label$567;
+		label$570:;
 		{
 			EMITSUB( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$570:;
+		goto label$567;
+		label$571:;
 		{
 			EMITMUL( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$571:;
+		goto label$567;
+		label$572:;
 		{
 			EMITDIV( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$572:;
+		goto label$567;
+		label$573:;
 		{
 			EMITINTDIV( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$573:;
+		goto label$567;
+		label$574:;
 		{
 			EMITMOD( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$574:;
+		goto label$567;
+		label$575:;
 		{
 			EMITSHL( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$575:;
+		goto label$567;
+		label$576:;
 		{
 			EMITSHR( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$576:;
+		goto label$567;
+		label$577:;
 		{
 			EMITAND( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$577:;
+		goto label$567;
+		label$578:;
 		{
 			EMITOR( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$578:;
+		goto label$567;
+		label$579:;
 		{
 			EMITXOR( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$579:;
+		goto label$567;
+		label$580:;
 		{
 			EMITEQV( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$580:;
+		goto label$567;
+		label$581:;
 		{
 			EMITIMP( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$581:;
+		goto label$567;
+		label$582:;
 		{
 			EMITATN2( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$582:;
+		goto label$567;
+		label$583:;
 		{
 			EMITPOW( V1$1, V2$1 );
 		}
-		goto label$566;
-		label$567:;
-		static const void* tmp$185[37ll] = {
-			&&label$568,
+		goto label$567;
+		label$568:;
+		static const void* tmp$187[38ll] = {
 			&&label$569,
 			&&label$570,
 			&&label$571,
 			&&label$572,
 			&&label$573,
-			&&label$576,
+			&&label$574,
 			&&label$577,
-			&&label$566,
-			&&label$566,
 			&&label$578,
+			&&label$567,
+			&&label$567,
 			&&label$579,
 			&&label$580,
-			&&label$574,
-			&&label$575,
-			&&label$582,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
-			&&label$566,
 			&&label$581,
+			&&label$575,
+			&&label$576,
+			&&label$583,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$567,
+			&&label$582,
 		};
-		if( (TMP$150$2 - 28ull) > 36ull ) goto label$566;
-		goto *tmp$185[TMP$150$2 - 28ull];
-		label$566:;
+		if( (TMP$152$2 - 28ull) > 37ull ) goto label$567;
+		goto *tmp$187[TMP$152$2 - 28ull];
+		label$567:;
 	}
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$584;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$585;
 	{
-		if( V1$1 == VR$1 ) goto label$586;
+		if( V1$1 == VR$1 ) goto label$587;
 		{
-			int64 TMP$151$3;
-			if( ((int64)-(VR_DTYPE$1 == 13ll) | (int64)-(VR_DTYPE$1 == 14ll)) == 0ll ) goto label$588;
+			int64 TMP$153$3;
+			if( ((int64)-(VR_DTYPE$1 == 13ll) | (int64)-(VR_DTYPE$1 == 14ll)) == 0ll ) goto label$589;
 			{
 				VA$1 = *(struct $6IRVREG**)((uint8*)VR$1 + 88ll);
-				(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VA$1, VR$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+				(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VA$1, VR$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 				VR_DTYPE$1 = 8ll;
 			}
-			label$588:;
-			label$587:;
-			if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$589;
-			TMP$151$3 = 24ll;
-			goto label$887;
 			label$589:;
-			TMP$151$3 = VR_DTYPE$1 & 31ll;
-			label$887:;
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VR$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$151$3 * 56ll)) + 8ll) );
+			label$588:;
+			if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$590;
+			TMP$153$3 = 24ll;
+			goto label$889;
+			label$590:;
+			TMP$153$3 = VR_DTYPE$1 & 31ll;
+			label$889:;
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VR$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$153$3 * 56ll)) + 8ll) );
 			EMITMOV( VR$1, V1$1 );
 		}
+		label$587:;
 		label$586:;
-		label$585:;
 	}
+	label$585:;
 	label$584:;
-	label$583:;
 	HFREEREG( V1$1, 0ll );
 	HFREEREG( V2$1, 0ll );
 	HFREEREG( VR$1, 0ll );
-	label$535:;
+	label$536:;
 }
 
-static void HFLUSHCOMP( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1, struct $6IRVREG* VR$1, struct $8FBSYMBOL* LABEL$1 )
+static void HFLUSHCOMP( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1, struct $6IRVREG* VR$1, struct $8FBSYMBOL* LABEL$1, $10IR_EMITOPT OPTIONS$1 )
 {
-	label$590:;
+	label$591:;
 	static FBSTRING LNAME$1;
 	static int64 V1_TYP$1;
 	static int64 V1_DTYPE$1;
@@ -4225,318 +4249,318 @@ static void HFLUSHCOMP( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1
 	static int64 VR_DCLASS$1;
 	static struct $6IRVREG* VA$1;
 	static int64 DOLOAD$1;
-	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$593;
+	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$594;
 	{
-		int64 TMP$152$2;
+		int64 TMP$154$2;
 		V1_TYP$1 = *(int64*)V1$1;
-		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$594;
-		TMP$152$2 = 24ll;
-		goto label$888;
-		label$594:;
-		TMP$152$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$888:;
-		V1_DTYPE$1 = TMP$152$2;
-		if( V1_DTYPE$1 != 24ll ) goto label$596;
+		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$595;
+		TMP$154$2 = 24ll;
+		goto label$890;
+		label$595:;
+		TMP$154$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$890:;
+		V1_DTYPE$1 = TMP$154$2;
+		if( V1_DTYPE$1 != 24ll ) goto label$597;
 		{
 			V1_DTYPE$1 = 9ll;
 		}
+		label$597:;
 		label$596:;
-		label$595:;
 		V1_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V1_DTYPE$1 * 56ll));
 	}
-	goto label$592;
-	label$593:;
+	goto label$593;
+	label$594:;
 	{
 		V1_TYP$1 = -1ll;
 		V1_DTYPE$1 = 2147483648ll;
 		V1_DCLASS$1 = -1ll;
 	}
-	label$592:;
-	if( V2$1 == (struct $6IRVREG*)0ull ) goto label$598;
+	label$593:;
+	if( V2$1 == (struct $6IRVREG*)0ull ) goto label$599;
 	{
-		int64 TMP$153$2;
+		int64 TMP$155$2;
 		V2_TYP$1 = *(int64*)V2$1;
-		if( (*(int64*)((uint8*)V2$1 + 8ll) & 480ll) == 0ll ) goto label$599;
-		TMP$153$2 = 24ll;
-		goto label$889;
-		label$599:;
-		TMP$153$2 = *(int64*)((uint8*)V2$1 + 8ll) & 31ll;
-		label$889:;
-		V2_DTYPE$1 = TMP$153$2;
-		if( V2_DTYPE$1 != 24ll ) goto label$601;
+		if( (*(int64*)((uint8*)V2$1 + 8ll) & 480ll) == 0ll ) goto label$600;
+		TMP$155$2 = 24ll;
+		goto label$891;
+		label$600:;
+		TMP$155$2 = *(int64*)((uint8*)V2$1 + 8ll) & 31ll;
+		label$891:;
+		V2_DTYPE$1 = TMP$155$2;
+		if( V2_DTYPE$1 != 24ll ) goto label$602;
 		{
 			V2_DTYPE$1 = 9ll;
 		}
+		label$602:;
 		label$601:;
-		label$600:;
 		V2_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V2_DTYPE$1 * 56ll));
 	}
-	goto label$597;
-	label$598:;
+	goto label$598;
+	label$599:;
 	{
 		V2_TYP$1 = -1ll;
 		V2_DTYPE$1 = 2147483648ll;
 		V2_DCLASS$1 = -1ll;
 	}
-	label$597:;
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$603;
+	label$598:;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$604;
 	{
-		int64 TMP$154$2;
+		int64 TMP$156$2;
 		VR_TYP$1 = *(int64*)VR$1;
-		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$604;
-		TMP$154$2 = 24ll;
-		goto label$890;
-		label$604:;
-		TMP$154$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
-		label$890:;
-		VR_DTYPE$1 = TMP$154$2;
-		if( VR_DTYPE$1 != 24ll ) goto label$606;
+		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$605;
+		TMP$156$2 = 24ll;
+		goto label$892;
+		label$605:;
+		TMP$156$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
+		label$892:;
+		VR_DTYPE$1 = TMP$156$2;
+		if( VR_DTYPE$1 != 24ll ) goto label$607;
 		{
 			VR_DTYPE$1 = 9ll;
 		}
+		label$607:;
 		label$606:;
-		label$605:;
 		VR_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (VR_DTYPE$1 * 56ll));
 	}
-	goto label$602;
-	label$603:;
+	goto label$603;
+	label$604:;
 	{
 		VR_TYP$1 = -1ll;
 		VR_DTYPE$1 = 2147483648ll;
 		VR_DCLASS$1 = -1ll;
 	}
-	label$602:;
+	label$603:;
 	HLOADIDX( V1$1 );
 	HLOADIDX( V2$1 );
 	HLOADIDX( VR$1 );
 	DOLOAD$1 = 0ll;
-	if( VR$1 != (struct $6IRVREG*)0ull ) goto label$608;
+	if( VR$1 != (struct $6IRVREG*)0ull ) goto label$609;
 	{
-		if( V2_DCLASS$1 != 0ll ) goto label$610;
+		if( V2_DCLASS$1 != 0ll ) goto label$611;
 		{
-			if( V2_TYP$1 == 0ll ) goto label$612;
+			if( V2_TYP$1 == 0ll ) goto label$613;
 			{
-				if( V1_DCLASS$1 == 1ll ) goto label$614;
+				if( V1_DCLASS$1 == 1ll ) goto label$615;
 				{
 					DOLOAD$1 = -1ll;
 				}
+				label$615:;
 				label$614:;
-				label$613:;
 			}
+			label$613:;
 			label$612:;
-			label$611:;
 		}
+		label$611:;
 		label$610:;
-		label$609:;
 	}
+	label$609:;
 	label$608:;
-	label$607:;
-	if( ((int64)-(V2_TYP$1 == 4ll) | DOLOAD$1) == 0ll ) goto label$616;
+	if( ((int64)-(V2_TYP$1 == 4ll) | DOLOAD$1) == 0ll ) goto label$617;
 	{
-		int64 TMP$155$2;
-		if( ((int64)-(V2_DTYPE$1 == 13ll) | (int64)-(V2_DTYPE$1 == 14ll)) == 0ll ) goto label$618;
+		int64 TMP$157$2;
+		if( ((int64)-(V2_DTYPE$1 == 13ll) | (int64)-(V2_DTYPE$1 == 14ll)) == 0ll ) goto label$619;
 		{
 			VA$1 = *(struct $6IRVREG**)((uint8*)V2$1 + 88ll);
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), VA$1, V2$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), VA$1, V2$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 			V2_DTYPE$1 = 8ll;
 		}
-		label$618:;
-		label$617:;
-		if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$619;
-		TMP$155$2 = 24ll;
-		goto label$891;
 		label$619:;
-		TMP$155$2 = V2_DTYPE$1 & 31ll;
-		label$891:;
-		(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), V2$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$155$2 * 56ll)) + 8ll) );
+		label$618:;
+		if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$620;
+		TMP$157$2 = 24ll;
+		goto label$893;
+		label$620:;
+		TMP$157$2 = V2_DTYPE$1 & 31ll;
+		label$893:;
+		(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), V2$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$157$2 * 56ll)) + 8ll) );
 		V2_TYP$1 = 4ll;
 	}
+	label$617:;
 	label$616:;
-	label$615:;
 	DOLOAD$1 = 0ll;
-	if( ((int64)-(VR$1 != (struct $6IRVREG*)0ull) & (int64)-(VR$1 == V1$1)) == 0ll ) goto label$621;
+	if( ((int64)-(VR$1 != (struct $6IRVREG*)0ull) & (int64)-(VR$1 == V1$1)) == 0ll ) goto label$622;
 	{
 		DOLOAD$1 = -1ll;
 	}
-	goto label$620;
-	label$621:;
-	if( V1_DCLASS$1 != 1ll ) goto label$622;
-	{
-		DOLOAD$1 = -1ll;
-	}
-	goto label$620;
+	goto label$621;
 	label$622:;
-	if( V1_TYP$1 != 0ll ) goto label$623;
+	if( V1_DCLASS$1 != 1ll ) goto label$623;
 	{
 		DOLOAD$1 = -1ll;
 	}
-	goto label$620;
+	goto label$621;
 	label$623:;
-	if( ((int64)-(V1_TYP$1 == 5ll) & (int64)-(V2_TYP$1 == 0ll)) == 0ll ) goto label$624;
+	if( V1_TYP$1 != 0ll ) goto label$624;
 	{
 		DOLOAD$1 = -1ll;
 	}
-	goto label$620;
+	goto label$621;
 	label$624:;
-	if( V2_TYP$1 == 4ll ) goto label$625;
+	if( ((int64)-(V1_TYP$1 == 5ll) & (int64)-(V2_TYP$1 == 0ll)) == 0ll ) goto label$625;
 	{
-		if( V2_TYP$1 == 0ll ) goto label$627;
+		DOLOAD$1 = -1ll;
+	}
+	goto label$621;
+	label$625:;
+	if( V2_TYP$1 == 4ll ) goto label$626;
+	{
+		if( V2_TYP$1 == 0ll ) goto label$628;
 		{
 			DOLOAD$1 = -1ll;
 		}
+		label$628:;
 		label$627:;
-		label$626:;
 	}
-	goto label$620;
-	label$625:;
-	if( V1_TYP$1 != 5ll ) goto label$628;
+	goto label$621;
+	label$626:;
+	if( V1_TYP$1 != 5ll ) goto label$629;
 	{
 		DOLOAD$1 = -1ll;
 	}
-	label$628:;
-	label$620:;
-	if( ((int64)-(V1_TYP$1 == 4ll) | DOLOAD$1) == 0ll ) goto label$630;
+	label$629:;
+	label$621:;
+	if( ((int64)-(V1_TYP$1 == 4ll) | DOLOAD$1) == 0ll ) goto label$631;
 	{
-		int64 TMP$156$2;
-		if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$632;
+		int64 TMP$158$2;
+		if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$633;
 		{
 			VA$1 = *(struct $6IRVREG**)((uint8*)V1$1 + 88ll);
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 			V1_DTYPE$1 = 8ll;
 		}
-		label$632:;
-		label$631:;
-		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$633;
-		TMP$156$2 = 24ll;
-		goto label$892;
 		label$633:;
-		TMP$156$2 = V1_DTYPE$1 & 31ll;
-		label$892:;
-		(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$156$2 * 56ll)) + 8ll) );
+		label$632:;
+		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$634;
+		TMP$158$2 = 24ll;
+		goto label$894;
+		label$634:;
+		TMP$158$2 = V1_DTYPE$1 & 31ll;
+		label$894:;
+		(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$158$2 * 56ll)) + 8ll) );
 	}
+	label$631:;
 	label$630:;
-	label$629:;
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$635;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$636;
 	{
-		if( VR$1 == V1$1 ) goto label$637;
+		if( VR$1 == V1$1 ) goto label$638;
 		{
-			int64 TMP$157$3;
-			if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$638;
-			TMP$157$3 = 24ll;
-			goto label$893;
-			label$638:;
-			TMP$157$3 = VR_DTYPE$1 & 31ll;
-			label$893:;
-			int64 vr$58 = (*(tmp$83*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))) + 8ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VR$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$157$3 * 56ll)) + 8ll) );
+			int64 TMP$159$3;
+			if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$639;
+			TMP$159$3 = 24ll;
+			goto label$895;
+			label$639:;
+			TMP$159$3 = VR_DTYPE$1 & 31ll;
+			label$895:;
+			int64 vr$58 = (*(tmp$86*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))) + 8ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VR$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$159$3 * 56ll)) + 8ll) );
 			*(int64*)((uint8*)VR$1 + 24ll) = vr$58;
 			*($15IRVREGTYPE_ENUM*)VR$1 = 4ll;
 		}
+		label$638:;
 		label$637:;
-		label$636:;
 	}
+	label$636:;
 	label$635:;
-	label$634:;
 	{
-		uint64 TMP$158$2;
-		TMP$158$2 = (uint64)OP$1;
-		goto label$640;
-		label$641:;
-		{
-			EMITEQ( VR$1, LABEL$1, V1$1, V2$1 );
-		}
-		goto label$639;
+		uint64 TMP$160$2;
+		TMP$160$2 = (uint64)OP$1;
+		goto label$641;
 		label$642:;
 		{
-			EMITNE( VR$1, LABEL$1, V1$1, V2$1 );
+			EMITEQ( VR$1, LABEL$1, V1$1, V2$1, OPTIONS$1 );
 		}
-		goto label$639;
+		goto label$640;
 		label$643:;
 		{
-			EMITGT( VR$1, LABEL$1, V1$1, V2$1 );
+			EMITNE( VR$1, LABEL$1, V1$1, V2$1, OPTIONS$1 );
 		}
-		goto label$639;
+		goto label$640;
 		label$644:;
 		{
-			EMITLT( VR$1, LABEL$1, V1$1, V2$1 );
+			EMITGT( VR$1, LABEL$1, V1$1, V2$1, OPTIONS$1 );
 		}
-		goto label$639;
+		goto label$640;
 		label$645:;
 		{
-			EMITLE( VR$1, LABEL$1, V1$1, V2$1 );
+			EMITLT( VR$1, LABEL$1, V1$1, V2$1, OPTIONS$1 );
 		}
-		goto label$639;
+		goto label$640;
 		label$646:;
 		{
-			EMITGE( VR$1, LABEL$1, V1$1, V2$1 );
+			EMITLE( VR$1, LABEL$1, V1$1, V2$1, OPTIONS$1 );
 		}
-		goto label$639;
-		label$640:;
-		static const void* tmp$186[6ll] = {
-			&&label$641,
-			&&label$643,
-			&&label$644,
+		goto label$640;
+		label$647:;
+		{
+			EMITGE( VR$1, LABEL$1, V1$1, V2$1, OPTIONS$1 );
+		}
+		goto label$640;
+		label$641:;
+		static const void* tmp$188[6ll] = {
 			&&label$642,
-			&&label$646,
+			&&label$644,
 			&&label$645,
+			&&label$643,
+			&&label$647,
+			&&label$646,
 		};
-		if( (TMP$158$2 - 45ull) > 5ull ) goto label$639;
-		goto *tmp$186[TMP$158$2 - 45ull];
-		label$639:;
+		if( (TMP$160$2 - 45ull) > 5ull ) goto label$640;
+		goto *tmp$188[TMP$160$2 - 45ull];
+		label$640:;
 	}
 	HFREEREG( V1$1, 0ll );
 	HFREEREG( V2$1, 0ll );
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$648;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$649;
 	{
 		HFREEREG( VR$1, 0ll );
 	}
+	label$649:;
 	label$648:;
-	label$647:;
-	label$591:;
+	label$592:;
 }
 
 static void HSPILLREGS( void )
 {
-	label$649:;
+	label$650:;
 	struct $6IRVREG* VR$1;
 	struct $6IRVREG* VAUXPARENT$1;
 	int64 REG$1;
 	{
 		int64 CLASS_$2;
 		CLASS_$2 = 0ll;
-		label$654:;
+		label$655:;
 		{
-			int64 vr$1 = (*(tmp$88*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 56ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) );
+			int64 vr$1 = (*(tmp$91*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 56ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) );
 			REG$1 = vr$1;
-			label$655:;
-			if( REG$1 == -1ll ) goto label$656;
+			label$656:;
+			if( REG$1 == -1ll ) goto label$657;
 			{
-				int64 vr$5 = (*(tmp$86*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 32ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1 );
-				if( vr$5 != 0ll ) goto label$658;
+				int64 vr$5 = (*(tmp$89*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 32ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1 );
+				if( vr$5 != 0ll ) goto label$659;
 				{
-					struct $6IRVREG* vr$10 = (*(tmp$89*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 72ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1, &VAUXPARENT$1 );
+					struct $6IRVREG* vr$10 = (*(tmp$92*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 72ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1, &VAUXPARENT$1 );
 					VR$1 = vr$10;
-					(*(tmp$45*)((uint8*)&IR$ + 528ll))( VR$1, VAUXPARENT$1 );
+					(*(tmp$47*)((uint8*)&IR$ + 528ll))( VR$1, VAUXPARENT$1 );
 				}
+				label$659:;
 				label$658:;
-				label$657:;
-				int64 vr$14 = (*(tmp$86*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 64ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1 );
+				int64 vr$14 = (*(tmp$89*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))) + 64ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (CLASS_$2 << (3ll & 63ll))), REG$1 );
 				REG$1 = vr$14;
 			}
-			goto label$655;
-			label$656:;
+			goto label$656;
+			label$657:;
 		}
-		label$652:;
-		CLASS_$2 = CLASS_$2 + 1ll;
-		label$651:;
-		if( CLASS_$2 <= 1ll ) goto label$654;
 		label$653:;
+		CLASS_$2 = CLASS_$2 + 1ll;
+		label$652:;
+		if( CLASS_$2 <= 1ll ) goto label$655;
+		label$654:;
 	}
-	label$650:;
+	label$651:;
 }
 
 static void HFLUSHSTORE( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1 )
 {
-	label$659:;
+	label$660:;
 	static int64 V1_TYP$1;
 	static int64 V1_DTYPE$1;
 	static int64 V1_DCLASS$1;
@@ -4544,227 +4568,227 @@ static void HFLUSHSTORE( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$
 	static int64 V2_DTYPE$1;
 	static int64 V2_DCLASS$1;
 	static struct $6IRVREG* VA$1;
-	if( OP$1 != 87ll ) goto label$662;
+	if( OP$1 != 88ll ) goto label$663;
 	{
 		HSPILLREGS(  );
-		goto label$660;
+		goto label$661;
 	}
+	label$663:;
 	label$662:;
-	label$661:;
-	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$664;
+	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$665;
 	{
-		int64 TMP$159$2;
+		int64 TMP$161$2;
 		V1_TYP$1 = *(int64*)V1$1;
-		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$665;
-		TMP$159$2 = 24ll;
-		goto label$894;
-		label$665:;
-		TMP$159$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$894:;
-		V1_DTYPE$1 = TMP$159$2;
-		if( V1_DTYPE$1 != 24ll ) goto label$667;
+		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$666;
+		TMP$161$2 = 24ll;
+		goto label$896;
+		label$666:;
+		TMP$161$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$896:;
+		V1_DTYPE$1 = TMP$161$2;
+		if( V1_DTYPE$1 != 24ll ) goto label$668;
 		{
 			V1_DTYPE$1 = 9ll;
 		}
+		label$668:;
 		label$667:;
-		label$666:;
 		V1_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V1_DTYPE$1 * 56ll));
 	}
-	goto label$663;
-	label$664:;
+	goto label$664;
+	label$665:;
 	{
 		V1_TYP$1 = -1ll;
 		V1_DTYPE$1 = 2147483648ll;
 		V1_DCLASS$1 = -1ll;
 	}
-	label$663:;
-	if( V2$1 == (struct $6IRVREG*)0ull ) goto label$669;
+	label$664:;
+	if( V2$1 == (struct $6IRVREG*)0ull ) goto label$670;
 	{
-		int64 TMP$160$2;
+		int64 TMP$162$2;
 		V2_TYP$1 = *(int64*)V2$1;
-		if( (*(int64*)((uint8*)V2$1 + 8ll) & 480ll) == 0ll ) goto label$670;
-		TMP$160$2 = 24ll;
-		goto label$895;
-		label$670:;
-		TMP$160$2 = *(int64*)((uint8*)V2$1 + 8ll) & 31ll;
-		label$895:;
-		V2_DTYPE$1 = TMP$160$2;
-		if( V2_DTYPE$1 != 24ll ) goto label$672;
+		if( (*(int64*)((uint8*)V2$1 + 8ll) & 480ll) == 0ll ) goto label$671;
+		TMP$162$2 = 24ll;
+		goto label$897;
+		label$671:;
+		TMP$162$2 = *(int64*)((uint8*)V2$1 + 8ll) & 31ll;
+		label$897:;
+		V2_DTYPE$1 = TMP$162$2;
+		if( V2_DTYPE$1 != 24ll ) goto label$673;
 		{
 			V2_DTYPE$1 = 9ll;
 		}
+		label$673:;
 		label$672:;
-		label$671:;
 		V2_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V2_DTYPE$1 * 56ll));
 	}
-	goto label$668;
-	label$669:;
+	goto label$669;
+	label$670:;
 	{
 		V2_TYP$1 = -1ll;
 		V2_DTYPE$1 = 2147483648ll;
 		V2_DCLASS$1 = -1ll;
 	}
-	label$668:;
+	label$669:;
 	HLOADIDX( V1$1 );
 	HLOADIDX( V2$1 );
-	if( ((int64)-(V2_TYP$1 == 4ll) | ((int64)-(V2_TYP$1 != 0ll) & (int64)-(V1_DCLASS$1 == 0ll))) == 0ll ) goto label$674;
+	if( ((int64)-(V2_TYP$1 == 4ll) | ((int64)-(V2_TYP$1 != 0ll) & (int64)-(V1_DCLASS$1 == 0ll))) == 0ll ) goto label$675;
 	{
-		int64 TMP$161$2;
-		if( ((int64)-(V2_DTYPE$1 == 13ll) | (int64)-(V2_DTYPE$1 == 14ll)) == 0ll ) goto label$676;
+		int64 TMP$163$2;
+		if( ((int64)-(V2_DTYPE$1 == 13ll) | (int64)-(V2_DTYPE$1 == 14ll)) == 0ll ) goto label$677;
 		{
 			VA$1 = *(struct $6IRVREG**)((uint8*)V2$1 + 88ll);
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), VA$1, V2$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), VA$1, V2$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 			V2_DTYPE$1 = 8ll;
 		}
-		label$676:;
-		label$675:;
-		if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$677;
-		TMP$161$2 = 24ll;
-		goto label$896;
 		label$677:;
-		TMP$161$2 = V2_DTYPE$1 & 31ll;
-		label$896:;
-		(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), V2$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$161$2 * 56ll)) + 8ll) );
+		label$676:;
+		if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$678;
+		TMP$163$2 = 24ll;
+		goto label$898;
+		label$678:;
+		TMP$163$2 = V2_DTYPE$1 & 31ll;
+		label$898:;
+		(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), V2$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$163$2 * 56ll)) + 8ll) );
 	}
+	label$675:;
 	label$674:;
-	label$673:;
 	EMITSTORE( V1$1, V2$1 );
 	HFREEREG( V1$1, 0ll );
 	HFREEREG( V2$1, 0ll );
-	label$660:;
+	label$661:;
 }
 
 static void HFLUSHLOAD( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* VR$1 )
 {
-	label$678:;
+	label$679:;
 	static int64 V1_TYP$1;
 	static int64 V1_DTYPE$1;
 	static int64 V1_DCLASS$1;
 	static int64 V1_REG$1;
 	static struct $6IRVREG* VA$1;
-	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$681;
+	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$682;
 	{
-		int64 TMP$162$2;
+		int64 TMP$164$2;
 		V1_TYP$1 = *(int64*)V1$1;
-		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$682;
-		TMP$162$2 = 24ll;
-		goto label$897;
-		label$682:;
-		TMP$162$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$897:;
-		V1_DTYPE$1 = TMP$162$2;
-		if( V1_DTYPE$1 != 24ll ) goto label$684;
+		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$683;
+		TMP$164$2 = 24ll;
+		goto label$899;
+		label$683:;
+		TMP$164$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$899:;
+		V1_DTYPE$1 = TMP$164$2;
+		if( V1_DTYPE$1 != 24ll ) goto label$685;
 		{
 			V1_DTYPE$1 = 9ll;
 		}
+		label$685:;
 		label$684:;
-		label$683:;
 		V1_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V1_DTYPE$1 * 56ll));
 	}
-	goto label$680;
-	label$681:;
+	goto label$681;
+	label$682:;
 	{
 		V1_TYP$1 = -1ll;
 		V1_DTYPE$1 = 2147483648ll;
 		V1_DCLASS$1 = -1ll;
 	}
-	label$680:;
+	label$681:;
 	HLOADIDX( V1$1 );
 	{
-		if( OP$1 != 85ll ) goto label$686;
-		label$687:;
+		if( OP$1 != 86ll ) goto label$687;
+		label$688:;
 		{
-			int64 TMP$163$3;
-			if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$689;
+			int64 TMP$165$3;
+			if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$690;
 			{
 				VA$1 = *(struct $6IRVREG**)((uint8*)V1$1 + 88ll);
-				(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+				(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 				V1_DTYPE$1 = 8ll;
 			}
-			label$689:;
-			label$688:;
-			if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$690;
-			TMP$163$3 = 24ll;
-			goto label$898;
 			label$690:;
-			TMP$163$3 = V1_DTYPE$1 & 31ll;
-			label$898:;
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$163$3 * 56ll)) + 8ll) );
+			label$689:;
+			if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$691;
+			TMP$165$3 = 24ll;
+			goto label$900;
+			label$691:;
+			TMP$165$3 = V1_DTYPE$1 & 31ll;
+			label$900:;
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$165$3 * 56ll)) + 8ll) );
 		}
-		goto label$685;
-		label$686:;
-		if( OP$1 != 86ll ) goto label$691;
-		label$692:;
+		goto label$686;
+		label$687:;
+		if( OP$1 != 87ll ) goto label$692;
+		label$693:;
 		{
-			if( V1_TYP$1 != 4ll ) goto label$694;
+			if( V1_TYP$1 != 4ll ) goto label$695;
 			{
-				if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$696;
+				if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$697;
 				{
 					VA$1 = *(struct $6IRVREG**)((uint8*)V1$1 + 88ll);
-					(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
-					int64 vr$27 = (*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+					(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+					int64 vr$27 = (*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 					V1_REG$1 = vr$27;
 				}
-				goto label$695;
-				label$696:;
+				goto label$696;
+				label$697:;
 				{
-					int64 TMP$164$5;
-					if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$697;
-					TMP$164$5 = 24ll;
-					goto label$899;
-					label$697:;
-					TMP$164$5 = V1_DTYPE$1 & 31ll;
-					label$899:;
-					int64 vr$34 = (*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$164$5 * 56ll)) + 8ll) );
+					int64 TMP$166$5;
+					if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$698;
+					TMP$166$5 = 24ll;
+					goto label$901;
+					label$698:;
+					TMP$166$5 = V1_DTYPE$1 & 31ll;
+					label$901:;
+					int64 vr$34 = (*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$166$5 * 56ll)) + 8ll) );
 					V1_REG$1 = vr$34;
 				}
-				label$695:;
+				label$696:;
 			}
-			goto label$693;
-			label$694:;
+			goto label$694;
+			label$695:;
 			{
 				V1_REG$1 = -1ll;
 			}
-			label$693:;
+			label$694:;
 			static int64 VR_REG$3;
 			static int64 VR_REG2$3;
-			(*(tmp$99*)((uint8*)&EMIT$ + 360ll))( V1_DTYPE$1, V1_DCLASS$1, &VR_REG$3, &VR_REG2$3 );
-			if( VR_REG$3 == V1_REG$1 ) goto label$699;
+			(*(tmp$102*)((uint8*)&EMIT$ + 360ll))( V1_DTYPE$1, V1_DCLASS$1, &VR_REG$3, &VR_REG2$3 );
+			if( VR_REG$3 == V1_REG$1 ) goto label$700;
 			{
-				if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$701;
+				if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$702;
 				{
 					VA$1 = *(struct $6IRVREG**)((uint8*)VR$1 + 88ll);
-					int64 vr$42 = (*(tmp$84*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 16ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VR_REG2$3, VA$1, VR$1 );
+					int64 vr$42 = (*(tmp$87*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 16ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VR_REG2$3, VA$1, VR$1 );
 					*(int64*)((uint8*)VA$1 + 24ll) = vr$42;
 					*($15IRVREGTYPE_ENUM*)VA$1 = 4ll;
 				}
+				label$702:;
 				label$701:;
-				label$700:;
-				int64 vr$48 = (*(tmp$84*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 16ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VR_REG$3, VR$1, (struct $6IRVREG*)0ull );
+				int64 vr$48 = (*(tmp$87*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 16ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VR_REG$3, VR$1, (struct $6IRVREG*)0ull );
 				*(int64*)((uint8*)VR$1 + 24ll) = vr$48;
 				*($15IRVREGTYPE_ENUM*)VR$1 = 4ll;
-				if( *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)*(struct $7ASTNODE**)((uint8*)&AST$ + 80ll) + 24ll) + 176ll) == 1ll ) goto label$703;
+				if( *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)*(struct $7ASTNODE**)((uint8*)&AST$ + 80ll) + 24ll) + 176ll) == 1ll ) goto label$704;
 				{
 					*($12IR_REGFAMILY*)((uint8*)VR$1 + 32ll) = 0ll;
 				}
+				label$704:;
 				label$703:;
-				label$702:;
 				EMITLOAD( VR$1, V1$1 );
 				HFREEREG( VR$1, 0ll );
 			}
+			label$700:;
 			label$699:;
-			label$698:;
 		}
-		label$691:;
-		label$685:;
+		label$692:;
+		label$686:;
 	}
 	HFREEREG( V1$1, 0ll );
-	label$679:;
+	label$680:;
 }
 
 static void HFLUSHCONVERT( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1 )
 {
-	label$704:;
+	label$705:;
 	static int64 V1_TYP$1;
 	static int64 V1_DTYPE$1;
 	static int64 V1_DCLASS$1;
@@ -4773,581 +4797,581 @@ static void HFLUSHCONVERT( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V
 	static int64 V2_DCLASS$1;
 	static int64 REUSE$1;
 	static struct $6IRVREG* VA$1;
-	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$707;
+	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$708;
 	{
-		int64 TMP$165$2;
+		int64 TMP$167$2;
 		V1_TYP$1 = *(int64*)V1$1;
-		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$708;
-		TMP$165$2 = 24ll;
-		goto label$900;
-		label$708:;
-		TMP$165$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$900:;
-		V1_DTYPE$1 = TMP$165$2;
-		if( V1_DTYPE$1 != 24ll ) goto label$710;
+		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$709;
+		TMP$167$2 = 24ll;
+		goto label$902;
+		label$709:;
+		TMP$167$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$902:;
+		V1_DTYPE$1 = TMP$167$2;
+		if( V1_DTYPE$1 != 24ll ) goto label$711;
 		{
 			V1_DTYPE$1 = 9ll;
 		}
+		label$711:;
 		label$710:;
-		label$709:;
 		V1_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V1_DTYPE$1 * 56ll));
 	}
-	goto label$706;
-	label$707:;
+	goto label$707;
+	label$708:;
 	{
 		V1_TYP$1 = -1ll;
 		V1_DTYPE$1 = 2147483648ll;
 		V1_DCLASS$1 = -1ll;
 	}
-	label$706:;
-	if( V2$1 == (struct $6IRVREG*)0ull ) goto label$712;
+	label$707:;
+	if( V2$1 == (struct $6IRVREG*)0ull ) goto label$713;
 	{
-		int64 TMP$166$2;
+		int64 TMP$168$2;
 		V2_TYP$1 = *(int64*)V2$1;
-		if( (*(int64*)((uint8*)V2$1 + 8ll) & 480ll) == 0ll ) goto label$713;
-		TMP$166$2 = 24ll;
-		goto label$901;
-		label$713:;
-		TMP$166$2 = *(int64*)((uint8*)V2$1 + 8ll) & 31ll;
-		label$901:;
-		V2_DTYPE$1 = TMP$166$2;
-		if( V2_DTYPE$1 != 24ll ) goto label$715;
+		if( (*(int64*)((uint8*)V2$1 + 8ll) & 480ll) == 0ll ) goto label$714;
+		TMP$168$2 = 24ll;
+		goto label$903;
+		label$714:;
+		TMP$168$2 = *(int64*)((uint8*)V2$1 + 8ll) & 31ll;
+		label$903:;
+		V2_DTYPE$1 = TMP$168$2;
+		if( V2_DTYPE$1 != 24ll ) goto label$716;
 		{
 			V2_DTYPE$1 = 9ll;
 		}
+		label$716:;
 		label$715:;
-		label$714:;
 		V2_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V2_DTYPE$1 * 56ll));
 	}
-	goto label$711;
-	label$712:;
+	goto label$712;
+	label$713:;
 	{
 		V2_TYP$1 = -1ll;
 		V2_DTYPE$1 = 2147483648ll;
 		V2_DCLASS$1 = -1ll;
 	}
-	label$711:;
+	label$712:;
 	HLOADIDX( V1$1 );
 	HLOADIDX( V2$1 );
 	REUSE$1 = 0ll;
-	if( ((int64)-(V1_DCLASS$1 == V2_DCLASS$1) & (int64)-(V2_TYP$1 == 4ll)) == 0ll ) goto label$717;
+	if( ((int64)-(V1_DCLASS$1 == V2_DCLASS$1) & (int64)-(V2_TYP$1 == 4ll)) == 0ll ) goto label$718;
 	{
-		if( V2_DCLASS$1 != 1ll ) goto label$719;
+		if( V2_DCLASS$1 != 1ll ) goto label$720;
 		{
-			if( (*(int64*)((uint8*)&IR$ + 544ll) & 1ll) == 0ll ) goto label$721;
+			if( (*(int64*)((uint8*)&IR$ + 544ll) & 1ll) == 0ll ) goto label$722;
 			{
 				*($12IR_REGFAMILY*)((uint8*)V1$1 + 32ll) = *($12IR_REGFAMILY*)((uint8*)V2$1 + 32ll);
-				if( *(int64*)((uint8*)V2$1 + 32ll) != 0ll ) goto label$723;
+				if( *(int64*)((uint8*)V2$1 + 32ll) != 0ll ) goto label$724;
 				{
-					goto label$705;
-					label$723:;
+					goto label$706;
+					label$724:;
 				}
 			}
-			goto label$720;
-			label$721:;
+			goto label$721;
+			label$722:;
 			{
 				*(int64*)((uint8*)V1$1 + 24ll) = *(int64*)((uint8*)V2$1 + 24ll);
 				*(int64*)((uint8*)V2$1 + 24ll) = -1ll;
 				*($15IRVREGTYPE_ENUM*)V1$1 = 4ll;
-				(*(tmp$87*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 40ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)V1$1 + 24ll), V1$1, (struct $6IRVREG*)0ull );
-				goto label$705;
+				(*(tmp$90*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 40ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)V1$1 + 24ll), V1$1, (struct $6IRVREG*)0ull );
+				goto label$706;
 			}
-			label$720:;
+			label$721:;
 		}
+		label$720:;
 		label$719:;
-		label$718:;
-		uint64 vr$27 = (*(tmp$76*)((uint8*)&IR$ + 512ll))( V2$1 );
-		if( vr$27 != 2147483647ull ) goto label$725;
+		uint64 vr$27 = (*(tmp$78*)((uint8*)&IR$ + 512ll))( V2$1 );
+		if( vr$27 != 2147483647ull ) goto label$726;
 		{
 			{
-				int64 TMP$167$4;
-				int64 TMP$168$4;
-				if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$726;
-				TMP$167$4 = 24ll;
-				goto label$902;
-				label$726:;
-				TMP$167$4 = V1_DTYPE$1 & 31ll;
-				label$902:;
-				TMP$168$4 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$167$4 * 56ll)) + 8ll);
-				if( TMP$168$4 == 1ll ) goto label$729;
+				int64 TMP$169$4;
+				int64 TMP$170$4;
+				if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$727;
+				TMP$169$4 = 24ll;
+				goto label$904;
+				label$727:;
+				TMP$169$4 = V1_DTYPE$1 & 31ll;
+				label$904:;
+				TMP$170$4 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$169$4 * 56ll)) + 8ll);
+				if( TMP$170$4 == 1ll ) goto label$730;
+				label$731:;
+				if( TMP$170$4 != 8ll ) goto label$729;
 				label$730:;
-				if( TMP$168$4 != 8ll ) goto label$728;
-				label$729:;
 				{
 				}
-				goto label$727;
-				label$728:;
+				goto label$728;
+				label$729:;
 				{
 					{
-						int64 TMP$169$6;
-						int64 TMP$170$6;
-						if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$732;
-						TMP$169$6 = 24ll;
-						goto label$903;
-						label$732:;
-						TMP$169$6 = V2_DTYPE$1 & 31ll;
-						label$903:;
-						TMP$170$6 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$169$6 * 56ll)) + 8ll);
-						if( TMP$170$6 == 1ll ) goto label$735;
+						int64 TMP$171$6;
+						int64 TMP$172$6;
+						if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$733;
+						TMP$171$6 = 24ll;
+						goto label$905;
+						label$733:;
+						TMP$171$6 = V2_DTYPE$1 & 31ll;
+						label$905:;
+						TMP$172$6 = *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$171$6 * 56ll)) + 8ll);
+						if( TMP$172$6 == 1ll ) goto label$736;
+						label$737:;
+						if( TMP$172$6 != 8ll ) goto label$735;
 						label$736:;
-						if( TMP$170$6 != 8ll ) goto label$734;
-						label$735:;
 						{
 						}
-						goto label$733;
-						label$734:;
+						goto label$734;
+						label$735:;
 						{
 							REUSE$1 = -1ll;
 						}
-						label$737:;
-						label$733:;
+						label$738:;
+						label$734:;
 					}
 				}
-				label$731:;
-				label$727:;
+				label$732:;
+				label$728:;
 			}
 		}
+		label$726:;
 		label$725:;
-		label$724:;
 	}
+	label$718:;
 	label$717:;
-	label$716:;
-	if( REUSE$1 == 0ll ) goto label$739;
+	if( REUSE$1 == 0ll ) goto label$740;
 	{
 		*(int64*)((uint8*)V1$1 + 24ll) = *(int64*)((uint8*)V2$1 + 24ll);
 		*($15IRVREGTYPE_ENUM*)V1$1 = 4ll;
-		(*(tmp$87*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 40ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)V1$1 + 24ll), V1$1, (struct $6IRVREG*)0ull );
+		(*(tmp$90*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 40ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)V1$1 + 24ll), V1$1, (struct $6IRVREG*)0ull );
 	}
-	goto label$738;
-	label$739:;
+	goto label$739;
+	label$740:;
 	{
-		int64 TMP$172$2;
-		if( V2_TYP$1 != 4ll ) goto label$741;
+		int64 TMP$174$2;
+		if( V2_TYP$1 != 4ll ) goto label$742;
 		{
-			int64 TMP$171$3;
-			if( ((int64)-(V2_DTYPE$1 == 13ll) | (int64)-(V2_DTYPE$1 == 14ll)) == 0ll ) goto label$743;
+			int64 TMP$173$3;
+			if( ((int64)-(V2_DTYPE$1 == 13ll) | (int64)-(V2_DTYPE$1 == 14ll)) == 0ll ) goto label$744;
 			{
 				VA$1 = *(struct $6IRVREG**)((uint8*)V2$1 + 88ll);
-				(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), VA$1, V2$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+				(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), VA$1, V2$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 				V2_DTYPE$1 = 8ll;
 			}
-			label$743:;
-			label$742:;
-			if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$744;
-			TMP$171$3 = 24ll;
-			goto label$904;
 			label$744:;
-			TMP$171$3 = V2_DTYPE$1 & 31ll;
-			label$904:;
-			(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), V2$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$171$3 * 56ll)) + 8ll) );
+			label$743:;
+			if( (V2_DTYPE$1 & 480ll) == 0ll ) goto label$745;
+			TMP$173$3 = 24ll;
+			goto label$906;
+			label$745:;
+			TMP$173$3 = V2_DTYPE$1 & 31ll;
+			label$906:;
+			(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V2_DCLASS$1 << (3ll & 63ll))), V2$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$173$3 * 56ll)) + 8ll) );
 		}
+		label$742:;
 		label$741:;
-		label$740:;
-		if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$746;
+		if( ((int64)-(V1_DTYPE$1 == 13ll) | (int64)-(V1_DTYPE$1 == 14ll)) == 0ll ) goto label$747;
 		{
 			VA$1 = *(struct $6IRVREG**)((uint8*)V1$1 + 88ll);
-			int64 vr$59 = (*(tmp$83*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 8ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
+			int64 vr$59 = (*(tmp$86*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 8ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), VA$1, V1$1, *(uint64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + 456ll) );
 			*(int64*)((uint8*)VA$1 + 24ll) = vr$59;
 			*($15IRVREGTYPE_ENUM*)VA$1 = 4ll;
 			V1_DTYPE$1 = 8ll;
 		}
-		label$746:;
-		label$745:;
-		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$747;
-		TMP$172$2 = 24ll;
-		goto label$905;
 		label$747:;
-		TMP$172$2 = V1_DTYPE$1 & 31ll;
-		label$905:;
-		int64 vr$68 = (*(tmp$83*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 8ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$172$2 * 56ll)) + 8ll) );
+		label$746:;
+		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$748;
+		TMP$174$2 = 24ll;
+		goto label$907;
+		label$748:;
+		TMP$174$2 = V1_DTYPE$1 & 31ll;
+		label$907:;
+		int64 vr$68 = (*(tmp$86*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))) + 8ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$174$2 * 56ll)) + 8ll) );
 		*(int64*)((uint8*)V1$1 + 24ll) = vr$68;
 		*($15IRVREGTYPE_ENUM*)V1$1 = 4ll;
 	}
-	label$738:;
+	label$739:;
 	EMITLOAD( V1$1, V2$1 );
-	if( REUSE$1 != 0ll ) goto label$749;
+	if( REUSE$1 != 0ll ) goto label$750;
 	{
 		HFREEREG( V2$1, 0ll );
 	}
-	goto label$748;
-	label$749:;
+	goto label$749;
+	label$750:;
 	{
 		*(int64*)((uint8*)V2$1 + 24ll) = -1ll;
 	}
-	label$748:;
+	label$749:;
 	HFREEREG( V1$1, 0ll );
-	label$705:;
+	label$706:;
 }
 
 static void HFLUSHADDR( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* VR$1 )
 {
-	label$750:;
+	label$751:;
 	static int64 V1_TYP$1;
 	static int64 V1_DTYPE$1;
 	static int64 V1_DCLASS$1;
 	static int64 VR_TYP$1;
 	static int64 VR_DTYPE$1;
 	static int64 VR_DCLASS$1;
-	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$753;
+	if( V1$1 == (struct $6IRVREG*)0ull ) goto label$754;
 	{
-		int64 TMP$173$2;
+		int64 TMP$175$2;
 		V1_TYP$1 = *(int64*)V1$1;
-		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$754;
-		TMP$173$2 = 24ll;
-		goto label$906;
-		label$754:;
-		TMP$173$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
-		label$906:;
-		V1_DTYPE$1 = TMP$173$2;
-		if( V1_DTYPE$1 != 24ll ) goto label$756;
+		if( (*(int64*)((uint8*)V1$1 + 8ll) & 480ll) == 0ll ) goto label$755;
+		TMP$175$2 = 24ll;
+		goto label$908;
+		label$755:;
+		TMP$175$2 = *(int64*)((uint8*)V1$1 + 8ll) & 31ll;
+		label$908:;
+		V1_DTYPE$1 = TMP$175$2;
+		if( V1_DTYPE$1 != 24ll ) goto label$757;
 		{
 			V1_DTYPE$1 = 9ll;
 		}
+		label$757:;
 		label$756:;
-		label$755:;
 		V1_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (V1_DTYPE$1 * 56ll));
 	}
-	goto label$752;
-	label$753:;
+	goto label$753;
+	label$754:;
 	{
 		V1_TYP$1 = -1ll;
 		V1_DTYPE$1 = 2147483648ll;
 		V1_DCLASS$1 = -1ll;
 	}
-	label$752:;
-	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$758;
+	label$753:;
+	if( VR$1 == (struct $6IRVREG*)0ull ) goto label$759;
 	{
-		int64 TMP$174$2;
+		int64 TMP$176$2;
 		VR_TYP$1 = *(int64*)VR$1;
-		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$759;
-		TMP$174$2 = 24ll;
-		goto label$907;
-		label$759:;
-		TMP$174$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
-		label$907:;
-		VR_DTYPE$1 = TMP$174$2;
-		if( VR_DTYPE$1 != 24ll ) goto label$761;
+		if( (*(int64*)((uint8*)VR$1 + 8ll) & 480ll) == 0ll ) goto label$760;
+		TMP$176$2 = 24ll;
+		goto label$909;
+		label$760:;
+		TMP$176$2 = *(int64*)((uint8*)VR$1 + 8ll) & 31ll;
+		label$909:;
+		VR_DTYPE$1 = TMP$176$2;
+		if( VR_DTYPE$1 != 24ll ) goto label$762;
 		{
 			VR_DTYPE$1 = 9ll;
 		}
+		label$762:;
 		label$761:;
-		label$760:;
 		VR_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (VR_DTYPE$1 * 56ll));
 	}
-	goto label$757;
-	label$758:;
+	goto label$758;
+	label$759:;
 	{
 		VR_TYP$1 = -1ll;
 		VR_DTYPE$1 = 2147483648ll;
 		VR_DCLASS$1 = -1ll;
 	}
-	label$757:;
+	label$758:;
 	HLOADIDX( V1$1 );
 	HLOADIDX( VR$1 );
-	if( V1_TYP$1 != 4ll ) goto label$763;
+	if( V1_TYP$1 != 4ll ) goto label$764;
 	{
-		int64 TMP$175$2;
-		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$764;
-		TMP$175$2 = 24ll;
-		goto label$908;
-		label$764:;
-		TMP$175$2 = V1_DTYPE$1 & 31ll;
-		label$908:;
-		(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$175$2 * 56ll)) + 8ll) );
+		int64 TMP$177$2;
+		if( (V1_DTYPE$1 & 480ll) == 0ll ) goto label$765;
+		TMP$177$2 = 24ll;
+		goto label$910;
+		label$765:;
+		TMP$177$2 = V1_DTYPE$1 & 31ll;
+		label$910:;
+		(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (V1_DCLASS$1 << (3ll & 63ll))), V1$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$177$2 * 56ll)) + 8ll) );
 	}
+	label$764:;
 	label$763:;
-	label$762:;
-	if( VR_TYP$1 != 4ll ) goto label$766;
+	if( VR_TYP$1 != 4ll ) goto label$767;
 	{
-		int64 TMP$176$2;
-		if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$767;
-		TMP$176$2 = 24ll;
-		goto label$909;
-		label$767:;
-		TMP$176$2 = VR_DTYPE$1 & 31ll;
-		label$909:;
-		(*(tmp$83*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VR$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$176$2 * 56ll)) + 8ll) );
+		int64 TMP$178$2;
+		if( (VR_DTYPE$1 & 480ll) == 0ll ) goto label$768;
+		TMP$178$2 = 24ll;
+		goto label$911;
+		label$768:;
+		TMP$178$2 = VR_DTYPE$1 & 31ll;
+		label$911:;
+		(*(tmp$86*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), VR$1, (struct $6IRVREG*)0ull, *(uint64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$178$2 * 56ll)) + 8ll) );
 	}
+	label$767:;
 	label$766:;
-	label$765:;
 	{
-		if( OP$1 != 22ll ) goto label$769;
-		label$770:;
+		if( OP$1 != 22ll ) goto label$770;
+		label$771:;
 		{
 			EMITADDROF( VR$1, V1$1 );
 		}
-		goto label$768;
-		label$769:;
-		if( OP$1 != 76ll ) goto label$771;
-		label$772:;
+		goto label$769;
+		label$770:;
+		if( OP$1 != 77ll ) goto label$772;
+		label$773:;
 		{
 			EMITDEREF( VR$1, V1$1 );
 		}
-		label$771:;
-		label$768:;
+		label$772:;
+		label$769:;
 	}
 	HFREEREG( V1$1, 0ll );
 	HFREEREG( VR$1, 0ll );
-	label$751:;
+	label$752:;
 }
 
 static void HFLUSHMEM( int64 OP$1, struct $6IRVREG* V1$1, struct $6IRVREG* V2$1, int64 BYTES$1, void* EXTRA$1 )
 {
-	label$773:;
+	label$774:;
 	HLOADIDX( V1$1 );
 	HLOADIDX( V2$1 );
 	{
-		uint64 TMP$177$2;
-		TMP$177$2 = (uint64)OP$1;
-		goto label$776;
-		label$777:;
+		uint64 TMP$179$2;
+		TMP$179$2 = (uint64)OP$1;
+		goto label$777;
+		label$778:;
 		{
 			EMITMEMMOVE( V1$1, V2$1, BYTES$1 );
 		}
-		goto label$775;
-		label$778:;
+		goto label$776;
+		label$779:;
 		{
 			EMITMEMSWAP( V1$1, V2$1, BYTES$1 );
 		}
-		goto label$775;
-		label$779:;
-		{
-			EMITMEMCLEAR( V1$1, V2$1 );
-		}
-		goto label$775;
+		goto label$776;
 		label$780:;
+		{
+			EMITMEMFILL( V1$1, V2$1, BYTES$1, (int64)EXTRA$1 );
+		}
+		goto label$776;
+		label$781:;
 		{
 			EMITSTKCLEAR( BYTES$1, (int64)EXTRA$1 );
 		}
-		goto label$775;
-		label$776:;
-		static const void* tmp$187[4ll] = {
-			&&label$777,
+		goto label$776;
+		label$777:;
+		static const void* tmp$189[4ll] = {
 			&&label$778,
 			&&label$779,
 			&&label$780,
+			&&label$781,
 		};
-		if( (TMP$177$2 - 105ull) > 3ull ) goto label$775;
-		goto *tmp$187[TMP$177$2 - 105ull];
-		label$775:;
+		if( (TMP$179$2 - 106ull) > 3ull ) goto label$776;
+		goto *tmp$189[TMP$179$2 - 106ull];
+		label$776:;
 	}
 	HFREEREG( V1$1, 0ll );
 	HFREEREG( V2$1, 0ll );
-	label$774:;
+	label$775:;
 }
 
 static void HFLUSHDBG( int64 OP$1, struct $8FBSYMBOL* PROC$1, int64 EX$1, char* FILENAME$1 )
 {
-	label$781:;
+	label$782:;
 	{
-		uint64 TMP$178$2;
-		TMP$178$2 = (uint64)OP$1;
-		goto label$784;
-		label$785:;
+		uint64 TMP$180$2;
+		TMP$180$2 = (uint64)OP$1;
+		goto label$785;
+		label$786:;
 		{
 			EMITDBGLINEBEGIN( PROC$1, EX$1, FILENAME$1 );
 		}
-		goto label$783;
-		label$786:;
+		goto label$784;
+		label$787:;
 		{
 			EMITDBGLINEEND( PROC$1, EX$1 );
 		}
-		goto label$783;
-		label$787:;
+		goto label$784;
+		label$788:;
 		{
 			EMITDBGSCOPEBEGIN( (struct $8FBSYMBOL*)EX$1 );
 		}
-		goto label$783;
-		label$788:;
+		goto label$784;
+		label$789:;
 		{
 			EMITDBGSCOPEEND( (struct $8FBSYMBOL*)EX$1 );
 		}
-		goto label$783;
-		label$784:;
-		static const void* tmp$188[4ll] = {
-			&&label$785,
+		goto label$784;
+		label$785:;
+		static const void* tmp$190[4ll] = {
 			&&label$786,
 			&&label$787,
 			&&label$788,
+			&&label$789,
 		};
-		if( (TMP$178$2 - 113ull) > 3ull ) goto label$783;
-		goto *tmp$188[TMP$178$2 - 113ull];
-		label$783:;
+		if( (TMP$180$2 - 114ull) > 3ull ) goto label$784;
+		goto *tmp$190[TMP$180$2 - 114ull];
+		label$784:;
 	}
-	label$782:;
+	label$783:;
 }
 
 static void HFLUSHLIT( int64 OP$1, char* TEXT$1 )
 {
-	label$789:;
+	label$790:;
 	{
-		if( OP$1 != 117ll ) goto label$792;
-		label$793:;
+		if( OP$1 != 118ll ) goto label$793;
+		label$794:;
 		{
 			EMITCOMMENT( TEXT$1 );
 		}
-		goto label$791;
-		label$792:;
-		if( OP$1 != 118ll ) goto label$794;
-		label$795:;
+		goto label$792;
+		label$793:;
+		if( OP$1 != 119ll ) goto label$795;
+		label$796:;
 		{
 			EMITASM( TEXT$1 );
 		}
-		label$794:;
-		label$791:;
+		label$795:;
+		label$792:;
 	}
-	if( TEXT$1 == (char*)0ull ) goto label$797;
+	if( TEXT$1 == (char*)0ull ) goto label$798;
 	{
 		free( (void*)TEXT$1 );
 	}
+	label$798:;
 	label$797:;
-	label$796:;
-	label$790:;
+	label$791:;
 }
 
 static void HFREEIDX( struct $6IRVREG* VREG$1, int64 FORCE$1 )
 {
-	label$798:;
+	label$799:;
 	struct $6IRVREG* VIDX$1;
 	__builtin_memset( &VIDX$1, 0, 8ll );
-	if( VREG$1 != (struct $6IRVREG*)0ull ) goto label$801;
+	if( VREG$1 != (struct $6IRVREG*)0ull ) goto label$802;
 	{
-		goto label$799;
+		goto label$800;
 	}
+	label$802:;
 	label$801:;
-	label$800:;
 	VIDX$1 = *(struct $6IRVREG**)((uint8*)VREG$1 + 80ll);
-	if( VIDX$1 == (struct $6IRVREG*)0ull ) goto label$803;
+	if( VIDX$1 == (struct $6IRVREG*)0ull ) goto label$804;
 	{
-		if( *(int64*)((uint8*)VIDX$1 + 24ll) == -1ll ) goto label$805;
+		if( *(int64*)((uint8*)VIDX$1 + 24ll) == -1ll ) goto label$806;
 		{
 			HFREEREG( VIDX$1, FORCE$1 );
 			*(struct $6IRVREG**)((uint8*)VREG$1 + 80ll) = (struct $6IRVREG*)0ull;
 		}
+		label$806:;
 		label$805:;
-		label$804:;
 	}
+	label$804:;
 	label$803:;
-	label$802:;
-	label$799:;
+	label$800:;
 }
 
 static void HFREEREG( struct $6IRVREG* VREG$1, int64 FORCE$1 )
 {
-	label$806:;
+	label$807:;
 	int64 DCLASS$1;
 	__builtin_memset( &DCLASS$1, 0, 8ll );
 	int64 DIST$1;
 	__builtin_memset( &DIST$1, 0, 8ll );
 	struct $6IRVREG* VAUX$1;
 	__builtin_memset( &VAUX$1, 0, 8ll );
-	if( VREG$1 != (struct $6IRVREG*)0ull ) goto label$809;
+	if( VREG$1 != (struct $6IRVREG*)0ull ) goto label$810;
 	{
-		goto label$807;
+		goto label$808;
 	}
-	label$809:;
-	label$808:;
-	HFREEIDX( VREG$1, FORCE$1 );
-	if( *(int64*)VREG$1 == 4ll ) goto label$811;
-	{
-		goto label$807;
-	}
-	label$811:;
 	label$810:;
-	if( *(int64*)((uint8*)VREG$1 + 24ll) != -1ll ) goto label$813;
+	label$809:;
+	HFREEIDX( VREG$1, FORCE$1 );
+	if( *(int64*)VREG$1 == 4ll ) goto label$812;
 	{
-		goto label$807;
+		goto label$808;
 	}
-	label$813:;
 	label$812:;
-	DIST$1 = 2147483647ll;
-	if( FORCE$1 != 0ll ) goto label$815;
+	label$811:;
+	if( *(int64*)((uint8*)VREG$1 + 24ll) != -1ll ) goto label$814;
 	{
-		uint64 vr$5 = (*(tmp$76*)((uint8*)&IR$ + 512ll))( VREG$1 );
+		goto label$808;
+	}
+	label$814:;
+	label$813:;
+	DIST$1 = 2147483647ll;
+	if( FORCE$1 != 0ll ) goto label$816;
+	{
+		uint64 vr$5 = (*(tmp$78*)((uint8*)&IR$ + 512ll))( VREG$1 );
 		DIST$1 = (int64)vr$5;
 	}
+	label$816:;
 	label$815:;
-	label$814:;
-	if( DIST$1 != 2147483647ll ) goto label$817;
+	if( DIST$1 != 2147483647ll ) goto label$818;
 	{
-		int64 TMP$179$2;
-		if( *(struct $6IRVREG**)((uint8*)VREG$1 + 88ll) == (struct $6IRVREG*)0ull ) goto label$819;
+		int64 TMP$181$2;
+		if( *(struct $6IRVREG**)((uint8*)VREG$1 + 88ll) == (struct $6IRVREG*)0ull ) goto label$820;
 		{
 			VAUX$1 = *(struct $6IRVREG**)((uint8*)VREG$1 + 88ll);
-			if( *(int64*)((uint8*)VAUX$1 + 24ll) == -1ll ) goto label$821;
+			if( *(int64*)((uint8*)VAUX$1 + 24ll) == -1ll ) goto label$822;
 			{
 				HFREEREG( VAUX$1, -1ll );
 			}
+			label$822:;
 			label$821:;
-			label$820:;
 		}
+		label$820:;
 		label$819:;
-		label$818:;
-		if( (*(int64*)((uint8*)VREG$1 + 8ll) & 480ll) == 0ll ) goto label$822;
-		TMP$179$2 = 24ll;
-		goto label$910;
-		label$822:;
-		TMP$179$2 = *(int64*)((uint8*)VREG$1 + 8ll) & 31ll;
-		label$910:;
-		DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$179$2 * 56ll));
-		(*(tmp$85*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))) + 24ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)VREG$1 + 24ll) );
+		if( (*(int64*)((uint8*)VREG$1 + 8ll) & 480ll) == 0ll ) goto label$823;
+		TMP$181$2 = 24ll;
+		goto label$912;
+		label$823:;
+		TMP$181$2 = *(int64*)((uint8*)VREG$1 + 8ll) & 31ll;
+		label$912:;
+		DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$181$2 * 56ll));
+		(*(tmp$88*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))) + 24ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)VREG$1 + 24ll) );
 		*(int64*)((uint8*)VREG$1 + 24ll) = -1ll;
 	}
+	label$818:;
 	label$817:;
-	label$816:;
-	label$807:;
+	label$808:;
 }
 
 static uint64 _GETDISTANCE( struct $6IRVREG* VREG$1 )
 {
 	uint64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
-	label$823:;
+	label$824:;
 	struct $6IRVREG* V$1;
 	__builtin_memset( &V$1, 0, 8ll );
 	struct $5IRTAC* T$1;
 	__builtin_memset( &T$1, 0, 8ll );
 	int64 DIST$1;
 	__builtin_memset( &DIST$1, 0, 8ll );
-	if( VREG$1 != (struct $6IRVREG*)0ull ) goto label$826;
+	if( VREG$1 != (struct $6IRVREG*)0ull ) goto label$827;
 	{
 		fb$result$1 = 2147483647ull;
-		goto label$824;
+		goto label$825;
 	}
+	label$827:;
 	label$826:;
-	label$825:;
 	void* vr$4 = FLISTGETNEXT( *(void**)((uint8*)&CTX$ + 120ll) );
 	T$1 = (struct $5IRTAC*)vr$4;
-	if( T$1 != (struct $5IRTAC*)0ull ) goto label$828;
+	if( T$1 != (struct $5IRTAC*)0ull ) goto label$829;
 	{
 		fb$result$1 = 2147483647ull;
-		goto label$824;
+		goto label$825;
 	}
+	label$829:;
 	label$828:;
-	label$827:;
 	DIST$1 = *(int64*)*(struct $5IRTAC**)((uint8*)VREG$1 + 112ll) - *(int64*)T$1;
-	if( DIST$1 >= 0ll ) goto label$830;
+	if( DIST$1 >= 0ll ) goto label$831;
 	{
 		fb$result$1 = 2147483647ull;
 	}
-	goto label$829;
-	label$830:;
+	goto label$830;
+	label$831:;
 	{
 		fb$result$1 = (uint64)DIST$1;
 	}
-	label$829:;
-	label$824:;
+	label$830:;
+	label$825:;
 	return fb$result$1;
 }
 
 static void _LOADVR( int64 REG$1, struct $6IRVREG* VREG$1, struct $6IRVREG* VAUXPARENT$1 )
 {
-	label$831:;
+	label$832:;
 	struct $6IRVREG RVREG$1;
 	__builtin_memset( &RVREG$1, 0, 120ll );
-	if( *(int64*)VREG$1 == 4ll ) goto label$834;
+	if( *(int64*)VREG$1 == 4ll ) goto label$835;
 	{
-		if( VAUXPARENT$1 != (struct $6IRVREG*)0ull ) goto label$836;
+		if( VAUXPARENT$1 != (struct $6IRVREG*)0ull ) goto label$837;
 		{
 			*($15IRVREGTYPE_ENUM*)&RVREG$1 = 4ll;
 			*($11FB_DATATYPE*)((uint8*)&RVREG$1 + 8ll) = *($11FB_DATATYPE*)((uint8*)VREG$1 + 8ll);
@@ -5356,94 +5380,94 @@ static void _LOADVR( int64 REG$1, struct $6IRVREG* VREG$1, struct $6IRVREG* VAUX
 			*($12IR_REGFAMILY*)((uint8*)&RVREG$1 + 32ll) = *($12IR_REGFAMILY*)((uint8*)VREG$1 + 32ll);
 			EMITLOAD( &RVREG$1, VREG$1 );
 		}
+		label$837:;
 		label$836:;
-		label$835:;
 		HFREEIDX( VREG$1, -1ll );
 		*($15IRVREGTYPE_ENUM*)VREG$1 = 4ll;
 	}
+	label$835:;
 	label$834:;
-	label$833:;
 	*(int64*)((uint8*)VREG$1 + 24ll) = REG$1;
-	if( ((int64)-(*(int64*)((uint8*)&ENV$ + 232ll) >= 1ll) & (int64)-(VAUXPARENT$1 != (struct $6IRVREG*)0ull)) == 0ll ) goto label$838;
+	if( ((int64)-(*(int64*)((uint8*)&ENV$ + 232ll) >= 1ll) & (int64)-(VAUXPARENT$1 != (struct $6IRVREG*)0ull)) == 0ll ) goto label$839;
 	{
 		*($12IR_REGFAMILY*)((uint8*)VREG$1 + 32ll) = 1ll;
 	}
+	label$839:;
 	label$838:;
-	label$837:;
-	label$832:;
+	label$833:;
 }
 
 static void _STOREVR( struct $6IRVREG* VREG$1, struct $6IRVREG* VAUXPARENT$1 )
 {
-	int64 TMP$180$1;
-	label$839:;
+	int64 TMP$182$1;
+	label$840:;
 	struct $6IRVREG ORIGVREG$1;
 	struct $6IRVREG ORIGVAUX$1;
 	int64 VR_DCLASS$1;
-	if( VAUXPARENT$1 == (struct $6IRVREG*)0ull ) goto label$842;
+	if( VAUXPARENT$1 == (struct $6IRVREG*)0ull ) goto label$843;
 	{
 		VREG$1 = VAUXPARENT$1;
 	}
+	label$843:;
 	label$842:;
-	label$841:;
 	__builtin_memcpy( &ORIGVREG$1, VREG$1, 120 );
-	if( ((int64)-(*(int64*)((uint8*)VREG$1 + 8ll) == 13ll) | (int64)-(*(int64*)((uint8*)VREG$1 + 8ll) == 14ll)) == 0ll ) goto label$844;
+	if( ((int64)-(*(int64*)((uint8*)VREG$1 + 8ll) == 13ll) | (int64)-(*(int64*)((uint8*)VREG$1 + 8ll) == 14ll)) == 0ll ) goto label$845;
 	{
 		__builtin_memcpy( &ORIGVAUX$1, *(struct $6IRVREG**)((uint8*)VREG$1 + 88ll), 120 );
 		*(struct $6IRVREG**)((uint8*)&ORIGVREG$1 + 88ll) = &ORIGVAUX$1;
 	}
+	label$845:;
 	label$844:;
-	label$843:;
-	uint64 vr$9 = (*(tmp$76*)((uint8*)&IR$ + 512ll))( VREG$1 );
-	if( vr$9 == 2147483647ull ) goto label$846;
+	uint64 vr$9 = (*(tmp$78*)((uint8*)&IR$ + 512ll))( VREG$1 );
+	if( vr$9 == 2147483647ull ) goto label$847;
 	{
 		*($15IRVREGTYPE_ENUM*)VREG$1 = 1ll;
 		struct $8FBSYMBOL* vr$12 = SYMBADDANDALLOCATETEMPVAR( *(int64*)((uint8*)VREG$1 + 8ll) );
 		*(struct $8FBSYMBOL**)((uint8*)VREG$1 + 56ll) = vr$12;
 		*(int64*)((uint8*)VREG$1 + 64ll) = *(int64*)((uint8*)*(struct $8FBSYMBOL**)((uint8*)VREG$1 + 56ll) + 88ll);
 		*(int64*)((uint8*)VREG$1 + 24ll) = -1ll;
-		if( ((int64)-(*(int64*)((uint8*)VREG$1 + 8ll) == 13ll) | (int64)-(*(int64*)((uint8*)VREG$1 + 8ll) == 14ll)) == 0ll ) goto label$848;
+		if( ((int64)-(*(int64*)((uint8*)VREG$1 + 8ll) == 13ll) | (int64)-(*(int64*)((uint8*)VREG$1 + 8ll) == 14ll)) == 0ll ) goto label$849;
 		{
 			*(int64*)((uint8*)*(struct $6IRVREG**)((uint8*)VREG$1 + 88ll) + 24ll) = -1ll;
 			*($15IRVREGTYPE_ENUM*)*(struct $6IRVREG**)((uint8*)VREG$1 + 88ll) = 1ll;
 			*(int64*)((uint8*)*(struct $6IRVREG**)((uint8*)VREG$1 + 88ll) + 64ll) = *(int64*)((uint8*)VREG$1 + 64ll) + 4ll;
 		}
+		label$849:;
 		label$848:;
-		label$847:;
-		if( *(int64*)((uint8*)&ENV$ + 232ll) < 1ll ) goto label$850;
+		if( *(int64*)((uint8*)&ENV$ + 232ll) < 1ll ) goto label$851;
 		{
 			*($12IR_REGFAMILY*)((uint8*)VREG$1 + 32ll) = 1ll;
 		}
+		label$851:;
 		label$850:;
-		label$849:;
 		EMITSTORE( VREG$1, &ORIGVREG$1 );
 	}
+	label$847:;
 	label$846:;
-	label$845:;
-	if( ((int64)-(*(int64*)((uint8*)&ORIGVREG$1 + 8ll) == 13ll) | (int64)-(*(int64*)((uint8*)&ORIGVREG$1 + 8ll) == 14ll)) == 0ll ) goto label$852;
+	if( ((int64)-(*(int64*)((uint8*)&ORIGVREG$1 + 8ll) == 13ll) | (int64)-(*(int64*)((uint8*)&ORIGVREG$1 + 8ll) == 14ll)) == 0ll ) goto label$853;
 	{
-		(*(tmp$85*)((uint8*)*(struct $8REGCLASS**)REGTB$ + 24ll))( *(struct $8REGCLASS**)REGTB$, *(int64*)((uint8*)&ORIGVAUX$1 + 24ll) );
+		(*(tmp$88*)((uint8*)*(struct $8REGCLASS**)REGTB$ + 24ll))( *(struct $8REGCLASS**)REGTB$, *(int64*)((uint8*)&ORIGVAUX$1 + 24ll) );
 	}
-	label$852:;
-	label$851:;
-	if( (*(int64*)((uint8*)&ORIGVREG$1 + 8ll) & 480ll) == 0ll ) goto label$853;
-	TMP$180$1 = 24ll;
-	goto label$911;
 	label$853:;
-	TMP$180$1 = *(int64*)((uint8*)&ORIGVREG$1 + 8ll) & 31ll;
-	label$911:;
-	VR_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$180$1 * 56ll));
-	(*(tmp$85*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))) + 24ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)&ORIGVREG$1 + 24ll) );
-	label$840:;
+	label$852:;
+	if( (*(int64*)((uint8*)&ORIGVREG$1 + 8ll) & 480ll) == 0ll ) goto label$854;
+	TMP$182$1 = 24ll;
+	goto label$913;
+	label$854:;
+	TMP$182$1 = *(int64*)((uint8*)&ORIGVREG$1 + 8ll) & 31ll;
+	label$913:;
+	VR_DCLASS$1 = *(int64*)((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$182$1 * 56ll));
+	(*(tmp$88*)((uint8*)*(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))) + 24ll))( *(struct $8REGCLASS**)((int64)(struct $8REGCLASS**)REGTB$ + (VR_DCLASS$1 << (3ll & 63ll))), *(int64*)((uint8*)&ORIGVREG$1 + 24ll) );
+	label$841:;
 }
 
 static void _XCHGTOS( int64 REG$1 )
 {
-	label$854:;
+	label$855:;
 	static struct $6IRVREG RVREG$1;
 	*($15IRVREGTYPE_ENUM*)&RVREG$1 = 4ll;
 	*($11FB_DATATYPE*)((uint8*)&RVREG$1 + 8ll) = 16ll;
 	*(int64*)((uint8*)&RVREG$1 + 24ll) = REG$1;
 	EMITXCHGTOS( &RVREG$1 );
-	label$855:;
+	label$856:;
 }

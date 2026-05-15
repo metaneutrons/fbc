@@ -328,28 +328,28 @@ void OBJINFOREADLIBFILE( FBSTRING* LIBFILE$1 )
 
 void OBJINFOREADLIB( FBSTRING* LIBNAME$1, struct $5TLIST* LIBPATHS$1 )
 {
-	FBSTRING TMP$54$1;
 	FBSTRING TMP$55$1;
+	FBSTRING TMP$56$1;
 	label$304:;
 	static FBSTRING LIBFILE$1;
 	static FBSTRING FILENAME$1;
 	struct $11TSTRSETITEM* PATH$1;
-	__builtin_memset( &TMP$54$1, 0, 24ll );
-	FBSTRING* vr$2 = fb_StrConcat( &TMP$54$1, (void*)"lib", 4ll, (void*)LIBNAME$1, -1ll );
 	__builtin_memset( &TMP$55$1, 0, 24ll );
-	FBSTRING* vr$5 = fb_StrConcat( &TMP$55$1, (void*)vr$2, -1ll, (void*)".a", 3ll );
+	FBSTRING* vr$2 = fb_StrConcat( &TMP$55$1, (void*)"lib", 4ll, (void*)LIBNAME$1, -1ll );
+	__builtin_memset( &TMP$56$1, 0, 24ll );
+	FBSTRING* vr$5 = fb_StrConcat( &TMP$56$1, (void*)vr$2, -1ll, (void*)".a", 3ll );
 	fb_StrAssign( (void*)&FILENAME$1, -1ll, (void*)vr$5, -1ll, 0 );
 	void* vr$6 = LISTGETHEAD( LIBPATHS$1 );
 	PATH$1 = (struct $11TSTRSETITEM*)vr$6;
 	label$306:;
 	if( PATH$1 == (struct $11TSTRSETITEM*)0ull ) goto label$307;
 	{
-		FBSTRING TMP$56$2;
 		FBSTRING TMP$57$2;
-		__builtin_memset( &TMP$56$2, 0, 24ll );
-		FBSTRING* vr$11 = fb_StrConcat( &TMP$56$2, (void*)PATH$1, -1ll, (void*)"/", 2ll );
+		FBSTRING TMP$58$2;
 		__builtin_memset( &TMP$57$2, 0, 24ll );
-		FBSTRING* vr$14 = fb_StrConcat( &TMP$57$2, (void*)vr$11, -1ll, (void*)&FILENAME$1, -1ll );
+		FBSTRING* vr$11 = fb_StrConcat( &TMP$57$2, (void*)PATH$1, -1ll, (void*)"/", 2ll );
+		__builtin_memset( &TMP$58$2, 0, 24ll );
+		FBSTRING* vr$14 = fb_StrConcat( &TMP$58$2, (void*)vr$11, -1ll, (void*)&FILENAME$1, -1ll );
 		fb_StrAssign( (void*)&LIBFILE$1, -1ll, (void*)vr$14, -1ll, 0 );
 		int64 vr$15 = HFILEEXISTS( (char*)*(char**)&LIBFILE$1 );
 		if( vr$15 == 0ll ) goto label$309;
@@ -424,9 +424,9 @@ int64 OBJINFOREADNEXT( FBSTRING* DAT$1 )
 			char* vr$10 = HGETNEXTSTRING(  );
 			fb_StrAssign( (void*)DAT$1, -1ll, (void*)vr$10, 0ll, 0 );
 			{
-				int64 TMP$58$4;
-				TMP$58$4 = *(int64*)((uint8*)&PARSER$ + 40ll);
-				if( TMP$58$4 != 1ll ) goto label$335;
+				int64 TMP$59$4;
+				TMP$59$4 = *(int64*)((uint8*)&PARSER$ + 40ll);
+				if( TMP$59$4 != 1ll ) goto label$335;
 				label$336:;
 				{
 					fb$result$1 = 0ll;
@@ -434,7 +434,7 @@ int64 OBJINFOREADNEXT( FBSTRING* DAT$1 )
 				}
 				goto label$334;
 				label$335:;
-				if( TMP$58$4 != 2ll ) goto label$337;
+				if( TMP$59$4 != 2ll ) goto label$337;
 				label$338:;
 				{
 					fb$result$1 = 1ll;
@@ -442,13 +442,13 @@ int64 OBJINFOREADNEXT( FBSTRING* DAT$1 )
 				}
 				goto label$334;
 				label$337:;
-				if( TMP$58$4 != 3ll ) goto label$339;
+				if( TMP$59$4 != 3ll ) goto label$339;
 				label$340:;
 				{
 					{
-						FBSTRING TMP$59$6;
-						fb_StrInit( (void*)&TMP$59$6, -1ll, (void*)DAT$1, -1ll, 0 );
-						int32 vr$13 = fb_StrCompare( (void*)&TMP$59$6, -1ll, (void*)"-lang", 6ll );
+						FBSTRING TMP$60$6;
+						fb_StrInit( (void*)&TMP$60$6, -1ll, (void*)DAT$1, -1ll, 0 );
+						int32 vr$13 = fb_StrCompare( (void*)&TMP$60$6, -1ll, (void*)"-lang", 6ll );
 						if( (int64)vr$13 != 0ll ) goto label$342;
 						label$343:;
 						{
@@ -458,7 +458,7 @@ int64 OBJINFOREADNEXT( FBSTRING* DAT$1 )
 							if( vr$16 <= 0ll ) goto label$345;
 							{
 								fb$result$1 = 4ll;
-								fb_StrDelete( (FBSTRING*)&TMP$59$6 );
+								fb_StrDelete( (FBSTRING*)&TMP$60$6 );
 								goto label$319;
 							}
 							label$345:;
@@ -466,17 +466,17 @@ int64 OBJINFOREADNEXT( FBSTRING* DAT$1 )
 						}
 						goto label$341;
 						label$342:;
-						int32 vr$19 = fb_StrCompare( (void*)&TMP$59$6, -1ll, (void*)"-mt", 4ll );
+						int32 vr$19 = fb_StrCompare( (void*)&TMP$60$6, -1ll, (void*)"-mt", 4ll );
 						if( (int64)vr$19 != 0ll ) goto label$346;
 						label$347:;
 						{
 							fb$result$1 = 2ll;
-							fb_StrDelete( (FBSTRING*)&TMP$59$6 );
+							fb_StrDelete( (FBSTRING*)&TMP$60$6 );
 							goto label$319;
 						}
 						label$346:;
 						label$341:;
-						fb_StrDelete( (FBSTRING*)&TMP$59$6 );
+						fb_StrDelete( (FBSTRING*)&TMP$60$6 );
 					}
 				}
 				label$339:;
@@ -706,7 +706,7 @@ static void HLOADFBCTINFFROMELF32_H( int64 ELF_MACHINE$1 )
 	}
 	label$36:;
 	int64 vr$1 = FBGETOPTION( 3ll );
-	if( vr$1 != 5ll ) goto label$39;
+	if( vr$1 != 6ll ) goto label$39;
 	{
 		*(uint8*)((int64)(uint8*)ELFMAGIC$ + 7ll) = (uint8)9u;
 	}
@@ -787,8 +787,8 @@ static void HLOADFBCTINFFROMELF32_H( int64 ELF_MACHINE$1 )
 	{
 		int64 I$2;
 		I$2 = 1ll;
-		int64 TMP$24$2;
-		TMP$24$2 = (int64)*(uint16*)((uint8*)H$1 + 48ll) + -1ll;
+		int64 TMP$25$2;
+		TMP$25$2 = (int64)*(uint16*)((uint8*)H$1 + 48ll) + -1ll;
 		goto label$62;
 		label$65:;
 		{
@@ -819,7 +819,7 @@ static void HLOADFBCTINFFROMELF32_H( int64 ELF_MACHINE$1 )
 		label$63:;
 		I$2 = I$2 + 1ll;
 		label$62:;
-		if( I$2 <= TMP$24$2 ) goto label$65;
+		if( I$2 <= TMP$25$2 ) goto label$65;
 		label$64:;
 	}
 	label$33:;
@@ -922,7 +922,7 @@ static void HLOADFBCTINFFROMELF64_H( int64 ELF_MACHINE$1 )
 	}
 	label$90:;
 	int64 vr$1 = FBGETOPTION( 3ll );
-	if( vr$1 != 5ll ) goto label$93;
+	if( vr$1 != 6ll ) goto label$93;
 	{
 		*(uint8*)((int64)(uint8*)ELFMAGIC$ + 7ll) = (uint8)9u;
 	}
@@ -1003,8 +1003,8 @@ static void HLOADFBCTINFFROMELF64_H( int64 ELF_MACHINE$1 )
 	{
 		int64 I$2;
 		I$2 = 1ll;
-		int64 TMP$25$2;
-		TMP$25$2 = (int64)*(uint16*)((uint8*)H$1 + 60ll) + -1ll;
+		int64 TMP$26$2;
+		TMP$26$2 = (int64)*(uint16*)((uint8*)H$1 + 60ll) + -1ll;
 		goto label$116;
 		label$119:;
 		{
@@ -1035,7 +1035,7 @@ static void HLOADFBCTINFFROMELF64_H( int64 ELF_MACHINE$1 )
 		label$117:;
 		I$2 = I$2 + 1ll;
 		label$116:;
-		if( I$2 <= TMP$25$2 ) goto label$119;
+		if( I$2 <= TMP$26$2 ) goto label$119;
 		label$118:;
 	}
 	label$87:;
@@ -1078,8 +1078,8 @@ static void HLOADFBCTINFFROMCOFF( uint16 MAGIC$1 )
 	{
 		int64 I$2;
 		I$2 = 0ll;
-		int64 TMP$26$2;
-		TMP$26$2 = (int64)*(uint16*)((uint8*)H$1 + 2ll) + -1ll;
+		int64 TMP$27$2;
+		TMP$27$2 = (int64)*(uint16*)((uint8*)H$1 + 2ll) + -1ll;
 		goto label$136;
 		label$139:;
 		{
@@ -1115,7 +1115,7 @@ static void HLOADFBCTINFFROMCOFF( uint16 MAGIC$1 )
 		label$137:;
 		I$2 = I$2 + 1ll;
 		label$136:;
-		if( I$2 <= TMP$26$2 ) goto label$139;
+		if( I$2 <= TMP$27$2 ) goto label$139;
 		label$138:;
 	}
 	label$127:;
@@ -1142,8 +1142,8 @@ static int64 HPROCESSMACHOSEGMENT32( struct $14LOAD_COMMAND_H* LOADCMD$1 )
 	{
 		int64 SECTIONIDX$2;
 		SECTIONIDX$2 = 0ll;
-		int64 TMP$27$2;
-		TMP$27$2 = (int64)*(uint32*)((uint8*)SEGMENTP$1 + 48ll) + -1ll;
+		int64 TMP$28$2;
+		TMP$28$2 = (int64)*(uint32*)((uint8*)SEGMENTP$1 + 48ll) + -1ll;
 		goto label$152;
 		label$155:;
 		{
@@ -1175,7 +1175,7 @@ static int64 HPROCESSMACHOSEGMENT32( struct $14LOAD_COMMAND_H* LOADCMD$1 )
 		label$153:;
 		SECTIONIDX$2 = SECTIONIDX$2 + 1ll;
 		label$152:;
-		if( SECTIONIDX$2 <= TMP$27$2 ) goto label$155;
+		if( SECTIONIDX$2 <= TMP$28$2 ) goto label$155;
 		label$154:;
 	}
 	label$149:;
@@ -1203,8 +1203,8 @@ static int64 HPROCESSMACHOSEGMENT64( struct $14LOAD_COMMAND_H* LOADCMD$1 )
 	{
 		int64 SECTIONIDX$2;
 		SECTIONIDX$2 = 0ll;
-		int64 TMP$28$2;
-		TMP$28$2 = (int64)*(uint32*)((uint8*)SEGMENTP$1 + 64ll) + -1ll;
+		int64 TMP$29$2;
+		TMP$29$2 = (int64)*(uint32*)((uint8*)SEGMENTP$1 + 64ll) + -1ll;
 		goto label$166;
 		label$169:;
 		{
@@ -1236,7 +1236,7 @@ static int64 HPROCESSMACHOSEGMENT64( struct $14LOAD_COMMAND_H* LOADCMD$1 )
 		label$167:;
 		SECTIONIDX$2 = SECTIONIDX$2 + 1ll;
 		label$166:;
-		if( SECTIONIDX$2 <= TMP$28$2 ) goto label$169;
+		if( SECTIONIDX$2 <= TMP$29$2 ) goto label$169;
 		label$168:;
 	}
 	label$163:;
@@ -1265,10 +1265,10 @@ static void HLOADFBCTINFFROMMACHO( void )
 	label$181:;
 	label$180:;
 	{
-		int64 TMP$29$2;
+		int64 TMP$30$2;
 		int64 vr$7 = FBGETCPUFAMILY(  );
-		TMP$29$2 = vr$7;
-		if( TMP$29$2 != 0ll ) goto label$183;
+		TMP$30$2 = vr$7;
+		if( TMP$30$2 != 0ll ) goto label$183;
 		label$184:;
 		{
 			if( (int64)*(uint32*)((uint8*)HEADER$1 + 4ll) == 7ll ) goto label$186;
@@ -1280,7 +1280,7 @@ static void HLOADFBCTINFFROMMACHO( void )
 		}
 		goto label$182;
 		label$183:;
-		if( TMP$29$2 != 1ll ) goto label$187;
+		if( TMP$30$2 != 1ll ) goto label$187;
 		label$188:;
 		{
 			if( (int64)*(uint32*)((uint8*)HEADER$1 + 4ll) == 16777223ll ) goto label$190;
@@ -1292,7 +1292,7 @@ static void HLOADFBCTINFFROMMACHO( void )
 		}
 		goto label$182;
 		label$187:;
-		if( TMP$29$2 != 2ll ) goto label$191;
+		if( TMP$30$2 != 2ll ) goto label$191;
 		label$192:;
 		{
 			if( (int64)*(uint32*)((uint8*)HEADER$1 + 4ll) == 12ll ) goto label$194;
@@ -1304,7 +1304,7 @@ static void HLOADFBCTINFFROMMACHO( void )
 		}
 		goto label$182;
 		label$191:;
-		if( TMP$29$2 != 3ll ) goto label$195;
+		if( TMP$30$2 != 3ll ) goto label$195;
 		label$196:;
 		{
 			if( (int64)*(uint32*)((uint8*)HEADER$1 + 4ll) == 16777228ll ) goto label$198;
@@ -1333,8 +1333,8 @@ static void HLOADFBCTINFFROMMACHO( void )
 	{
 		int64 CMDIDX$2;
 		CMDIDX$2 = 0ll;
-		int64 TMP$30$2;
-		TMP$30$2 = (int64)*(uint32*)((uint8*)HEADER$1 + 16ll) + -1ll;
+		int64 TMP$31$2;
+		TMP$31$2 = (int64)*(uint32*)((uint8*)HEADER$1 + 16ll) + -1ll;
 		goto label$203;
 		label$206:;
 		{
@@ -1374,7 +1374,7 @@ static void HLOADFBCTINFFROMMACHO( void )
 		label$204:;
 		CMDIDX$2 = CMDIDX$2 + 1ll;
 		label$203:;
-		if( CMDIDX$2 <= TMP$30$2 ) goto label$206;
+		if( CMDIDX$2 <= TMP$31$2 ) goto label$206;
 		label$205:;
 	}
 	label$177:;
@@ -1576,17 +1576,17 @@ static void HLOADFBCTINFFROMOBJ( void )
 	if( vr$0 == 0ll ) goto label$264;
 	{
 		{
-			int64 TMP$44$3;
+			int64 TMP$45$3;
 			int64 vr$1 = FBGETCPUFAMILY(  );
-			TMP$44$3 = vr$1;
-			if( TMP$44$3 != 1ll ) goto label$266;
+			TMP$45$3 = vr$1;
+			if( TMP$45$3 != 1ll ) goto label$266;
 			label$267:;
 			{
 				HLOADFBCTINFFROMCOFF( (uint16)34404u );
 			}
 			goto label$265;
 			label$266:;
-			if( TMP$44$3 != 0ll ) goto label$268;
+			if( TMP$45$3 != 0ll ) goto label$268;
 			label$269:;
 			{
 				HLOADFBCTINFFROMCOFF( (uint16)332u );
@@ -1601,47 +1601,47 @@ static void HLOADFBCTINFFROMOBJ( void )
 	if( vr$2 == 0ll ) goto label$270;
 	{
 		{
-			int64 TMP$45$3;
+			int64 TMP$46$3;
 			int64 vr$3 = FBGETCPUFAMILY(  );
-			TMP$45$3 = vr$3;
-			if( TMP$45$3 != 1ll ) goto label$272;
+			TMP$46$3 = vr$3;
+			if( TMP$46$3 != 1ll ) goto label$272;
 			label$273:;
 			{
 				HLOADFBCTINFFROMELF64_H( 62ll );
 			}
 			goto label$271;
 			label$272:;
-			if( TMP$45$3 != 0ll ) goto label$274;
+			if( TMP$46$3 != 0ll ) goto label$274;
 			label$275:;
 			{
 				HLOADFBCTINFFROMELF32_H( 3ll );
 			}
 			goto label$271;
 			label$274:;
-			if( TMP$45$3 != 3ll ) goto label$276;
+			if( TMP$46$3 != 3ll ) goto label$276;
 			label$277:;
 			{
 				HLOADFBCTINFFROMELF64_H( 183ll );
 			}
 			goto label$271;
 			label$276:;
-			if( TMP$45$3 != 2ll ) goto label$278;
+			if( TMP$46$3 != 2ll ) goto label$278;
 			label$279:;
 			{
 				HLOADFBCTINFFROMELF32_H( 40ll );
 			}
 			goto label$271;
 			label$278:;
-			if( TMP$45$3 == 5ll ) goto label$281;
+			if( TMP$46$3 == 5ll ) goto label$281;
 			label$282:;
-			if( TMP$45$3 != 6ll ) goto label$280;
+			if( TMP$46$3 != 6ll ) goto label$280;
 			label$281:;
 			{
 				HLOADFBCTINFFROMELF64_H( 21ll );
 			}
 			goto label$271;
 			label$280:;
-			if( TMP$45$3 != 4ll ) goto label$283;
+			if( TMP$46$3 != 4ll ) goto label$283;
 			label$284:;
 			{
 				HLOADFBCTINFFROMELF32_H( 20ll );

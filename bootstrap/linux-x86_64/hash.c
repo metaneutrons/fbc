@@ -120,8 +120,8 @@ void HASHEND( struct $5THASH* HASH$1 )
 	{
 		{
 			I$1 = 0ll;
-			int64 TMP$2$3;
-			TMP$2$3 = *(int64*)((uint8*)HASH$1 + 8ll) + -1ll;
+			int64 TMP$21$3;
+			TMP$21$3 = *(int64*)((uint8*)HASH$1 + 8ll) + -1ll;
 			goto label$24;
 			label$27:;
 			{
@@ -142,7 +142,7 @@ void HASHEND( struct $5THASH* HASH$1 )
 			label$25:;
 			I$1 = I$1 + 1ll;
 			label$24:;
-			if( I$1 <= TMP$2$3 ) goto label$27;
+			if( I$1 <= TMP$21$3 ) goto label$27;
 			label$26:;
 		}
 	}
@@ -151,8 +151,8 @@ void HASHEND( struct $5THASH* HASH$1 )
 	{
 		{
 			I$1 = 0ll;
-			int64 TMP$3$3;
-			TMP$3$3 = *(int64*)((uint8*)HASH$1 + 8ll) + -1ll;
+			int64 TMP$22$3;
+			TMP$22$3 = *(int64*)((uint8*)HASH$1 + 8ll) + -1ll;
 			goto label$30;
 			label$33:;
 			{
@@ -172,7 +172,7 @@ void HASHEND( struct $5THASH* HASH$1 )
 			label$31:;
 			I$1 = I$1 + 1ll;
 			label$30:;
-			if( I$1 <= TMP$3$3 ) goto label$33;
+			if( I$1 <= TMP$22$3 ) goto label$33;
 			label$32:;
 		}
 	}

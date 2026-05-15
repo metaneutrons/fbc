@@ -29,6 +29,16 @@ union $7FBVALUE {
 	double F;
 };
 __FB_STATIC_ASSERT( sizeof( union $7FBVALUE ) == 8 );
+struct $14AST_NODE_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $14AST_NODE_CONST ) == 16 );
 struct $12AST_NODE_VAR {
 	int64 OFS;
 };
@@ -57,8 +67,10 @@ struct $13AST_NODE_CALL {
 	struct $7ASTNODE* ARGTAIL;
 	struct $19AST_TMPSTRLIST_ITEM* STRTAIL;
 	struct $8FBSYMBOL* TMPRES;
+	struct $7ASTNODE* PROFBEGIN;
+	struct $7ASTNODE* PROFEND;
 };
-__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 48 );
+__FB_STATIC_ASSERT( sizeof( struct $13AST_NODE_CALL ) == 64 );
 struct $12AST_NODE_ARG {
 	int64 MODE;
 	int64 LGT;
@@ -122,10 +134,11 @@ struct $12AST_NODE_DBG {
 };
 __FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_DBG ) == 24 );
 struct $12AST_NODE_MEM {
-	int64 BYTES;
 	int64 OP;
+	int64 BYTES;
+	int64 FILLCHAR;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 16 );
+__FB_STATIC_ASSERT( sizeof( struct $12AST_NODE_MEM ) == 24 );
 struct $14AST_NODE_STACK {
 	int64 OP;
 };
@@ -195,7 +208,7 @@ struct $7ASTNODE {
 	struct $8FBSYMBOL* SYM;
 	int64 VECTOR;
 	union {
-		union $7FBVALUE VAL;
+		struct $14AST_NODE_CONST VAL;
 		struct $12AST_NODE_VAR VAR_;
 		struct $12AST_NODE_IDX IDX;
 		struct $12AST_NODE_PTR PTR;
@@ -263,6 +276,16 @@ struct $7FBS_VAR {
 	int64 BITS;
 };
 __FB_STATIC_ASSERT( sizeof( struct $7FBS_VAR ) == 104 );
+struct $9FBS_CONST {
+	union {
+		union $7FBVALUE VALUE;
+		struct $8FBSYMBOL* S;
+		int64 I;
+		double F;
+	};
+	int64 HASSUFFIX;
+};
+__FB_STATIC_ASSERT( sizeof( struct $9FBS_CONST ) == 16 );
 struct $10FBSYMBOLTB {
 	struct $8FBSYMBOL* OWNER;
 	struct $8FBSYMBOL* HEAD;
@@ -368,9 +391,9 @@ struct $8FBS_ENUM {
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBS_ENUM ) == 96 );
 typedef int64 $21FB_PROC_RETURN_METHOD;
-typedef int64 (*tmp$34)( struct $8FBSYMBOL* );
+typedef int64 (*tmp$35)( struct $8FBSYMBOL* );
 struct $10FB_PROCRTL {
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FB_PROCRTL ) == 8 );
 struct $10FB_PROCOVL {
@@ -500,7 +523,7 @@ struct $9FB_DEFTOK {
 };
 __FB_STATIC_ASSERT( sizeof( struct $9FB_DEFTOK ) == 32 );
 typedef int64 $15FB_DEFINE_FLAGS;
-typedef FBSTRING* (*tmp$28)( void );
+typedef FBSTRING* (*tmp$29)( void );
 struct $8DZSTRING {
 	char* DATA;
 	int64 LEN;
@@ -525,8 +548,8 @@ struct $11LEXPP_ARGTB {
 	int64 COUNT;
 };
 __FB_STATIC_ASSERT( sizeof( struct $11LEXPP_ARGTB ) == 776 );
-typedef FBSTRING* (*tmp$29)( struct $11LEXPP_ARGTB*, int64* );
-typedef uint32* (*tmp$30)( struct $11LEXPP_ARGTB*, int64* );
+typedef FBSTRING* (*tmp$30)( struct $11LEXPP_ARGTB*, int64* );
+typedef uint32* (*tmp$31)( struct $11LEXPP_ARGTB*, int64* );
 struct $10FBS_DEFINE {
 	int64 PARAMS;
 	struct $11FB_DEFPARAM* PARAMHEAD;
@@ -538,11 +561,11 @@ struct $10FBS_DEFINE {
 	int64 ISARGLESS;
 	$15FB_DEFINE_FLAGS FLAGS;
 	union {
-		tmp$28 DPROCZ;
-		tmp$29 MPROCZ;
+		tmp$29 DPROCZ;
+		tmp$30 MPROCZ;
 	};
 	union {
-		tmp$30 MPROCW;
+		tmp$31 MPROCW;
 	};
 };
 __FB_STATIC_ASSERT( sizeof( struct $10FBS_DEFINE ) == 56 );
@@ -617,7 +640,7 @@ struct $8FBSYMBOL {
 	int64 OFS;
 	union {
 		struct $7FBS_VAR VAR_;
-		union $7FBVALUE VAL;
+		struct $9FBS_CONST VAL;
 		struct $10FBS_STRUCT UDT;
 		struct $8FBS_ENUM ENUM_;
 		struct $8FBS_PROC PROC;
@@ -650,7 +673,7 @@ struct $14FB_RTL_PROCDEF {
 	char* ALIAS;
 	$11FB_DATATYPE DTYPE;
 	$11FB_FUNCMODE CALLCONV;
-	tmp$34 CALLBACK;
+	tmp$35 CALLBACK;
 	$10FB_RTL_OPT OPTIONS;
 	int64 PARAMS;
 	struct $15FB_RTL_PARAMDEF PARAMTB[16];
@@ -683,7 +706,7 @@ struct $7ASTNODE* ASTADD( struct $7ASTNODE* );
 struct $7ASTNODE* ASTNEWCONSTI( int64, int64, struct $8FBSYMBOL* );
 struct $7ASTNODE* ASTNEWCONSTF( double, int64 );
 struct $7ASTNODE* ASTNEWVAR( struct $8FBSYMBOL*, int64, int64, struct $8FBSYMBOL* );
-struct $7ASTNODE* ASTNEWCALL( struct $8FBSYMBOL*, struct $7ASTNODE* );
+struct $7ASTNODE* ASTNEWCALL( struct $8FBSYMBOL*, struct $7ASTNODE*, int64 );
 struct $7ASTNODE* ASTNEWARG( struct $7ASTNODE*, struct $7ASTNODE*, int64, int64 );
 struct $7ASTNODE* ASTBUILDPROCADDROF( struct $8FBSYMBOL* );
 struct $8FBSYMBOL* SYMBALLOCSTRCONST( char*, int64 );
@@ -719,7 +742,7 @@ struct $8FBARRAY1I10AST_OPINFOE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I10AST_OPINFOE ) == 72 );
-static struct $8FBARRAY1I10AST_OPINFOE tmp$80$;
+static struct $8FBARRAY1I10AST_OPINFOE tmp$83$;
 extern struct $13SYMB_DATATYPE SYMB_DTYPETB$[26];
 struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $13SYMB_DATATYPE* DATA;
@@ -731,7 +754,7 @@ struct $8FBARRAY1I13SYMB_DATATYPEE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[1];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY1I13SYMB_DATATYPEE ) == 72 );
-static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$81$;
+static struct $8FBARRAY1I13SYMB_DATATYPEE tmp$84$;
 struct $8FBARRAY2IlE {
 	int64* DATA;
 	int64* PTR;
@@ -742,7 +765,7 @@ struct $8FBARRAY2IlE {
 	struct $16__FB_ARRAYDIMTB$ DIMTB[2];
 };
 __FB_STATIC_ASSERT( sizeof( struct $8FBARRAY2IlE ) == 96 );
-static struct $8FBARRAY2IlE tmp$82$;
+static struct $8FBARRAY2IlE tmp$85$;
 typedef int64 $10FB_OUTTYPE;
 typedef int64 $10FB_BACKEND;
 typedef int64 $10FB_CPUTYPE;
@@ -774,6 +797,7 @@ struct $12FBCMMLINEOPT {
 	int64 EXTRAERRCHK;
 	int64 ERRLOCATION;
 	int64 ARRAYBOUNDCHK;
+	int64 ARRAYDIMSCHK;
 	int64 NULLPTRCHK;
 	int64 UNWINDINFO;
 	int64 PROFILE;
@@ -797,8 +821,10 @@ struct $12FBCMMLINEOPT {
 	$11FB_MODEVIEW MODEVIEW;
 	int64 NOCMDLINE;
 	int64 RETURNINFLTS;
+	int64 NOBUILTINS;
+	int64 OPTABSTRACT;
 };
-__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 344 );
+__FB_STATIC_ASSERT( sizeof( struct $12FBCMMLINEOPT ) == 368 );
 typedef int64 $12FB_TARGETOPT;
 struct $8FBTARGET {
 	char* ID;
@@ -841,11 +867,12 @@ struct $8FBOPTION {
 	int64 PARAMMODE;
 	int64 EXPLICIT;
 	int64 PROCPUBLIC;
+	int64 PROCPROFILE;
 	int64 ESCAPESTR;
 	int64 DYNAMIC;
 	int64 GOSUB;
 };
-__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 56 );
+__FB_STATIC_ASSERT( sizeof( struct $8FBOPTION ) == 64 );
 typedef int64 $16FB_RESTART_FLAGS;
 struct $7TSTRSET {
 	struct $5TLIST LIST;
@@ -883,9 +910,9 @@ struct $5FBENV {
 	struct $7TSTRSET LIBPATHS;
 	int64 FBCTINF_STARTED;
 };
-__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1792 );
+__FB_STATIC_ASSERT( sizeof( struct $5FBENV ) == 1824 );
 extern struct $5FBENV ENV$;
-static struct $14FB_RTL_PROCDEF FUNCDATA$[71] = { { (char*)"fb_GfxPset", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 6ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 524ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"fb_GfxPoint", (char*)0ull, 12ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 3ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll } } }, { (char*)"fb_GfxLine", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 524ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 524ll, 1ll, -1ll, 65535ll }, { 523ll, 1ll, 0ll } } }, { (char*)"fb_GfxEllipse", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 10ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 524ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"fb_GfxPaint", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 8ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 524ll, 1ll, 0ll }, { 524ll, 1ll, 0ll }, { 529ll, 2ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"fb_GfxDraw", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 2ll, { { 32ll, 1ll, -1ll, 0ll }, { 529ll, 2ll, 0ll } } }, { (char*)"fb_GfxDrawString", (char*)0ull, 8ll, -1ll, (tmp$34)&HGFXLIB_CB, 2ll, 11ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 529ll, 2ll, 0ll }, { 524ll, 1ll, 0ll }, { 1056ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, -1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_GfxView", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 7ll, { { 523ll, 1ll, -1ll, -32768ll }, { 523ll, 1ll, -1ll, -32768ll }, { 523ll, 1ll, -1ll, -32768ll }, { 523ll, 1ll, -1ll, -32768ll }, { 524ll, 1ll, -1ll, 0ll }, { 524ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"fb_GfxWindow", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 5ll, { { 527ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"fb_GfxPalette", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 4ll, { { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"fb_GfxPaletteUsing", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 1ll, { { 1067ll, 1ll, 0ll } } }, { (char*)"fb_GfxPaletteUsing64", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 1ll, { { 1069ll, 1ll, 0ll } } }, { (char*)"fb_GfxPaletteGet", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 4ll, { { 523ll, 1ll, -1ll, -1ll }, { 11ll, 2ll, 0ll }, { 11ll, 2ll, 0ll }, { 11ll, 2ll, 0ll } } }, { (char*)"fb_GfxPaletteGet64", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 4ll, { { 523ll, 1ll, -1ll, -1ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, 0ll } } }, { (char*)"fb_GfxPaletteGetUsing", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 1ll, { { 43ll, 1ll, 0ll } } }, { (char*)"fb_GfxPaletteGetUsing64", (char*)0ull, 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 1ll, { { 45ll, 1ll, 0ll } } }, { (char*)"fb_GfxPut", (char*)0ull, 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 2ll, 14ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 1056ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 4294901760ll }, { 523ll, 1ll, -1ll, 4294901760ll }, { 523ll, 1ll, -1ll, 4294901760ll }, { 523ll, 1ll, -1ll, 4294901760ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, -1ll }, { 32ll, 1ll, -1ll, 0ll }, { 32ll, 1ll, -1ll, 0ll } } }, { (char*)"fb_GfxGet", (char*)0ull, 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 1026ll, 8ll, { { 1056ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 512ll, 3ll, 0ll } } }, { (char*)"fb_GfxGetQB", (char*)0ull, 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 514ll, 8ll, { { 1056ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 0ll, 3ll, 0ll } } }, { (char*)"fb_GfxScreen", (char*)0ull, 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 5ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 8ll }, { 523ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"fb_GfxScreenQB", (char*)0ull, 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 3ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"screenres", (char*)"fb_GfxScreenRes", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 130ll, 6ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 8ll }, { 523ll, 1ll, -1ll, 1ll }, { 523ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"bload", (char*)"fb_GfxBload", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 1026ll, 3ll, { { 529ll, 2ll, 0ll }, { 32ll, 1ll, -1ll, 0ll }, { 32ll, 1ll, -1ll, 0ll } } }, { (char*)"bload", (char*)"fb_GfxBloadQB", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 514ll, 3ll, { { 529ll, 2ll, 0ll }, { 32ll, 1ll, -1ll, 0ll }, { 32ll, 1ll, -1ll, 0ll } } }, { (char*)"bsave", (char*)"fb_GfxBsave", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 3ll, 4ll, { { 529ll, 2ll, 0ll }, { 1056ll, 1ll, 0ll }, { 524ll, 1ll, -1ll, 0ll }, { 1056ll, 1ll, -1ll, 0ll } } }, { (char*)"bsave", (char*)"fb_GfxBsaveEx", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 3ll, 5ll, { { 529ll, 2ll, 0ll }, { 1056ll, 1ll, 0ll }, { 524ll, 1ll, -1ll, 0ll }, { 1056ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"flip", (char*)"fb_GfxFlip", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 2ll, { { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"screencopy", (char*)"fb_GfxFlip", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 2ll, { { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"pointcoord", (char*)"fb_GfxCursor", 15ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 1ll, { { 523ll, 1ll, 0ll } } }, { (char*)"pmap", (char*)"fb_GfxPMap", 15ll, -1ll, (tmp$34)&HGFXLIB_CB, 0ll, 2ll, { { 527ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"out", (char*)"fb_Out", 11ll, -1ll, (tmp$34)&HPORTS_CB, 2ll, 2ll, { { 518ll, 1ll, 0ll }, { 515ll, 1ll, 0ll } } }, { (char*)"inp", (char*)"fb_In", 11ll, -1ll, (tmp$34)&HPORTS_CB, 0ll, 1ll, { { 518ll, 1ll, 0ll } } }, { (char*)"wait", (char*)"fb_Wait", 11ll, -1ll, (tmp$34)&HPORTS_CB, 2ll, 3ll, { { 518ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"screensync", (char*)"fb_GfxWaitVSync", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 0ll }, { (char*)"screenset", (char*)"fb_GfxPageSet", 11ll, 3ll, (tmp$34)&HGFXLIB_CB, 128ll, 2ll, { { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"screenlock", (char*)"fb_GfxLock", 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 0ll }, { (char*)"screenunlock", (char*)"fb_GfxUnlock", 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 2ll, { { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"screenptr", (char*)"fb_GfxScreenPtr", 32ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 0ll }, { (char*)"windowtitle", (char*)"fb_GfxSetWindowTitle", 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"multikey", (char*)"fb_Multikey", 11ll, -1ll, (tmp$34)0ull, 128ll, 1ll, { { 523ll, 1ll, 0ll } } }, { (char*)"getmouse", (char*)"fb_GetMouse", 11ll, -1ll, (tmp$34)0ull, 129ll, 5ll, { { 11ll, 2ll, 0ll, 0ll }, { 11ll, 2ll, 0ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll } } }, { (char*)"getmouse", (char*)"fb_GetMouse64", 11ll, -1ll, (tmp$34)0ull, 129ll, 5ll, { { 13ll, 2ll, 0ll, 0ll }, { 13ll, 2ll, 0ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll } } }, { (char*)"setmouse", (char*)"fb_SetMouse", 11ll, -1ll, (tmp$34)0ull, 128ll, 4ll, { { 523ll, 1ll, -1ll, 2147483648ll }, { 523ll, 1ll, -1ll, 2147483648ll }, { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"getjoystick", (char*)"fb_GfxGetJoystick", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 10ll, { { 523ll, 1ll, 0ll, 0ll }, { 8ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll } } }, { (char*)"stick", (char*)"fb_GfxStickQB", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 256ll, 1ll, { { 523ll, 1ll, 0ll } } }, { (char*)"strig", (char*)"fb_GfxStrigQB", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 256ll, 1ll, { { 523ll, 1ll, 0ll } } }, { (char*)"screeninfo", (char*)"fb_GfxScreenInfo32", 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 129ll, 7ll, { { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 17ll, 2ll, -1ll, 0ll } } }, { (char*)"screeninfo", (char*)"fb_GfxScreenInfo64", 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 129ll, 7ll, { { 13ll, 2ll, 0ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 17ll, 2ll, -1ll, 0ll } } }, { (char*)"screenlist", (char*)"fb_GfxScreenList", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 1ll, { { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"fb_GfxImageCreate", (char*)0ull, 32ll, -1ll, (tmp$34)&HGFXLIB_CB, 1024ll, 5ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 524ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"fb_GfxImageCreateQB", (char*)0ull, 32ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 5ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 524ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"imagedestroy", (char*)"fb_GfxImageDestroy", 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 1ll, { { 1056ll, 1ll, 0ll } } }, { (char*)"imageinfo", (char*)"fb_GfxImageInfo32", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 129ll, 7ll, { { 1056ll, 1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 32ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll } } }, { (char*)"imageinfo", (char*)"fb_GfxImageInfo64", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 129ll, 7ll, { { 1056ll, 1ll, 0ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 32ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll } } }, { (char*)"imageconvertrow", (char*)"fb_GfxImageConvertRow", 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 6ll, { { 1056ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 1ll } } }, { (char*)"screenevent", (char*)"fb_GfxEvent", 11ll, -1ll, (tmp$34)&HGFXLIB_CB, 128ll, 1ll, { { 32ll, 1ll, -1ll, 0ll } } }, { (char*)"screencontrol", (char*)"fb_GfxControl_s", 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 129ll, 2ll, { { 523ll, 1ll, 0ll }, { 17ll, 2ll } } }, { (char*)"screencontrol", (char*)"fb_GfxControl_i32", 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 129ll, 5ll, { { 523ll, 1ll, 0ll }, { 11ll, 2ll, -1ll, 2147483648ll }, { 11ll, 2ll, -1ll, 2147483648ll }, { 11ll, 2ll, -1ll, 2147483648ll }, { 11ll, 2ll, -1ll, 2147483648ll } } }, { (char*)"screencontrol", (char*)"fb_GfxControl_i64", 0ll, -1ll, (tmp$34)&HGFXLIB_CB, 129ll, 5ll, { { 523ll, 1ll, 0ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, -1ll, 2147483648ll }, { 13ll, 2ll, -1ll, 2147483648ll }, { 13ll, 2ll, -1ll, 2147483648ll } } }, { (char*)"screenglproc", (char*)"fb_GfxGetGLProcAddress", 32ll, -1ll, (tmp$34)&HGFXLIB_CB, 129ll, 1ll, { { 1060ll, 1ll, 0ll } } }, { (char*)"fb_hPutTrans", (char*)0ull, 0ll, 3ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutPSet", (char*)0ull, 0ll, 3ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutPReset", (char*)0ull, 0ll, 3ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutAnd", (char*)0ull, 0ll, 3ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutOr", (char*)0ull, 0ll, 3ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutXor", (char*)0ull, 0ll, 3ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutAlpha", (char*)0ull, 0ll, 3ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutBlend", (char*)0ull, 0ll, 3ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutAdd", (char*)0ull, 0ll, 3ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutCustom", (char*)0ull, 0ll, 3ll, (tmp$34)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)0ull } };
+static struct $14FB_RTL_PROCDEF FUNCDATA$[71] = { { (char*)"fb_GfxPset", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 6ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 524ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"fb_GfxPoint", (char*)0ull, 12ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 3ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll } } }, { (char*)"fb_GfxLine", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 524ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 524ll, 1ll, -1ll, 65535ll }, { 523ll, 1ll, 0ll } } }, { (char*)"fb_GfxEllipse", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 10ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 524ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"fb_GfxPaint", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 8ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 524ll, 1ll, 0ll }, { 524ll, 1ll, 0ll }, { 529ll, 2ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"fb_GfxDraw", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 2ll, { { 32ll, 1ll, -1ll, 0ll }, { 529ll, 2ll, 0ll } } }, { (char*)"fb_GfxDrawString", (char*)0ull, 8ll, -1ll, (tmp$35)&HGFXLIB_CB, 2ll, 11ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 529ll, 2ll, 0ll }, { 524ll, 1ll, 0ll }, { 1056ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, -1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_GfxView", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 7ll, { { 523ll, 1ll, -1ll, -32768ll }, { 523ll, 1ll, -1ll, -32768ll }, { 523ll, 1ll, -1ll, -32768ll }, { 523ll, 1ll, -1ll, -32768ll }, { 524ll, 1ll, -1ll, 0ll }, { 524ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"fb_GfxWindow", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 5ll, { { 527ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"fb_GfxPalette", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 4ll, { { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"fb_GfxPaletteUsing", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 1ll, { { 1067ll, 1ll, 0ll } } }, { (char*)"fb_GfxPaletteUsing64", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 1ll, { { 1069ll, 1ll, 0ll } } }, { (char*)"fb_GfxPaletteGet", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 4ll, { { 523ll, 1ll, -1ll, -1ll }, { 11ll, 2ll, 0ll }, { 11ll, 2ll, 0ll }, { 11ll, 2ll, 0ll } } }, { (char*)"fb_GfxPaletteGet64", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 4ll, { { 523ll, 1ll, -1ll, -1ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, 0ll } } }, { (char*)"fb_GfxPaletteGetUsing", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 1ll, { { 43ll, 1ll, 0ll } } }, { (char*)"fb_GfxPaletteGetUsing64", (char*)0ull, 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 1ll, { { 45ll, 1ll, 0ll } } }, { (char*)"fb_GfxPut", (char*)0ull, 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 2ll, 14ll, { { 32ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 1056ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 4294901760ll }, { 523ll, 1ll, -1ll, 4294901760ll }, { 523ll, 1ll, -1ll, 4294901760ll }, { 523ll, 1ll, -1ll, 4294901760ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, -1ll }, { 32ll, 1ll, -1ll, 0ll }, { 32ll, 1ll, -1ll, 0ll } } }, { (char*)"fb_GfxGet", (char*)0ull, 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 1026ll, 8ll, { { 1056ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 512ll, 3ll, 0ll } } }, { (char*)"fb_GfxGetQB", (char*)0ull, 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 514ll, 8ll, { { 1056ll, 1ll, -1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 527ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 0ll, 3ll, 0ll } } }, { (char*)"fb_GfxScreen", (char*)0ull, 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 5ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 8ll }, { 523ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"fb_GfxScreenQB", (char*)0ull, 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 3ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"screenres", (char*)"fb_GfxScreenRes", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 130ll, 6ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 8ll }, { 523ll, 1ll, -1ll, 1ll }, { 523ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"bload", (char*)"fb_GfxBload", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 1026ll, 3ll, { { 529ll, 2ll, 0ll }, { 32ll, 1ll, -1ll, 0ll }, { 32ll, 1ll, -1ll, 0ll } } }, { (char*)"bload", (char*)"fb_GfxBloadQB", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 514ll, 3ll, { { 529ll, 2ll, 0ll }, { 32ll, 1ll, -1ll, 0ll }, { 32ll, 1ll, -1ll, 0ll } } }, { (char*)"bsave", (char*)"fb_GfxBsave", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 3ll, 4ll, { { 529ll, 2ll, 0ll }, { 1056ll, 1ll, 0ll }, { 524ll, 1ll, -1ll, 0ll }, { 1056ll, 1ll, -1ll, 0ll } } }, { (char*)"bsave", (char*)"fb_GfxBsaveEx", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 3ll, 5ll, { { 529ll, 2ll, 0ll }, { 1056ll, 1ll, 0ll }, { 524ll, 1ll, -1ll, 0ll }, { 1056ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"flip", (char*)"fb_GfxFlip", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 2ll, { { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"screencopy", (char*)"fb_GfxFlip", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 2ll, { { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"pointcoord", (char*)"fb_GfxCursor", 15ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 1ll, { { 523ll, 1ll, 0ll } } }, { (char*)"pmap", (char*)"fb_GfxPMap", 15ll, -1ll, (tmp$35)&HGFXLIB_CB, 0ll, 2ll, { { 527ll, 1ll, 0ll }, { 523ll, 1ll, 0ll } } }, { (char*)"out", (char*)"fb_Out", 11ll, -1ll, (tmp$35)&HPORTS_CB, 2ll, 2ll, { { 518ll, 1ll, 0ll }, { 515ll, 1ll, 0ll } } }, { (char*)"inp", (char*)"fb_In", 11ll, -1ll, (tmp$35)&HPORTS_CB, 0ll, 1ll, { { 518ll, 1ll, 0ll } } }, { (char*)"wait", (char*)"fb_Wait", 11ll, -1ll, (tmp$35)&HPORTS_CB, 2ll, 3ll, { { 518ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"screensync", (char*)"fb_GfxWaitVSync", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 0ll }, { (char*)"screenset", (char*)"fb_GfxPageSet", 11ll, 3ll, (tmp$35)&HGFXLIB_CB, 128ll, 2ll, { { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"screenlock", (char*)"fb_GfxLock", 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 0ll }, { (char*)"screenunlock", (char*)"fb_GfxUnlock", 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 2ll, { { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"screenptr", (char*)"fb_GfxScreenPtr", 32ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 0ll }, { (char*)"windowtitle", (char*)"fb_GfxSetWindowTitle", 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 1ll, { { 529ll, 2ll, 0ll } } }, { (char*)"multikey", (char*)"fb_Multikey", 11ll, -1ll, (tmp$35)0ull, 128ll, 1ll, { { 523ll, 1ll, 0ll } } }, { (char*)"getmouse", (char*)"fb_GetMouse", 11ll, -1ll, (tmp$35)0ull, 129ll, 5ll, { { 11ll, 2ll, 0ll, 0ll }, { 11ll, 2ll, 0ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll } } }, { (char*)"getmouse", (char*)"fb_GetMouse64", 11ll, -1ll, (tmp$35)0ull, 129ll, 5ll, { { 13ll, 2ll, 0ll, 0ll }, { 13ll, 2ll, 0ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll } } }, { (char*)"setmouse", (char*)"fb_SetMouse", 11ll, -1ll, (tmp$35)0ull, 128ll, 4ll, { { 523ll, 1ll, -1ll, 2147483648ll }, { 523ll, 1ll, -1ll, 2147483648ll }, { 523ll, 1ll, -1ll, -1ll }, { 523ll, 1ll, -1ll, -1ll } } }, { (char*)"getjoystick", (char*)"fb_GfxGetJoystick", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 10ll, { { 523ll, 1ll, 0ll, 0ll }, { 8ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll }, { 15ll, 2ll, -1ll, 0ll } } }, { (char*)"stick", (char*)"fb_GfxStickQB", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 256ll, 1ll, { { 523ll, 1ll, 0ll } } }, { (char*)"strig", (char*)"fb_GfxStrigQB", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 256ll, 1ll, { { 523ll, 1ll, 0ll } } }, { (char*)"screeninfo", (char*)"fb_GfxScreenInfo32", 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 129ll, 7ll, { { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 17ll, 2ll, -1ll, 0ll } } }, { (char*)"screeninfo", (char*)"fb_GfxScreenInfo64", 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 129ll, 7ll, { { 13ll, 2ll, 0ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 17ll, 2ll, -1ll, 0ll } } }, { (char*)"screenlist", (char*)"fb_GfxScreenList", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 1ll, { { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"fb_GfxImageCreate", (char*)0ull, 32ll, -1ll, (tmp$35)&HGFXLIB_CB, 1024ll, 5ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 524ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"fb_GfxImageCreateQB", (char*)0ull, 32ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 5ll, { { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 524ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll }, { 523ll, 1ll, -1ll, 0ll } } }, { (char*)"imagedestroy", (char*)"fb_GfxImageDestroy", 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 1ll, { { 1056ll, 1ll, 0ll } } }, { (char*)"imageinfo", (char*)"fb_GfxImageInfo32", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 129ll, 7ll, { { 1056ll, 1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll }, { 32ll, 2ll, -1ll, 0ll }, { 11ll, 2ll, -1ll, 0ll } } }, { (char*)"imageinfo", (char*)"fb_GfxImageInfo64", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 129ll, 7ll, { { 1056ll, 1ll, 0ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll }, { 32ll, 2ll, -1ll, 0ll }, { 13ll, 2ll, -1ll, 0ll } } }, { (char*)"imageconvertrow", (char*)"fb_GfxImageConvertRow", 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 6ll, { { 1056ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, -1ll, 1ll } } }, { (char*)"screenevent", (char*)"fb_GfxEvent", 11ll, -1ll, (tmp$35)&HGFXLIB_CB, 128ll, 1ll, { { 32ll, 1ll, -1ll, 0ll } } }, { (char*)"screencontrol", (char*)"fb_GfxControl_s", 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 129ll, 2ll, { { 523ll, 1ll, 0ll }, { 17ll, 2ll } } }, { (char*)"screencontrol", (char*)"fb_GfxControl_i32", 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 129ll, 5ll, { { 523ll, 1ll, 0ll }, { 11ll, 2ll, -1ll, 2147483648ll }, { 11ll, 2ll, -1ll, 2147483648ll }, { 11ll, 2ll, -1ll, 2147483648ll }, { 11ll, 2ll, -1ll, 2147483648ll } } }, { (char*)"screencontrol", (char*)"fb_GfxControl_i64", 0ll, -1ll, (tmp$35)&HGFXLIB_CB, 129ll, 5ll, { { 523ll, 1ll, 0ll }, { 13ll, 2ll, 0ll }, { 13ll, 2ll, -1ll, 2147483648ll }, { 13ll, 2ll, -1ll, 2147483648ll }, { 13ll, 2ll, -1ll, 2147483648ll } } }, { (char*)"screenglproc", (char*)"fb_GfxGetGLProcAddress", 32ll, -1ll, (tmp$35)&HGFXLIB_CB, 129ll, 1ll, { { 1060ll, 1ll, 0ll } } }, { (char*)"fb_hPutTrans", (char*)0ull, 0ll, 3ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutPSet", (char*)0ull, 0ll, 3ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutPReset", (char*)0ull, 0ll, 3ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutAnd", (char*)0ull, 0ll, 3ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutOr", (char*)0ull, 0ll, 3ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutXor", (char*)0ull, 0ll, 3ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutAlpha", (char*)0ull, 0ll, 3ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutBlend", (char*)0ull, 0ll, 3ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutAdd", (char*)0ull, 0ll, 3ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)"fb_hPutCustom", (char*)0ull, 0ll, 3ll, (tmp$35)&HGFXLIB_CB, 0ll, 9ll, { { 1059ll, 1ll, 0ll }, { 35ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 523ll, 1ll, 0ll }, { 32ll, 1ll, 0ll }, { 32ll, 1ll, 0ll } } }, { (char*)0ull } };
 
 void RTLGFXMODINIT( void )
 {
@@ -907,8 +934,8 @@ int64 RTLGFXPSET( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* XEXPR$1, struct 
 	label$40:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxPset", 301ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxPset", 308ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, TARGET$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$43;
@@ -967,8 +994,8 @@ struct $7ASTNODE* RTLGFXPOINT( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* XEX
 	label$54:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = (struct $7ASTNODE*)0ull;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxPoint", 302ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxPoint", 309ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, TARGET$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$57;
@@ -1010,8 +1037,8 @@ int64 RTLGFXLINE( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* X1EXPR$1, struct
 	label$64:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxLine", 303ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxLine", 310ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, TARGET$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$67;
@@ -1091,8 +1118,8 @@ int64 RTLGFXCIRCLE( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* XEXPR$1, struc
 	label$84:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxEllipse", 304ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxEllipse", 311ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, TARGET$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$87;
@@ -1195,15 +1222,15 @@ int64 RTLGFXCIRCLE( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* XEXPR$1, struc
 
 int64 RTLGFXPAINT( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* XEXPR$1, struct $7ASTNODE* YEXPR$1, struct $7ASTNODE* PEXPR$1, struct $7ASTNODE* BEXPR$1, int64 COORD_TYPE$1 )
 {
-	int64 TMP$196$1;
+	int64 TMP$199$1;
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$112:;
 	struct $7ASTNODE* PROC$1;
 	int64 PATTERN$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxPaint", 305ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxPaint", 312ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, TARGET$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$115;
@@ -1284,12 +1311,12 @@ int64 RTLGFXPAINT( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* XEXPR$1, struct
 	}
 	label$128:;
 	if( PATTERN$1 == 0ll ) goto label$134;
-	TMP$196$1 = 1ll;
+	TMP$199$1 = 1ll;
 	goto label$139;
 	label$134:;
-	TMP$196$1 = 0ll;
+	TMP$199$1 = 0ll;
 	label$139:;
-	struct $7ASTNODE* vr$17 = ASTNEWCONSTI( TMP$196$1, 8ll, (struct $8FBSYMBOL*)0ull );
+	struct $7ASTNODE* vr$17 = ASTNEWCONSTI( TMP$199$1, 8ll, (struct $8FBSYMBOL*)0ull );
 	struct $7ASTNODE* vr$18 = ASTNEWARG( PROC$1, vr$17, 2147483648ll, -1ll );
 	if( vr$18 != (struct $7ASTNODE*)0ull ) goto label$136;
 	{
@@ -1318,8 +1345,8 @@ int64 RTLGFXDRAW( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* CEXPR$1 )
 	label$140:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxDraw", 306ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxDraw", 313ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, TARGET$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$143;
@@ -1343,15 +1370,15 @@ int64 RTLGFXDRAW( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* CEXPR$1 )
 
 int64 RTLGFXDRAWSTRING( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* XEXPR$1, struct $7ASTNODE* YEXPR$1, struct $7ASTNODE* SEXPR$1, struct $7ASTNODE* CEXPR$1, struct $7ASTNODE* FEXPR$1, int64 COORD_TYPE$1, int64 MODE$1, struct $7ASTNODE* ALPHAEXPR$1, struct $7ASTNODE* FUNCEXPR$1, struct $7ASTNODE* PARAMEXPR$1 )
 {
-	struct $7ASTNODE* TMP$197$1;
+	struct $7ASTNODE* TMP$200$1;
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$146:;
 	struct $7ASTNODE* PROC$1;
 	struct $7ASTNODE* PUTTER$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxDrawString", 307ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxDrawString", 314ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, TARGET$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$149;
@@ -1419,13 +1446,13 @@ int64 RTLGFXDRAWSTRING( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* XEXPR$1, s
 	label$164:;
 	if( FEXPR$1 == (struct $7ASTNODE*)0ull ) goto label$166;
 	struct $7ASTNODE* vr$13 = HGETPUTTER( MODE$1 );
-	TMP$197$1 = vr$13;
+	TMP$200$1 = vr$13;
 	goto label$175;
 	label$166:;
 	struct $7ASTNODE* vr$14 = ASTNEWCONSTI( 0ll, 8ll, (struct $8FBSYMBOL*)0ull );
-	TMP$197$1 = vr$14;
+	TMP$200$1 = vr$14;
 	label$175:;
-	struct $7ASTNODE* vr$15 = ASTNEWARG( PROC$1, TMP$197$1, 2147483648ll, -1ll );
+	struct $7ASTNODE* vr$15 = ASTNEWARG( PROC$1, TMP$200$1, 2147483648ll, -1ll );
 	if( vr$15 != (struct $7ASTNODE*)0ull ) goto label$168;
 	{
 		goto label$147;
@@ -1467,8 +1494,8 @@ int64 RTLGFXVIEW( struct $7ASTNODE* X1EXPR$1, struct $7ASTNODE* Y1EXPR$1, struct
 	label$176:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxView", 308ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxView", 315ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, X1EXPR$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$179;
@@ -1533,8 +1560,8 @@ int64 RTLGFXWINDOW( struct $7ASTNODE* X1EXPR$1, struct $7ASTNODE* Y1EXPR$1, stru
 	label$192:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxWindow", 309ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxWindow", 316ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	if( X1EXPR$1 != (struct $7ASTNODE*)0ull ) goto label$195;
 	{
@@ -1618,22 +1645,22 @@ int64 RTLGFXPALETTE( struct $7ASTNODE* ATTEXPR$1, struct $7ASTNODE* REXPR$1, str
 	fb$result$1 = 0ll;
 	if( ISGET$1 == 0ll ) goto label$215;
 	{
-		int64 TMP$198$2;
+		int64 TMP$201$2;
 		if( ((*(int64*)((uint8*)REXPR$1 + 8ll) & 511ll) & 480ll) == 0ll ) goto label$216;
-		TMP$198$2 = 24ll;
+		TMP$201$2 = 24ll;
 		goto label$233;
 		label$216:;
-		TMP$198$2 = (*(int64*)((uint8*)REXPR$1 + 8ll) & 511ll) & 31ll;
+		TMP$201$2 = (*(int64*)((uint8*)REXPR$1 + 8ll) & 511ll) & 31ll;
 		label$233:;
-		if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$198$2 * 56ll)) + 8ll) != 8ll ) goto label$218;
+		if( *(int64*)(((int64)(struct $13SYMB_DATATYPE*)SYMB_DTYPETB$ + (TMP$201$2 * 56ll)) + 8ll) != 8ll ) goto label$218;
 		{
-			struct $8FBSYMBOL* vr$8 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteGet64", 314ll );
+			struct $8FBSYMBOL* vr$8 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteGet64", 321ll );
 			F$1 = vr$8;
 		}
 		goto label$217;
 		label$218:;
 		{
-			struct $8FBSYMBOL* vr$9 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteGet", 313ll );
+			struct $8FBSYMBOL* vr$9 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteGet", 320ll );
 			F$1 = vr$9;
 		}
 		label$217:;
@@ -1641,11 +1668,11 @@ int64 RTLGFXPALETTE( struct $7ASTNODE* ATTEXPR$1, struct $7ASTNODE* REXPR$1, str
 	goto label$214;
 	label$215:;
 	{
-		struct $8FBSYMBOL* vr$10 = RTLPROCLOOKUP( (char*)"fb_GfxPalette", 310ll );
+		struct $8FBSYMBOL* vr$10 = RTLPROCLOOKUP( (char*)"fb_GfxPalette", 317ll );
 		F$1 = vr$10;
 	}
 	label$214:;
-	struct $7ASTNODE* vr$11 = ASTNEWCALL( F$1, (struct $7ASTNODE*)0ull );
+	struct $7ASTNODE* vr$11 = ASTNEWCALL( F$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$11;
 	struct $7ASTNODE* vr$12 = ASTNEWARG( PROC$1, ATTEXPR$1, 2147483648ll, -1ll );
 	if( vr$12 != (struct $7ASTNODE*)0ull ) goto label$220;
@@ -1724,13 +1751,13 @@ int64 RTLGFXPALETTEUSING( struct $7ASTNODE* ARRAYEXPR$1, int64 ISGET$1, int64 IS
 	{
 		if( ISGET$1 == 0ll ) goto label$239;
 		{
-			struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteGetUsing64", 316ll );
+			struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteGetUsing64", 323ll );
 			F$1 = vr$1;
 		}
 		goto label$238;
 		label$239:;
 		{
-			struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteUsing64", 312ll );
+			struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteUsing64", 319ll );
 			F$1 = vr$2;
 		}
 		label$238:;
@@ -1740,19 +1767,19 @@ int64 RTLGFXPALETTEUSING( struct $7ASTNODE* ARRAYEXPR$1, int64 ISGET$1, int64 IS
 	{
 		if( ISGET$1 == 0ll ) goto label$241;
 		{
-			struct $8FBSYMBOL* vr$3 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteGetUsing", 315ll );
+			struct $8FBSYMBOL* vr$3 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteGetUsing", 322ll );
 			F$1 = vr$3;
 		}
 		goto label$240;
 		label$241:;
 		{
-			struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteUsing", 311ll );
+			struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"fb_GfxPaletteUsing", 318ll );
 			F$1 = vr$4;
 		}
 		label$240:;
 	}
 	label$236:;
-	struct $7ASTNODE* vr$5 = ASTNEWCALL( F$1, (struct $7ASTNODE*)0ull );
+	struct $7ASTNODE* vr$5 = ASTNEWCALL( F$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$5;
 	struct $7ASTNODE* vr$6 = ASTNEWARG( PROC$1, ARRAYEXPR$1, 2147483648ll, -1ll );
 	if( vr$6 != (struct $7ASTNODE*)0ull ) goto label$243;
@@ -1774,8 +1801,8 @@ int64 RTLGFXPUT( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* XEXPR$1, struct $
 	label$244:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxPut", 317ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxPut", 324ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, TARGET$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$247;
@@ -1887,21 +1914,21 @@ int64 RTLGFXPUT( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* XEXPR$1, struct $
 
 int64 RTLGFXGET( struct $7ASTNODE* TARGET$1, struct $7ASTNODE* X1EXPR$1, struct $7ASTNODE* Y1EXPR$1, struct $7ASTNODE* X2EXPR$1, struct $7ASTNODE* Y2EXPR$1, struct $7ASTNODE* ARRAYEXPR$1, int64 COORDTYPE$1, struct $7ASTNODE* DESCEXPR$1 )
 {
-	struct $8FBSYMBOL* TMP$199$1;
+	struct $8FBSYMBOL* TMP$202$1;
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$274:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
 	if( *(int64*)((uint8*)&ENV$ + 272ll) != 0ll ) goto label$276;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxGet", 328ll );
-	TMP$199$1 = vr$1;
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxGet", 335ll );
+	TMP$202$1 = vr$1;
 	goto label$297;
 	label$276:;
-	struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"fb_GfxGetQB", 329ll );
-	TMP$199$1 = vr$2;
+	struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"fb_GfxGetQB", 336ll );
+	TMP$202$1 = vr$2;
 	label$297:;
-	struct $7ASTNODE* vr$3 = ASTNEWCALL( TMP$199$1, (struct $7ASTNODE*)0ull );
+	struct $7ASTNODE* vr$3 = ASTNEWCALL( TMP$202$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$3;
 	struct $7ASTNODE* vr$4 = ASTNEWARG( PROC$1, TARGET$1, 2147483648ll, -1ll );
 	if( vr$4 != (struct $7ASTNODE*)0ull ) goto label$278;
@@ -1990,8 +2017,8 @@ int64 RTLGFXSCREENSET( struct $7ASTNODE* MEXPR$1, struct $7ASTNODE* DEXPR$1, str
 	label$298:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxScreen", 330ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxScreen", 337ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, MEXPR$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$301;
@@ -2042,8 +2069,8 @@ int64 RTLGFXSCREENSETQB( struct $7ASTNODE* MODE$1, struct $7ASTNODE* ACTIVE$1, s
 	label$310:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = 0ll;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxScreenQB", 331ll );
-	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull );
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxScreenQB", 338ll );
+	struct $7ASTNODE* vr$2 = ASTNEWCALL( vr$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$2;
 	struct $7ASTNODE* vr$3 = ASTNEWARG( PROC$1, MODE$1, 2147483648ll, -1ll );
 	if( vr$3 != (struct $7ASTNODE*)0ull ) goto label$313;
@@ -2075,21 +2102,21 @@ int64 RTLGFXSCREENSETQB( struct $7ASTNODE* MODE$1, struct $7ASTNODE* ACTIVE$1, s
 
 struct $7ASTNODE* RTLGFXIMAGECREATE( struct $7ASTNODE* WEXPR$1, struct $7ASTNODE* HEXPR$1, struct $7ASTNODE* CEXPR$1, struct $7ASTNODE* DEXPR$1, int64 FLAGS$1 )
 {
-	struct $8FBSYMBOL* TMP$200$1;
+	struct $8FBSYMBOL* TMP$203$1;
 	struct $7ASTNODE* fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$318:;
 	struct $7ASTNODE* PROC$1;
 	fb$result$1 = (struct $7ASTNODE*)0ull;
 	if( *(int64*)((uint8*)&ENV$ + 272ll) != 0ll ) goto label$320;
-	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxImageCreate", 332ll );
-	TMP$200$1 = vr$1;
+	struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_GfxImageCreate", 339ll );
+	TMP$203$1 = vr$1;
 	goto label$331;
 	label$320:;
-	struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"fb_GfxImageCreateQB", 333ll );
-	TMP$200$1 = vr$2;
+	struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"fb_GfxImageCreateQB", 340ll );
+	TMP$203$1 = vr$2;
 	label$331:;
-	struct $7ASTNODE* vr$3 = ASTNEWCALL( TMP$200$1, (struct $7ASTNODE*)0ull );
+	struct $7ASTNODE* vr$3 = ASTNEWCALL( TMP$203$1, (struct $7ASTNODE*)0ull, -1ll );
 	PROC$1 = vr$3;
 	struct $7ASTNODE* vr$4 = ASTNEWARG( PROC$1, WEXPR$1, 2147483648ll, -1ll );
 	if( vr$4 != (struct $7ASTNODE*)0ull ) goto label$322;
@@ -2167,11 +2194,11 @@ static int64 HPORTS_CB( struct $8FBSYMBOL* SYM$1 )
 	{
 		LIBSADDED$1 = -1ll;
 		{
-			$13FB_COMPTARGET TMP$193$3;
-			TMP$193$3 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
-			if( TMP$193$3 == 0ll ) goto label$22;
+			$13FB_COMPTARGET TMP$196$3;
+			TMP$196$3 = *($13FB_COMPTARGET*)((uint8*)&ENV$ + 216ll);
+			if( TMP$196$3 == 0ll ) goto label$22;
 			label$23:;
-			if( TMP$193$3 != 1ll ) goto label$21;
+			if( TMP$196$3 != 1ll ) goto label$21;
 			label$22:;
 			{
 				FBADDLIB( (char*)"advapi32" );
@@ -2192,7 +2219,7 @@ static int64 HGFXLIB_CB( struct $8FBSYMBOL* SYM$1 )
 	int64 fb$result$1;
 	__builtin_memset( &fb$result$1, 0, 8ll );
 	label$24:;
-	*(int64*)((uint8*)&ENV$ + 472ll) = -1ll;
+	*(int64*)((uint8*)&ENV$ + 480ll) = -1ll;
 	fb$result$1 = -1ll;
 	label$25:;
 	return fb$result$1;
@@ -2205,71 +2232,71 @@ static struct $7ASTNODE* HGETPUTTER( int64 MODE$1 )
 	label$26:;
 	struct $8FBSYMBOL* PROC$1;
 	{
-		uint64 TMP$195$2;
-		TMP$195$2 = (uint64)MODE$1;
+		uint64 TMP$198$2;
+		TMP$198$2 = (uint64)MODE$1;
 		goto label$29;
 		label$30:;
 		{
-			struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_hPutTrans", 318ll );
+			struct $8FBSYMBOL* vr$1 = RTLPROCLOOKUP( (char*)"fb_hPutTrans", 325ll );
 			PROC$1 = vr$1;
 		}
 		goto label$28;
 		label$31:;
 		{
-			struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"fb_hPutPSet", 319ll );
+			struct $8FBSYMBOL* vr$2 = RTLPROCLOOKUP( (char*)"fb_hPutPSet", 326ll );
 			PROC$1 = vr$2;
 		}
 		goto label$28;
 		label$32:;
 		{
-			struct $8FBSYMBOL* vr$3 = RTLPROCLOOKUP( (char*)"fb_hPutPReset", 320ll );
+			struct $8FBSYMBOL* vr$3 = RTLPROCLOOKUP( (char*)"fb_hPutPReset", 327ll );
 			PROC$1 = vr$3;
 		}
 		goto label$28;
 		label$33:;
 		{
-			struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"fb_hPutAnd", 321ll );
+			struct $8FBSYMBOL* vr$4 = RTLPROCLOOKUP( (char*)"fb_hPutAnd", 328ll );
 			PROC$1 = vr$4;
 		}
 		goto label$28;
 		label$34:;
 		{
-			struct $8FBSYMBOL* vr$5 = RTLPROCLOOKUP( (char*)"fb_hPutOr", 322ll );
+			struct $8FBSYMBOL* vr$5 = RTLPROCLOOKUP( (char*)"fb_hPutOr", 329ll );
 			PROC$1 = vr$5;
 		}
 		goto label$28;
 		label$35:;
 		{
-			struct $8FBSYMBOL* vr$6 = RTLPROCLOOKUP( (char*)"fb_hPutXor", 323ll );
+			struct $8FBSYMBOL* vr$6 = RTLPROCLOOKUP( (char*)"fb_hPutXor", 330ll );
 			PROC$1 = vr$6;
 		}
 		goto label$28;
 		label$36:;
 		{
-			struct $8FBSYMBOL* vr$7 = RTLPROCLOOKUP( (char*)"fb_hPutAlpha", 324ll );
+			struct $8FBSYMBOL* vr$7 = RTLPROCLOOKUP( (char*)"fb_hPutAlpha", 331ll );
 			PROC$1 = vr$7;
 		}
 		goto label$28;
 		label$37:;
 		{
-			struct $8FBSYMBOL* vr$8 = RTLPROCLOOKUP( (char*)"fb_hPutBlend", 325ll );
+			struct $8FBSYMBOL* vr$8 = RTLPROCLOOKUP( (char*)"fb_hPutBlend", 332ll );
 			PROC$1 = vr$8;
 		}
 		goto label$28;
 		label$38:;
 		{
-			struct $8FBSYMBOL* vr$9 = RTLPROCLOOKUP( (char*)"fb_hPutAdd", 326ll );
+			struct $8FBSYMBOL* vr$9 = RTLPROCLOOKUP( (char*)"fb_hPutAdd", 333ll );
 			PROC$1 = vr$9;
 		}
 		goto label$28;
 		label$39:;
 		{
-			struct $8FBSYMBOL* vr$10 = RTLPROCLOOKUP( (char*)"fb_hPutCustom", 327ll );
+			struct $8FBSYMBOL* vr$10 = RTLPROCLOOKUP( (char*)"fb_hPutCustom", 334ll );
 			PROC$1 = vr$10;
 		}
 		goto label$28;
 		label$29:;
-		static const void* tmp$201[10ll] = {
+		static const void* tmp$204[10ll] = {
 			&&label$30,
 			&&label$31,
 			&&label$32,
@@ -2281,8 +2308,8 @@ static struct $7ASTNODE* HGETPUTTER( int64 MODE$1 )
 			&&label$39,
 			&&label$37,
 		};
-		if( TMP$195$2 > 9ull ) goto label$39;
-		goto *tmp$201[TMP$195$2 - 0ull];
+		if( TMP$198$2 > 9ull ) goto label$39;
+		goto *tmp$204[TMP$198$2 - 0ull];
 		label$28:;
 	}
 	struct $7ASTNODE* vr$11 = ASTBUILDPROCADDROF( PROC$1 );
