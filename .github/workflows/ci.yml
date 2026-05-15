@@ -31,7 +31,7 @@ jobs:
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build libncurses-dev libx11-dev
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build libncurses-dev libx11-dev libgpm-dev
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
@@ -69,7 +69,7 @@ jobs:
 
       - name: Build fbc
         run: |
-          sudo apt-get update && sudo apt-get install -y cmake ninja-build libncurses-dev libx11-dev
+          sudo apt-get update && sudo apt-get install -y cmake ninja-build libncurses-dev libx11-dev libgpm-dev
           cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DFB_STANDALONE=ON -DFB_BUILD_GFXLIB=OFF
           cmake --build build
 
