@@ -113,8 +113,8 @@ FBCALL void fb_Init( int argc, char **argv, int lang )
 	__fb_ctx.lang = lang;
 
 #if defined(HOST_JS) || defined(HOST_AMIGA)
-    // No CRT constructor support - call init directly
-    fb_hRtInit();
+	/* No CRT constructor support - call init/exit directly */
+	fb_hRtInit();
 #endif
 }
 
@@ -126,8 +126,7 @@ FBCALL void fb_End( int errlevel )
 		__fb_ctx.exit_gfxlib2( );
 
 #if defined(HOST_JS) || defined(HOST_AMIGA)
-    // No CRT constructor support - call exit directly
-    fb_hRtExit();
+	fb_hRtExit();
 #endif
 
 	exit( errlevel );

@@ -1776,9 +1776,9 @@ dim shared as FBOSARCHINFO fbosarchmap(0 to ...) => _
 	(@"android", FB_COMPTARGET_ANDROID, FB_CPUTYPE_ARMV7A        ), _
 	(@"netbsd" , FB_COMPTARGET_NETBSD , FB_DEFAULT_CPUTYPE       ), _
 	(@"openbsd", FB_COMPTARGET_OPENBSD, FB_DEFAULT_CPUTYPE       ), _
-	(@"amiga"   , FB_COMPTARGET_AMIGA  , FB_DEFAULT_CPUTYPE_M68K  ), _
-	(@"aros"    , FB_COMPTARGET_AROS   , FB_DEFAULT_CPUTYPE       ), _
-	(@"morphos" , FB_COMPTARGET_MORPHOS, FB_DEFAULT_CPUTYPE_PPC   ), _
+	(@"amiga"   , FB_COMPTARGET_AMIGA   , FB_DEFAULT_CPUTYPE_M68K ), _
+	(@"aros"    , FB_COMPTARGET_AROS    , FB_DEFAULT_CPUTYPE      ), _
+	(@"morphos" , FB_COMPTARGET_MORPHOS , FB_DEFAULT_CPUTYPE_PPC  ), _
 	(@"amigaos4", FB_COMPTARGET_AMIGAOS4, FB_DEFAULT_CPUTYPE_PPC  )  _
 }
 
@@ -3699,7 +3699,7 @@ private function hCompileStage2Module( byval module as FBCIOFILE ptr ) as intege
 			'' GCC doesn't recognize the -march option and PowerPC combination
 			'' and recommendeds the -mcpu option be used for PowerPC.
 			select case fbGetCpuFamily( )
-			case FB_CPUFAMILY_PPC, FB_CPUFAMILY_PPC64, FB_CPUFAMILY_PPC64LE
+			case FB_CPUFAMILY_PPC, FB_CPUFAMILY_PPC64, FB_CPUFAMILY_PPC64LE, FB_CPUFAMILY_M68K
 				if( fbc.cputype_is_native ) then
 					ln += "-mcpu=native "
 				else
