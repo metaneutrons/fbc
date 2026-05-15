@@ -102,7 +102,11 @@ typedef struct _FB_PROFILER_CYCLES
 /* make sure there is at least one record in the profile data section */
 static FB_PROFILE_RECORD_VERSION
 __attribute__ ((aligned (16))) prof_data_version
+#if defined(HOST_DARWIN)
+__attribute__((section("__DATA,fb_profcycdat"), used)) =
+#else
 __attribute__((section("fb_profilecycledata"), used)) =
+#endif
 	{
 		sizeof( FB_PROFILE_RECORD_VERSION ),
 		FB_PROFILE_RECORD_VERSION_ID,
