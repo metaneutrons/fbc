@@ -838,8 +838,9 @@ private function hLinkFiles( ) as integer
 		case FB_CPUFAMILY_X86_64
 			ldcline += "-arch x86_64 "
 		case FB_CPUFAMILY_ARM
-			'' fixme: this is clearly too specific
-			ldcline += "-arch armv6 "
+			ldcline += "-arch armv7 "
+		case FB_CPUFAMILY_AARCH64
+			ldcline += "-arch arm64 "
 		end select
 
 	'' Amiga-like targets: no special ld emulation flags needed
@@ -1173,6 +1174,8 @@ private function hLinkFiles( ) as integer
 		FB_COMPTARGET_NETBSD, FB_COMPTARGET_DRAGONFLY, FB_COMPTARGET_SOLARIS
 
 		if( fbGetOption( FB_COMPOPT_OUTTYPE ) = FB_OUTTYPE_EXECUTABLE) then
+			'' Darwin doesn't need CRT startup objects on modern macOS
+			if (fbGetOption( FB_COMPOPT_TARGET ) <> FB_COMPTARGET_DARWIN) then
 			if( fbGetOption( FB_COMPOPT_PROFILE ) ) then
 				select case as const fbGetOption( FB_COMPOPT_TARGET )
 				case FB_COMPTARGET_OPENBSD, FB_COMPTARGET_NETBSD
@@ -1187,6 +1190,7 @@ private function hLinkFiles( ) as integer
 				case else
 					ldcline += hFindLib( "crt1.o" )
 				end select
+			end if
 			end if
 		end if
 
@@ -1329,7 +1333,8 @@ private function hLinkFiles( ) as integer
 	end select
 
 	if( fbGetOption( FB_COMPOPT_TARGET ) = FB_COMPTARGET_DARWIN ) then
-		ldcline += " -macosx_version_min 10.4"
+		ldcline += " -platform_version macos 11.0.0 11.0.0"
+		ldcline += " -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
 	end if
 
 	'' This is required for 64-bit modules on *nix-y platforms
@@ -1338,8 +1343,7 @@ private function hLinkFiles( ) as integer
 	select case as const fbGetOption( FB_COMPOPT_TARGET )
 	case FB_COMPTARGET_LINUX, FB_COMPTARGET_FREEBSD, _
 		FB_COMPTARGET_OPENBSD, FB_COMPTARGET_NETBSD, _
-		FB_COMPTARGET_DRAGONFLY, FB_COMPTARGET_SOLARIS, _
-		FB_COMPTARGET_DARWIN
+		FB_COMPTARGET_DRAGONFLY, FB_COMPTARGET_SOLARIS
 		dim as long outtype = fbGetOption( FB_COMPOPT_OUTTYPE )
 		if outtype = FB_OUTTYPE_EXECUTABLE OrElse outtype = FB_OUTTYPE_DYNAMICLIB Then
 			dim as long cpufamily = fbGetCpuFamily( )
@@ -4323,7 +4327,6 @@ private sub hAddDefaultLibs( )
 		end if
 
 	case FB_COMPTARGET_DARWIN
-		fbcAddDefLib( "gcc" )
 		fbcAddDefLib( "System" )
 		fbcAddDefLib( "pthread" )
 		fbcAddDefLib( "ncurses" )
